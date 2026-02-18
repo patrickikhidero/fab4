@@ -1,0 +1,64 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* Figma Design System Colors */
+    --color-primary: #273125;
+    --color-primary-text: #272635;
+    --color-background: #f9faf7;
+    --color-surface: #ffffff;
+    --color-border: rgba(39, 38, 53, 0.1);
+    --color-border-dark: #2c2c2c;
+    --color-accent: #d1ef7c;
+    --color-placeholder: #93939a;
+    --color-muted: rgba(39, 38, 53, 0.5);
+    
+    /* Typography */
+    --font-family: 'Neue Montreal', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    
+    /* Spacing */
+    --spacing-xs: 4px;
+    --spacing-sm: 8px;
+    --spacing-md: 16px;
+    --spacing-lg: 20px;
+    --spacing-xl: 24px;
+    --spacing-2xl: 32px;
+    --spacing-3xl: 48px;
+    --spacing-4xl: 56px;
+    --spacing-5xl: 60px;
+    --spacing-6xl: 140px;
+    
+    /* Border Radius */
+    --radius-sm: 4px;
+    --radius-md: 8px;
+    --radius-lg: 12px;
+    --radius-full: 9999px;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  
+  body {
+    @apply bg-background text-foreground;
+    font-family: var(--font-family);
+  }
+}
+
+@layer components {
+  .btn-primary {
+    @apply bg-[#273125] text-white h-14 px-5 py-3 rounded-lg font-normal text-base;
+  }
+  
+  .btn-secondary {
+    @apply bg-white text-[#272635] h-14 px-4 py-3 rounded-lg font-normal text-base border border-[rgba(39,38,53,0.1)];
+  }
+  
+  .input-field {
+    @apply bg-[#f9faf7] h-14 px-4 py-3 rounded-lg border border-[rgba(39,38,53,0.1)] text-[#272635] placeholder:text-[#93939a];
+  }
+}
