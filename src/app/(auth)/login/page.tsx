@@ -2,9 +2,54 @@
 
 import Image from "next/image";
 import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { login } from "@/lib/api/auth";
+import { setAuthTokens } from "@/lib/auth/storage";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
+  const [loading, setLoading] = useState(false);
+  const router = useRouter();
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+
+    if (!email.trim()) {
+      alert("Enter your email");
+      return;
+    }
+
+    try {
+      setLoading(true);
+
+      const res = await login({
+        email: email.trim(),
+      });
+
+
+      const access =
+        res.access ||
+        res.access_token ||
+        res.token;
+
+      const refresh =
+        res.refresh ||
+        res.refresh_token
+
+      setAuthTokens({ access, refresh });
+
+      router.push("/application");
+    } catch (err: any) {
+      const msg =
+        err?.response?.data?.detail ||
+        err?.response?.data?.message ||
+        "Login failed";
+
+      alert(msg);
+    } finally {
+      setLoading(false);
+    }
+  }
 
   return (
     <div className="relative min-h-screen overflow-x-hidden">
@@ -72,53 +117,55 @@ export default function LoginPage() {
                   minds through tertiary education.
                 </p>
 
-                {/* Form column width reduced */}
-                <form className="mt-10 w-full max-w-[700px]">
-                    <label className="mb-2 block text-xs text-[var(--color-primary-text)]">
-                      Email Address
-                    </label>
-                    <div className="relative grid grid-cols-2 gap-x-20 gap-y-4 items-start">
-                      {/* LEFT SIDE */}
-                      <div className="space-y-4">
-                        <div>
+                {/* FORM */}
+                <form
+                  onSubmit={handleSubmit}
+                  className="mt-10 w-full max-w-[700px]"
+                >
+                  <label className="mb-2 block text-xs text-[var(--color-primary-text)]">
+                    Email Address
+                  </label>
 
-                          <input
-                            type="email"
-                            placeholder="example@email.com"
-                            className="input-field w-full"
-                            value={email}
-                            onChange={(e) => setEmail(e.target.value)}
-                          />
-                        </div>
+                  <div className="relative grid grid-cols-2 gap-x-20 gap-y-4 items-start">
+                    {/* LEFT */}
+                    <div className="space-y-4">
+                      <input
+                        type="email"
+                        placeholder="example@email.com"
+                        className="input-field w-full"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                      />
 
-                        <button
-                          type="submit"
-                          className="btn-primary w-full h-[56px]"
-                        >
-                          Continue
-                        </button>
-                      </div>
+                      <button
+                        type="submit"
+                        disabled={loading}
+                        className="btn-primary w-full h-[56px] disabled:opacity-60"
+                      >
+                        {loading ? "Signing in..." : "Continue"}
+                      </button>
+                    </div>
 
-                      {/* RIGHT SIDE */}
-                      <div className="space-y-4">
-                        <button
-                          type="button"
-                          className="btn-secondary w-full flex items-center justify-center gap-2 h-[56px]"
-                        >
-                          <GoogleIcon />
-                          <span>Sign in with Google</span>
-                        </button>
+                    {/* RIGHT */}
+                    <div className="space-y-4">
+                      <button
+                        type="button"
+                        className="btn-secondary w-full flex items-center justify-center gap-2 h-[56px]"
+                      >
+                        <GoogleIcon />
+                        <span>Sign in with Google</span>
+                      </button>
 
-                        <button
-                          type="button"
-                          className="btn-secondary w-full flex items-center justify-center gap-2 h-[56px]"
-                        >
-                          <AppleIcon />
-                          <span>Sign in with Apple ID</span>
-                        </button>
-                      </div>
+                      <button
+                        type="button"
+                        className="btn-secondary w-full flex items-center justify-center gap-2 h-[56px]"
+                      >
+                        <AppleIcon />
+                        <span>Sign in with Apple ID</span>
+                      </button>
+                    </div>
 
-                    {/* OR — FLOATING CENTER */}
+                    {/* OR */}
                     <div className="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
                       <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[var(--color-accent)] text-xs font-medium text-[var(--color-primary-text)] shadow-sm">
                         OR
@@ -126,10 +173,8 @@ export default function LoginPage() {
                     </div>
                   </div>
 
-                  {/* bottom divider */}
                   <div className="mt-10 h-px w-full bg-[var(--color-border)]" />
 
-                  {/* signup */}
                   <div className="pt-4">
                     <button
                       type="button"
@@ -140,11 +185,10 @@ export default function LoginPage() {
                     </button>
                   </div>
                 </form>
-
               </div>
             </div>
 
-            {/* Right side image card*/}
+            {/* Right side image */}
             <div className="hidden md:flex items-start justify-center">
               <div className="relative w-[300px] mt-8">
                 <div className="glass overflow-hidden rounded-[18px]">
@@ -159,7 +203,7 @@ export default function LoginPage() {
                   </div>
                 </div>
 
-                {/* Top badge - layout fixed (amount + chips on same row) */}
+                {/* badges */}
                 <div className="glass absolute -left-12 top-8 w-[200px] rounded-xl px-3 py-2 text-[11px]">
                   <div className="flex items-center justify-between">
                     <div className="font-medium text-[var(--color-primary-text)]">
@@ -176,40 +220,34 @@ export default function LoginPage() {
                     </div>
 
                     <div className="flex flex-wrap justify-end gap-2">
-                      <span className="rounded-full bg-black/5 px-2 py-1 text-[10px] text-[var(--color-primary-text)]">
+                      <span className="rounded-full bg-black/5 px-2 py-1 text-[10px]">
                         Tuition
                       </span>
-                      <span className="rounded-full bg-black/5 px-2 py-1 text-[10px] text-[var(--color-primary-text)]">
+                      <span className="rounded-full bg-black/5 px-2 py-1 text-[10px]">
                         Clothing materials
                       </span>
                     </div>
                   </div>
                 </div>
 
-                {/* Bottom badge */}
                 <div className="glass absolute -right-8 bottom-10 w-[175px] rounded-xl px-3 py-2 text-[11px]">
                   <div className="flex items-center gap-2">
-                    <span className="flex h-5 w-5 items-center justify-center rounded-full bg-[var(--color-accent)] text-[10px] text-[var(--color-primary-text)]">
+                    <span className="flex h-5 w-5 items-center justify-center rounded-full bg-[var(--color-accent)] text-[10px]">
                       ✓
                     </span>
-                    <div className="font-medium text-[var(--color-primary-text)]">
-                      Anonymous
-                    </div>
+                    <div className="font-medium">Anonymous</div>
                   </div>
-                  <div className="mt-1 font-medium text-[var(--color-primary-text)]">
-                    $350.50
-                  </div>
+                  <div className="mt-1 font-medium">$350.50</div>
                 </div>
               </div>
             </div>
           </div>
         </div>
 
-        {/* Full-bleed footer */}
+        {/* footer */}
         <footer className="absolute bottom-0 left-0 w-screen bg-[var(--color-surface)] border-t border-[var(--color-border)]">
           <div className="mx-auto max-w-[1440px] px-6 h-[64px] flex items-center justify-between text-xs text-[var(--color-muted)]">
             <div>© 2024 FabFour Foundation. All rights reserved.</div>
-
             <div className="flex items-center gap-6">
               <span>Terms</span>
               <span>Legal</span>
