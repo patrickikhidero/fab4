@@ -1,8 +1,12 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { SidebarNavigation } from './SidebarNavigation'
+import { getStoredUser, getUserIdFromToken } from '@/lib/auth/storage'
+import { getStudentProfile } from '@/lib/student/application'
+import { getCampaignOverview, listMyCampaigns } from '@/lib/student/campaign'
+import { listDonationsByCampaign } from '@/lib/student/donations'
 
 // Image assets from Figma design - using correct public folder paths
 const imgArrow = "/29a615b320e09cd458090219f8e83fd794a5404f.svg"
@@ -39,103 +43,133 @@ interface Donor {
   status: 'completed' | 'pending' | 'failed'
 }
 
-interface CampaignOverviewProps {
-  userData?: UserData
+type CampaignStatus = 'active' | 'under-review' | 'completed' | 'paused'
+
+type CampaignListItem = {
+  id: number
+  goal?: number | string | null
+  amount?: number | string | null
+  raised_amount?: number | string | null
+  amount_raised?: number | string | null
+  currency?: string | null
+  academic_session?: string | null
+  drafted?: boolean
+  accepted?: boolean
+  goal_achieved?: boolean
+  status?: string | null
+  created_at?: string | null
+  updated_at?: string | null
 }
 
-// Sample data structure
-const sampleCampaignMetrics: CampaignMetrics = {
-  goal: 2654.68,
-  raised: 15823,
-  donors: 24,
-  status: 'under-review',
-  academicYear: '2024/2025',
-  weeklyGrowth: 106.50,
-  monthlyGrowth: 1206.50
-}
 
-const sampleDonors: Donor[] = [
-  {
-    id: '1',
-    name: 'Olivia Rhye',
-    amount: 150.00,
-    date: '9/4/12',
-    type: 'good-samaritan',
-    status: 'completed'
-  },
-  {
-    id: '2',
-    name: 'Anonymous',
-    amount: 150.00,
-    date: '9/4/12',
-    type: 'anonymous',
-    status: 'completed'
-  },
-  {
-    id: '3',
-    name: 'Abdul Mustapha',
-    amount: 150.00,
-    date: '9/4/12',
-    type: 'guardian',
-    status: 'completed'
-  },
-  {
-    id: '4',
-    name: 'Nkrumah Abbey',
-    amount: 150.00,
-    date: '9/4/12',
-    type: 'good-samaritan',
-    status: 'completed'
-  },
-  {
-    id: '5',
-    name: 'Sarah Johnson',
-    amount: 200.00,
-    date: '8/4/12',
-    type: 'guardian',
-    status: 'completed'
-  },
-  {
-    id: '6',
-    name: 'Michael Chen',
-    amount: 100.00,
-    date: '7/4/12',
-    type: 'good-samaritan',
-    status: 'completed'
-  },
-  {
-    id: '7',
-    name: 'Anonymous',
-    amount: 75.00,
-    date: '6/4/12',
-    type: 'anonymous',
-    status: 'completed'
-  },
-  {
-    id: '8',
-    name: 'David Wilson',
-    amount: 300.00,
-    date: '5/4/12',
-    type: 'guardian',
-    status: 'completed'
-  }
-]
-
-export function CampaignOverview({ userData = {
-  name: 'Influence',
-  email: 'talktome@fabfour.org',
-  avatar: '/images/avatars/default-avatar.png'
-} }: CampaignOverviewProps) {
+export function CampaignOverview() {
   const router = useRouter()
   const [activeSection, setActiveSection] = useState<'application' | 'status' | 'campaign'>('campaign')
   const [activeTab, setActiveTab] = useState<'all' | 'guardians' | 'good-samaritans'>('all')
   const [currentPage, setCurrentPage] = useState(1)
   const [itemsPerPage] = useState(4)
-  
-  // Use sample data
-  const campaignMetrics = sampleCampaignMetrics
-  const allDonors = sampleDonors
-  
+  const [isVerified, setIsVerified] = useState(false)
+  const [donors, setDonors] = useState<Donor[]>([])
+  const [campaignMetrics, setCampaignMetrics] = useState<CampaignMetrics | null>(null)
+  const [currentCampaignId, setCurrentCampaignId] = useState<number | null>(null)
+  const [campaignSummary, setCampaignSummary] = useState<{
+    currentAmount: number
+    weekAmount: number
+    monthAmount: number
+    progress: number
+  } | null>(null)
+  const [userDataResolved, setUserDataResolved] = useState<UserData>({
+    name: 'User',
+    email: '',
+    avatar: '',
+  })
+  const [loading, setLoading] = useState(true)
+
+
+  const toNum = (v: any) => {
+    const n = Number(v)
+    return Number.isFinite(n) ? n : 0
+  }
+
+  const mapStatus = (raw: any): CampaignStatus => {
+    const s = String(raw ?? '').toLowerCase()
+    if (s.includes('pause')) return 'paused'
+    if (s.includes('complete') || s.includes('achieved')) return 'completed'
+    if (s.includes('active') || s.includes('accept')) return 'active'
+    return 'under-review'
+  }
+
+  const pickCurrentCampaign = (results: CampaignListItem[]): CampaignListItem | null => {
+    if (!results?.length) return null
+
+    // prefer accepted + not drafted
+    const preferred =
+      results.find((c) => c.accepted === true && c.drafted === false) ??
+      results.find((c) => c.drafted === false) ??
+      results[0]
+
+    return preferred ?? null
+  }
+
+  const mapCampaignRaised = (c: CampaignListItem | null) => {
+    if (!c) return 0
+    return (
+      toNum(c.amount_raised) ||
+      toNum(c.raised_amount) ||
+      toNum(c.amount) ||
+      0
+    )
+  }
+
+  const mapDonationRows = (rows: any[]): Donor[] => {
+    return (rows ?? []).map((d: any, idx: number) => {
+      const isAnon = !!(d?.is_anonymous ?? d?.anonymous)
+      const name =
+        isAnon ? 'Anonymous'
+        : (d?.donor_name ??
+          d?.donor?.name ??
+          d?.donor?.full_name ??
+          d?.name ??
+          'Anonymous')
+
+      const amount = toNum(d?.amount ?? d?.donation_amount ?? d?.total)
+
+      const dateRaw = d?.created_at ?? d?.date ?? d?.created
+      const date = dateRaw ? new Date(dateRaw).toLocaleDateString() : '—'
+
+      const type: Donor['type'] =
+        d?.donor_type === 'guardian' ? 'guardian'
+        : d?.donor_type === 'good-samaritan' ? 'good-samaritan'
+        : 'anonymous'
+
+      const status: Donor['status'] =
+        d?.status === 'completed' ? 'completed'
+        : d?.status === 'failed' ? 'failed'
+        : 'pending'
+
+      return {
+        id: String(d?.id ?? idx),
+        name,
+        amount,
+        date,
+        type,
+        status,
+      }
+    })
+  }
+    
+  const metrics: CampaignMetrics = campaignMetrics ?? {
+    goal: 0,
+    raised: 0,
+    donors: 0,
+    status: 'under-review',
+    academicYear: '—',
+    weeklyGrowth: 0,
+    monthlyGrowth: 0,
+  }
+
+  const allDonors = donors
+
   // Filter donors based on active tab
   const filteredDonors = allDonors.filter(donor => {
     if (activeTab === 'all') return true
@@ -167,13 +201,131 @@ export function CampaignOverview({ userData = {
     setActiveSection(section)
   }
 
+  useEffect(() => {
+    const u = getStoredUser()
+    const name = `${u?.first_name ?? ''} ${u?.last_name ?? ''}`.trim() || 'User'
+    const email = u?.email ?? ''
+    const avatar = u?.photo ?? ''
+    setUserDataResolved({ name, email, avatar })
+  }, [])
+
+  useEffect(() => {
+    const run = async () => {
+      try {
+        setLoading(true)
+
+        const u = getStoredUser()
+
+        let userId: number | null = u?.id ?? null
+        if (!userId) userId = getUserIdFromToken()
+
+        const profile = await getStudentProfile(userId)
+        const verified = !!profile?.is_verified
+        setIsVerified(verified)
+
+        if (!verified) {
+          setCampaignSummary(null)
+          setCampaignMetrics(null)
+          setDonors([])
+          setCurrentCampaignId(null)
+          return
+        }
+
+        // Verified: load campaign overview + my campaigns
+        const [ov, mine] = await Promise.all([
+          getCampaignOverview(),
+          listMyCampaigns(),
+        ])
+
+        const results: CampaignListItem[] = mine?.results ?? []
+        const current = pickCurrentCampaign(results)
+        const campaignId = current?.id ?? null
+        setCurrentCampaignId(campaignId)
+
+        // ---- Sidebar summary (use overview first, fallback to campaign)
+        const currentAmount =
+          toNum(ov?.current_campaign_amount) ||
+          toNum(ov?.total_raised) ||
+          mapCampaignRaised(current)
+
+        const weekAmount =
+          toNum(ov?.this_week) ||
+          toNum(ov?.week_raised) ||
+          toNum(ov?.weekly_growth) ||
+          0
+
+        const monthAmount =
+          toNum(ov?.this_month) ||
+          toNum(ov?.month_raised) ||
+          toNum(ov?.monthly_growth) ||
+          0
+
+        // progress: prefer API percent, else compute from campaign goal
+        const goal = toNum(current?.goal)
+        const progress =
+          toNum(ov?.progress_percent) ||
+          (goal > 0 ? Math.round((currentAmount / goal) * 100) : 0)
+
+        setCampaignSummary({
+          currentAmount,
+          weekAmount,
+          monthAmount,
+          progress,
+        })
+
+        // ---- Main cards mapping
+        const status = mapStatus(current?.status ?? (current?.accepted ? 'active' : 'under-review'))
+        const academicYear = String(current?.academic_session ?? '—')
+
+        setCampaignMetrics({
+          goal: goal || 0,
+          raised: currentAmount,
+          donors: 0, // set after donations fetch
+          status,
+          academicYear,
+          weeklyGrowth: weekAmount,
+          monthlyGrowth: monthAmount,
+        })
+
+        // ---- Donations for donor table (student receives donations)
+        if (campaignId) {
+          const donationRes = await listDonationsByCampaign(campaignId)
+          const donationRows = donationRes?.results ?? donationRes ?? []
+          const mapped = mapDonationRows(donationRows)
+
+          setDonors(mapped)
+
+          // update donor count
+          setCampaignMetrics((prev) =>
+            prev ? { ...prev, donors: mapped.length } : prev
+          )
+        } else {
+          setDonors([])
+        }
+      } catch (e) {
+        console.error('Campaign overview load failed', e)
+        setCampaignSummary(null)
+        setCampaignMetrics(null)
+        setDonors([])
+        setCurrentCampaignId(null)
+      } finally {
+        setLoading(false)
+      }
+  }
+
+  run()
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+}, [])
+
   return (
     <div className="flex min-h-screen bg-[#eceee4]">
       <SidebarNavigation 
         currentStep={1}
-        userData={userData}
+        userData={userDataResolved}
         onNavigationChange={handleNavigationChange}
         activeSection={activeSection}
+        isVerified={isVerified}
+        campaignSummary={campaignSummary}
       />
       <div className="flex-1 p-8">
         <div className="min-h-screen bg-[#eceee4]">
@@ -250,7 +402,7 @@ export function CampaignOverview({ userData = {
                         </div>
                       </div>
                       <div className="relative shrink-0 text-[28px] text-[#272635] w-full" data-node-id="456:10072">
-                        <p className="leading-[normal]">${campaignMetrics.goal.toLocaleString()}</p>
+                        <p className="leading-[normal]">${metrics.goal.toLocaleString()}</p>
                       </div>
                     </div>
                   </div>
@@ -287,14 +439,14 @@ export function CampaignOverview({ userData = {
                         </div>
                       </div>
                       <div className="relative shrink-0 text-[28px] text-[#272635] w-full" data-node-id="456:10086">
-                        <p className="leading-[normal]">${campaignMetrics.raised.toLocaleString()}</p>
+                        <p className="leading-[normal]">${metrics.raised.toLocaleString()}</p>
                       </div>
                       <div className="content-stretch flex gap-2 items-center justify-start relative shrink-0 w-full" data-node-id="456:10087">
                         <div className="relative shrink-0 size-4" data-name="Calendar Icon" data-node-id="456:10088">
                           <img alt="Calendar" className="block max-w-none size-full" src="/svg/icons/calendar.svg" />
                         </div>
                         <div className="relative shrink-0 text-[#272635] text-[12px]" data-node-id="456:10089">
-                          <p className="leading-[normal]">{campaignMetrics.donors} Academic year</p>
+                          <p className="leading-[normal]">{metrics.donors} Academic year</p>
                         </div>
                       </div>
                     </div>
