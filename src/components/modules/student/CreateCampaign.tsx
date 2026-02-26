@@ -293,74 +293,74 @@ export function CreateCampaign() {
     else setUsdRate(null)
   }, [currency])
 
-  useEffect(() => {
-      const run = async () => {
-        try {
-          setLoading(true)
+  // useEffect(() => {
+  //     const run = async () => {
+  //       try {
+  //         setLoading(true)
   
-          const u = getStoredUser()
+  //         const u = getStoredUser()
   
-          let userId: number | null = u?.id ?? null
-          if (!userId) userId = getUserIdFromToken()
+  //         let userId: number | null = u?.id ?? null
+  //         if (!userId) userId = getUserIdFromToken()
   
-          const profile = await getStudentProfile(userId)
-          const verified = !!profile?.is_verified
-          setIsVerified(verified)
+  //         const profile = await getStudentProfile(userId)
+  //         const verified = !!profile?.is_verified
+  //         setIsVerified(verified)
   
-          if (!verified) {
-            setCampaignSummary(null)
-            return
-          }
+  //         if (!verified) {
+  //           setCampaignSummary(null)
+  //           return
+  //         }
 
-          const [ov, mine] = await Promise.all([
-                    getCampaignOverview(),
-                    listMyCampaigns(),
-                  ])
-          const results: CampaignListItem[] = mine?.results ?? []
-          const current = pickCurrentCampaign(results)
-          // ---- Sidebar summary (use overview first, fallback to campaign)
-          const currentAmount =
-            toNum(ov?.current_campaign_amount) ||
-            toNum(ov?.total_raised) ||
-            mapCampaignRaised(current)
+  //         const [ov, mine] = await Promise.all([
+  //                   getCampaignOverview(),
+  //                   listMyCampaigns(),
+  //                 ])
+  //         const results: CampaignListItem[] = mine?.results ?? []
+  //         const current = pickCurrentCampaign(results)
+  //         // ---- Sidebar summary (use overview first, fallback to campaign)
+  //         const currentAmount =
+  //           toNum(ov?.current_campaign_amount) ||
+  //           toNum(ov?.total_raised) ||
+  //           mapCampaignRaised(current)
   
-          const weekAmount =
-            toNum(ov?.this_week) ||
-            toNum(ov?.week_raised) ||
-            toNum(ov?.weekly_growth) ||
-            0
+  //         const weekAmount =
+  //           toNum(ov?.this_week) ||
+  //           toNum(ov?.week_raised) ||
+  //           toNum(ov?.weekly_growth) ||
+  //           0
   
-          const monthAmount =
-            toNum(ov?.this_month) ||
-            toNum(ov?.month_raised) ||
-            toNum(ov?.monthly_growth) ||
-            0
+  //         const monthAmount =
+  //           toNum(ov?.this_month) ||
+  //           toNum(ov?.month_raised) ||
+  //           toNum(ov?.monthly_growth) ||
+  //           0
   
-          // progress: prefer API percent, else compute from campaign goal
-          const goal = toNum(current?.goal)
-          const progress =
-            toNum(ov?.progress_percent) ||
-            (goal > 0 ? Math.round((currentAmount / goal) * 100) : 0)
+  //         // progress: prefer API percent, else compute from campaign goal
+  //         const goal = toNum(current?.goal)
+  //         const progress =
+  //           toNum(ov?.progress_percent) ||
+  //           (goal > 0 ? Math.round((currentAmount / goal) * 100) : 0)
   
-          setCampaignSummary({
-            currentAmount,
-            weekAmount,
-            monthAmount,
-            progress,
-          })    
+  //         setCampaignSummary({
+  //           currentAmount,
+  //           weekAmount,
+  //           monthAmount,
+  //           progress,
+  //         })    
   
           
-        } catch (e) {
-          console.error('Campaign overview load failed', e)
-          setCampaignSummary(null)
-        } finally {
-          setLoading(false)
-        }
-    }
+  //       } catch (e) {
+  //         console.error('Campaign overview load failed', e)
+  //         setCampaignSummary(null)
+  //       } finally {
+  //         setLoading(false)
+  //       }
+  //   }
   
-    run()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+  //   run()
+  //   // eslint-disable-next-line react-hooks/exhaustive-deps
+  // }, [])
   
 
   // backend needs academic_needs enums
@@ -409,7 +409,7 @@ export function CreateCampaign() {
     [currentStage],
   )
 
-  const handleNavigationChange = (section: 'application' | 'status' | 'campaign') => {
+  const handleNavigationChange = (section: 'application' | 'status' | 'campaign' | 'wallet') => {
     if (section === 'application') router.push('/student/dashboard/application/profile')
     else if (section === 'status') router.push('/student/dashboard/application/profile')
     else router.push('/student/dashboard/campaign')
@@ -631,15 +631,6 @@ export function CreateCampaign() {
 
   return (
     <div className="flex min-h-screen bg-[#eceee4]">
-      <SidebarNavigation
-        currentStep={1}
-        userData={userDataResolved}
-        onNavigationChange={handleNavigationChange}
-        activeSection={activeSection}
-        isVerified={isVerified}
-        campaignSummary={campaignSummary}
-      />
-
       <div className="flex-1 p-8">
         <div className="min-h-screen bg-[#eceee4]">
           <div className="max-w-6xl mx-auto">

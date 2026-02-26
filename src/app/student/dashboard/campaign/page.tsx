@@ -1,4 +1,4 @@
-import { CampaignOverview } from '@/components/modules/student'
+import { CampaignOverview }from '@/components/modules/student'
 
 export default function CampaignPage() {
   

@@ -19,7 +19,7 @@ import { getStoredUser, getUserIdFromToken } from '@/lib/auth/storage'
 export function ProfileCompletionForm() {
   const router = useRouter()
   const [currentStep, setCurrentStep] = useState(1)
-  const [activeSection, setActiveSection] = useState<'application' | 'status' | 'campaign'>('application')
+  const [activeSection, setActiveSection] = useState<'application' | 'status' | 'campaign' | 'wallet'>('application')
   const [applicationStatus, setApplicationStatus] = useState<'under-review' | 'approved'>('under-review')
   const [isVerified, setIsVerified] = useState(false)
   const [isLoadingProfile, setIsLoadingProfile] = useState(true)
@@ -342,7 +342,7 @@ export function ProfileCompletionForm() {
     }
   }
 
-  const handleNavigationChange = (section: 'application' | 'status' | 'campaign') => {
+  const handleNavigationChange = (section: 'application' | 'status' | 'campaign' | 'wallet') => {
     if (section === 'campaign') {
       router.push('/student/dashboard/campaign')
     } else {
@@ -376,14 +376,6 @@ export function ProfileCompletionForm() {
 
   return (
     <div className="flex min-h-screen bg-[#eceee4]">
-      <SidebarNavigation 
-        currentStep={currentStep}
-        userData={userData}
-        onNavigationChange={handleNavigationChange}
-        activeSection={activeSection}
-        isVerified={isVerified}
-        campaignSummary={campaignSummary}
-      />
       {activeSection === 'status' ? (
         <div className="flex-1 p-8">
           {applicationStatus === 'approved' ? (

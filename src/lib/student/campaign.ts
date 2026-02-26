@@ -1,4 +1,6 @@
 import { api } from "@/lib/api/client";
+import { unwrapList } from "./funds";
+
 
 
 export type Paginated<T> = {
@@ -12,8 +14,8 @@ export type Campaign = {
   id: number;
   description?: string;
   name?: string;
-  start_date?: string; // YYYY-MM-DD
-  end_date?: string; // YYYY-MM-DD
+  start_date?: string;
+  end_date?: string;
   goal?: number | string;
   currency?: string;
   academic_needs?: string[];
@@ -21,7 +23,6 @@ export type Campaign = {
   academic_session?: string;
   drafted?: boolean;
 
-  // optional server extras
   accepted?: boolean;
   goal_achieved?: boolean;
   status?: string | null;
@@ -32,17 +33,40 @@ export type Campaign = {
 };
 
 export type CampaignOverview = {
-  current_campaign_amount?: number;
-  this_week?: number;
-  this_month?: number;
-  progress_percent?: number;
-  total_raised?: number;
-  week_raised?: number;
-  month_raised?: number;
-  weekly_growth?: number;
-  monthly_growth?: number;
-  [k: string]: any;
+  current_campaign: Campaign | null;
+  overall_stats: {
+    total_amount_raised: number;
+    total_academic_sessions: number;
+  };
 };
+
+// ✅ MATCH YOUR BACKEND (from your swagger sample + validation error)
+export type CreateCampaignPayload = {
+  description: string;
+  name: string;
+  start_date: string; // "2026-02-25"
+  end_date: string;   // "2026-02-25"
+  goal: number | string; // backend accepts string sometimes, but we send number
+  currency: string;
+  academic_needs: string[]; // e.g. ["ACCOMMODATION"]
+  academic_session: string;
+  cover_photo?: string;
+  drafted?: boolean;
+};
+
+export async function listMyCampaigns() {
+  const res = await api.get<Paginated<Campaign>>("/students/campaign/list_my_campaigns/");
+  return {
+    raw: res.data,
+    results: unwrapList<Campaign>(res.data),
+  };
+}
+
+export async function getCampaignOverview() {
+  const res = await api.get<CampaignOverview>("/students/campaign/overview/");
+  return res.data;
+}
+
 
 export async function getCampaign(id: number) {
   const res = await api.get<Campaign>(`/students/campaign/${id}/`);
@@ -106,32 +130,9 @@ export async function deleteCampaignDocument(id: number) {
 
 
 
-// ✅ MATCH YOUR BACKEND (from your swagger sample + validation error)
-export type CreateCampaignPayload = {
-  description: string;
-  name: string;
-  start_date: string; // "2026-02-25"
-  end_date: string;   // "2026-02-25"
-  goal: number | string; // backend accepts string sometimes, but we send number
-  currency: string;
-  academic_needs: string[]; // e.g. ["ACCOMMODATION"]
-  academic_session: string;
-  cover_photo?: string;
-  drafted?: boolean;
-};
 
 export async function listCampaigns() {
   const res = await api.get<Paginated<Campaign>>("/students/campaign/");
-  return res.data;
-}
-
-export async function listMyCampaigns() {
-  const res = await api.get<Paginated<Campaign>>("/students/campaign/list_my_campaigns/");
-  return res.data;
-}
-
-export async function getCampaignOverview() {
-  const res = await api.get<CampaignOverview>("/students/campaign/overview/");
   return res.data;
 }
 
