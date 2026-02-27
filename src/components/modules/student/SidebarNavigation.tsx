@@ -16,7 +16,7 @@ interface CampaignSummary {
   progress: number;
 }
 
-type DashboardSection = "application" | "status" | "campaign" | "wallet";
+type DashboardSection = "application" | "status" | "campaign" | "wallet" | "conversations";
 
 interface SidebarNavigationProps {
   currentStep: number;

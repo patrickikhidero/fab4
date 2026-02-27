@@ -49,3 +49,10 @@ export function getUserIdFromToken(): number | null {
     return null;
   }
 }
+
+export function getCurrentUserId(): number | null {
+  const u = getStoredUser();
+  const id = Number(u?.id);
+  if (Number.isFinite(id) && id > 0) return id;
+  return getUserIdFromToken();
+}

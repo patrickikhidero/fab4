@@ -33,6 +33,14 @@ export type Campaign = {
 };
 
 export type CampaignOverview = {
+  total_(total_: any): number;
+  this_week(this_week: any): unknown;
+  week_raised(week_raised: any): number;
+  weekly_growth(weekly_growth: any): number;
+  this_month(this_month: any): unknown;
+  month_raised(month_raised: any): number;
+  monthly_growth(monthly_growth: any): number;
+  progress_percent(progress_percent: any): unknown;
   current_campaign: Campaign | null;
   overall_stats: {
     total_amount_raised: number;
