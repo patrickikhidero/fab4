@@ -1,11 +1,15 @@
-
-
 "use client";
 
 import React, { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
+import { Wallet, Landmark } from "lucide-react";
+
 import { getCampaignOverview } from "@/lib/student/campaign";
 import { listMyFundsRequests, type FundsRequest } from "@/lib/student/funds";
+import {
+  listWithdrawalMethods,
+  type WithdrawalMethod,
+} from "@/lib/student/wallet";
 
 type TabKey = "all" | "accepted" | "rejected";
 
@@ -26,22 +30,15 @@ type BankInfo =
       accountMasked: string;
     };
 
-const BANK_STORAGE_KEY = "student_bank_info_v1";
-
-function formatDate(isoOrDate?: string) {
-  if (!isoOrDate) return "-";
-  // ISO or YYYY-MM-DD
-  const d = new Date(isoOrDate);
+function formatDate(v?: string) {
+  if (!v) return "-";
+  const d = new Date(v);
   if (!Number.isNaN(d.getTime())) {
-    const dd = String(d.getDate()).padStart(2, "0");
-    const mm = String(d.getMonth() + 1).padStart(2, "0");
-    const yy = d.getFullYear();
-    return `${dd}/${mm}/${yy}`;
+    return `${String(d.getDate()).padStart(2, "0")}/${String(
+      d.getMonth() + 1
+    ).padStart(2, "0")}/${d.getFullYear()}`;
   }
-  // fallback if Date parsing fails
-  const [y, m, dd] = isoOrDate.split("-");
-  if (y && m && dd) return `${dd}/${m}/${y}`;
-  return isoOrDate;
+  return v;
 }
 
 function toNum(v: any) {
@@ -56,59 +53,81 @@ function mapStatus(s: FundsRequest["status"]): RequestRow["status"] {
 }
 
 function mapFundsToRow(r: FundsRequest): RequestRow {
-  const amount = toNum(r.amount);
   return {
     id: String(r.id),
     purpose: r.purpose?.[0] ?? "-",
     deadline: formatDate(r.deadline),
-    fees: `${(r.currency || "").toUpperCase()} ${amount.toLocaleString()}`,
+    fees: `${(r.currency || "").toUpperCase()} ${toNum(
+      r.amount
+    ).toLocaleString()}`,
     date: formatDate(r.requested_date || r.created_at),
     status: mapStatus(r.status),
   };
+}
+
+function maskAccountNumber(acct?: string | null) {
+  const s = (acct ?? "").trim();
+  if (!s) return "xxxx";
+  return `xx${s.slice(-4)}`;
+}
+
+function pickBestMethod(methods: WithdrawalMethod[]) {
+  if (!methods.length) return null;
+  return methods.find((m) => m.is_default) ?? methods[0];
+}
+
+function methodToBankInfo(m: WithdrawalMethod): BankInfo {
+  if (!m) return null;
+
+  if (m.payment_type === "bank_transfer") {
+    return {
+      bankName: m.bank_name ?? "Bank",
+      accountName: m.account_name ?? "-",
+      accountMasked: maskAccountNumber(m.account_number),
+    };
+  }
+
+  if (m.payment_type === "mobile_money") {
+    return {
+      bankName: m.preferred_provider ?? "Mobile Money",
+      accountName: `Country: ${m.country_code ?? "-"}`,
+      accountMasked: m.currency ?? "-",
+    };
+  }
+
+  return null;
 }
 
 export default function WalletPage() {
   const router = useRouter();
 
   const [tab, setTab] = useState<TabKey>("all");
-  const [walletBalance, setWalletBalance] = useState<number>(0);
+  const [walletBalance, setWalletBalance] = useState(0);
   const [bankInfo, setBankInfo] = useState<BankInfo>(null);
   const [rows, setRows] = useState<RequestRow[]>([]);
-  const [loading, setLoading] = useState<boolean>(true);
-
-  useEffect(() => {
-    // bank (local only for now)
-    try {
-      const raw = localStorage.getItem(BANK_STORAGE_KEY);
-      setBankInfo(raw ? (JSON.parse(raw) as BankInfo) : null);
-    } catch {
-      setBankInfo(null);
-    }
-  }, []);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const run = async () => {
       try {
         setLoading(true);
 
-        // Wallet balance: no dedicated wallet endpoint shown in your docs,
-        // so we derive from campaign overview for now.
-        const [ov, mine] = await Promise.all([
+        const [ov, mine, methodsRes] = await Promise.all([
           getCampaignOverview().catch(() => null),
           listMyFundsRequests({ limit: 200 }).catch(() => null),
+          listWithdrawalMethods({ limit: 50 }).catch(() => null),
         ]);
 
-        console.log(mine)
-
-        const bal =
-          toNum(ov?.overall_stats.total_amount_raised) ||
-          0;
-
-        setWalletBalance(bal);
+        setWalletBalance(
+          toNum(ov?.overall_stats?.total_amount_raised) || 0
+        );
 
         const results = mine?.results ?? [];
-        console.log(results)
         setRows(results.map(mapFundsToRow));
+
+        const methods = methodsRes?.results ?? [];
+        const best = pickBestMethod(methods);
+        setBankInfo(best ? methodToBankInfo(best) : null);
       } finally {
         setLoading(false);
       }
@@ -119,32 +138,40 @@ export default function WalletPage() {
 
   const filteredRows = useMemo(() => {
     if (tab === "all") return rows;
-    if (tab === "accepted") return rows.filter((r) => r.status === "Accepted");
+    if (tab === "accepted")
+      return rows.filter((r) => r.status === "Accepted");
     return rows.filter((r) => r.status === "Rejected");
   }, [rows, tab]);
 
   return (
     <div className="glass rounded-[24px] p-10 min-h-[760px]">
       <Header
-        onRequestFunds={() => router.push("/student/dashboard/wallet/request-funds")}
+        onRequestFunds={() =>
+          router.push("/student/dashboard/wallet/request-funds")
+        }
       />
 
-      <div className="mt-8 flex items-start justify-between gap-6">
+      {/* Equal width + equal height cards */}
+      <div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-6">
         <WalletBalanceCard amount={walletBalance} />
         <BankCard
           bankInfo={bankInfo}
-          onAddOrChange={() => router.push("/student/dashboard/wallet/add-bank")}
+          onAddOrChange={() =>
+            router.push("/student/dashboard/wallet/add-bank")
+          }
         />
       </div>
 
-      <div className="mt-8">
+      <div className="mt-10">
         <Tabs tab={tab} setTab={setTab} counts={countTabs(rows)} />
 
-        <div className="mt-4 rounded-[16px] border border-[rgba(39,38,53,0.08)] bg-white/60">
+        <div className="mt-4 rounded-[16px] border border-[rgba(39,38,53,0.08)] bg-white">
           <TableHeader />
 
           {loading ? (
-            <div className="px-6 py-14 text-[13px] text-[rgba(39,38,53,0.6)]">Loading...</div>
+            <div className="px-6 py-14 text-[13px] text-[rgba(39,38,53,0.6)]">
+              Loading...
+            </div>
           ) : filteredRows.length === 0 ? (
             <EmptyState />
           ) : (
@@ -160,6 +187,8 @@ export default function WalletPage() {
   );
 }
 
+/* ---------------- UI Components ---------------- */
+
 function Header({ onRequestFunds }: { onRequestFunds: () => void }) {
   return (
     <div className="flex items-start justify-between">
@@ -167,9 +196,11 @@ function Header({ onRequestFunds }: { onRequestFunds: () => void }) {
         <div className="text-[24px] font-medium text-[var(--color-primary-text)]">
           Funds Request
         </div>
+
         <div className="mt-2 text-[12px] uppercase tracking-wide text-[rgba(39,38,53,0.6)]">
           Wallet & Bank
         </div>
+
         <p className="mt-2 max-w-[420px] text-[13px] text-[rgba(39,38,53,0.55)] leading-5">
           This is the total of the funds raised which can be accessed in order to pay for your fees.
         </p>
@@ -177,10 +208,10 @@ function Header({ onRequestFunds }: { onRequestFunds: () => void }) {
 
       <button
         onClick={onRequestFunds}
-        className="btn-secondary flex items-center gap-2 h-10 px-4 rounded-[12px]"
+        className="flex items-center gap-2 h-10 px-4 rounded-[12px] bg-white border border-[rgba(39,38,53,0.08)] hover:bg-[rgba(39,38,53,0.03)] transition"
       >
         <span className="text-[13px]">Request for Funds</span>
-        <span aria-hidden className="text-[16px]">↗</span>
+        <span className="text-[16px]">↗</span>
       </button>
     </div>
   );
@@ -188,9 +219,19 @@ function Header({ onRequestFunds }: { onRequestFunds: () => void }) {
 
 function WalletBalanceCard({ amount }: { amount: number }) {
   return (
-    <div className="w-[240px] rounded-[16px] bg-[var(--color-primary)] text-white px-5 py-4">
-      <div className="text-[11px] opacity-80">WALLET BALANCE</div>
-      <div className="mt-2 text-[28px] font-medium">${amount.toLocaleString()}</div>
+    <div className="h-[150px] rounded-[16px] bg-[var(--color-primary)] text-white px-6 py-5 flex flex-col justify-between shadow-[0px_10px_30px_-8px_rgba(0,0,0,0.2)]">
+      <div className="flex items-center gap-3">
+        <div className="h-9 w-9 rounded-[10px] bg-white/15 flex items-center justify-center">
+          <Wallet size={18} />
+        </div>
+        <div className="text-[12px] uppercase tracking-wide opacity-80">
+          Wallet Balance
+        </div>
+      </div>
+
+      <div className="text-[30px] font-medium">
+        ${amount.toLocaleString()}
+      </div>
     </div>
   );
 }
@@ -199,44 +240,63 @@ function BankCard({
   bankInfo,
   onAddOrChange,
 }: {
-  bankInfo: any;
+  bankInfo: BankInfo;
   onAddOrChange: () => void;
 }) {
   if (!bankInfo) {
     return (
-      <div className="w-[280px] rounded-[16px] border border-[rgba(39,38,53,0.08)] bg-white/70 px-5 py-4">
-        <div className="text-[12px] text-[rgba(39,38,53,0.6)]">-</div>
-        <button
-          onClick={onAddOrChange}
-          className="mt-6 text-[13px] text-[rgba(39,38,53,0.55)] underline underline-offset-4"
-        >
-          Add Bank <span className="ml-1">+</span>
-        </button>
+      <div className="h-[150px] rounded-[16px] border border-[rgba(39,38,53,0.08)] bg-white px-6 py-5 flex flex-col justify-between shadow-[0px_10px_30px_-8px_rgba(39,38,53,0.08)]">
+        <div className="flex items-center gap-3">
+          <div className="h-9 w-9 rounded-[10px] bg-[rgba(39,38,53,0.05)] flex items-center justify-center">
+            <Landmark size={18} />
+          </div>
+          <div className="text-[12px] uppercase tracking-wide text-[rgba(39,38,53,0.6)]">
+            Bank
+          </div>
+        </div>
+
+        <div className="flex items-center justify-between">
+          <span className="text-[13px] text-[rgba(39,38,53,0.6)]">-</span>
+          <button
+            onClick={onAddOrChange}
+            className="text-[13px] text-[rgba(39,38,53,0.7)] underline underline-offset-4"
+          >
+            Add Bank +
+          </button>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="w-[280px] rounded-[16px] border border-[rgba(39,38,53,0.08)] bg-white/70 px-5 py-4">
-      <div className="text-[12px] uppercase text-[rgba(39,38,53,0.55)]">Bank</div>
-      <div className="mt-2 text-[14px] font-medium text-[var(--color-primary-text)]">
-        {bankInfo.bankName}
+    <div className="h-[150px] rounded-[16px] border border-[rgba(39,38,53,0.08)] bg-white px-6 py-5 flex flex-col justify-between shadow-[0px_10px_30px_-8px_rgba(39,38,53,0.08)]">
+      <div className="flex items-center gap-3">
+        <div className="h-9 w-9 rounded-[10px] bg-[rgba(39,38,53,0.05)] flex items-center justify-center">
+          <Landmark size={18} />
+        </div>
+        <div className="text-[12px] uppercase tracking-wide text-[rgba(39,38,53,0.6)]">
+          Bank
+        </div>
       </div>
-      <div className="mt-1 text-[12px] text-[rgba(39,38,53,0.6)]">{bankInfo.accountName}</div>
-      <div className="mt-1 text-[12px] text-[rgba(39,38,53,0.6)]">{bankInfo.accountMasked}</div>
 
-      <div className="mt-4 flex items-center gap-4">
+      <div>
+        <div className="text-[15px] font-medium">
+          {bankInfo.bankName}
+        </div>
+        <div className="text-[12px] text-[rgba(39,38,53,0.6)]">
+          {bankInfo.accountName}
+        </div>
+        <div className="text-[12px] text-[rgba(39,38,53,0.6)]">
+          {bankInfo.accountMasked}
+        </div>
+      </div>
+
+      <div className="flex gap-4 text-[12px]">
         <button
           onClick={onAddOrChange}
-          className="text-[12px] text-[rgba(39,38,53,0.55)] underline underline-offset-4"
+          className="underline underline-offset-4 text-[rgba(39,38,53,0.6)]"
         >
           Change
-        </button>
-        <button
-          onClick={onAddOrChange}
-          className="text-[12px] text-[rgba(39,38,53,0.55)] underline underline-offset-4"
-        >
-          +
         </button>
       </div>
     </div>

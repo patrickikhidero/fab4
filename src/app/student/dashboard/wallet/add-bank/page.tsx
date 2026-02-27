@@ -3,13 +3,16 @@
 import React, { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { ArrowLeft, ChevronDown } from "lucide-react";
+import {
+  createWithdrawalMethod,
+  mapProviderToApi,
+} from "@/lib/student/wallet";
 
 type PayoutMethod = "bank_transfer" | "mobile_money";
 
 type MobileProvider = {
   id: string;
   label: string;
-  // Using emoji placeholders for now (you can replace with SVGs you already have in /public)
   icon: string;
 };
 
@@ -20,6 +23,7 @@ export default function AddBankPage() {
 
   // Bank transfer fields
   const [accountName, setAccountName] = useState("");
+  const [bankName, setBankName] = useState("");
   const [accountNumber, setAccountNumber] = useState("");
   const [countryCode, setCountryCode] = useState("");
   const [currencyCode, setCurrencyCode] = useState("NGN");
@@ -39,17 +43,70 @@ export default function AddBankPage() {
   const [phoneCountry, setPhoneCountry] = useState<string>("+234");
   const [phoneNumber, setPhoneNumber] = useState<string>("");
 
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
   const canSave =
     method === "bank_transfer"
-      ? !!accountName.trim() && !!accountNumber.trim() && !!countryCode.trim() && !!currencyCode.trim()
+      ? !!accountName.trim() &&
+        !!bankName.trim() &&
+        !!accountNumber.trim() &&
+        !!countryCode.trim() &&
+        !!currencyCode.trim()
       : !!provider && !!phoneCountry.trim() && !!phoneNumber.trim();
 
-  const handleSave = (e: React.FormEvent) => {
+  const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!canSave) return;
+    if (!canSave || saving) return;
 
-    // NOTE: No backend mapping yet (your instruction). We only navigate back.
-    router.push("/student/dashboard/wallet?toast=bank_saved");
+    try {
+      setError(null);
+      setSaving(true);
+
+      if (method === "bank_transfer") {
+        // NOTE: Swagger shows bank_name exists, but UI has no bank_name input.
+        // We do NOT send bank_name (assumes backend allows null/blank).
+        await createWithdrawalMethod({
+          payment_type: "bank_transfer",
+          account_name: accountName.trim(),
+          bank_name: bankName.trim() || undefined,
+          account_number: accountNumber.trim(),
+          country_code: countryCode.trim(),
+          currency: currencyCode.trim(),
+          is_default: true,
+        });
+      } else {
+        const apiProvider = mapProviderToApi(provider);
+
+        // if backend enforces preferred_provider, fail early
+        if (!apiProvider) {
+          throw new Error("Invalid mobile money provider selected");
+        }
+
+        // UI has phone fields but swagger does not show phone fields on payload.
+        // We can only send what API accepts (preferred_provider, country_code, currency, etc.)
+        await createWithdrawalMethod({
+          payment_type: "mobile_money",
+          preferred_provider: apiProvider,
+          country_code: phoneCountry.trim(),
+          currency: currencyCode.trim(),
+          is_default: true,
+        });
+      }
+
+      router.push("/student/dashboard/wallet?toast=bank_saved");
+    } catch (e: any) {
+      // show DRF error nicely if it comes back as an object
+      const msg =
+        typeof e?.response?.data === "string"
+          ? e.response.data
+          : e?.response?.data
+            ? JSON.stringify(e.response.data)
+            : e?.message ?? "Failed to save payout method";
+      setError(msg);
+    } finally {
+      setSaving(false);
+    }
   };
 
   return (
@@ -81,6 +138,13 @@ export default function AddBankPage() {
               </div>
             </div>
           </div>
+
+          {/* Error (minimal, doesn’t change UI structure) */}
+          {error ? (
+            <div className="mt-6 rounded-[12px] border border-red-200 bg-red-50 px-4 py-3 text-[13px] text-red-700">
+              {error}
+            </div>
+          ) : null}
 
           <form onSubmit={handleSave} className="mt-8">
             <div className="max-w-[560px] mx-auto space-y-4">
@@ -145,6 +209,16 @@ export default function AddBankPage() {
                   </div>
 
                   <div className="bg-[#f9faf7] rounded-[12px] p-5 border border-[rgba(39,38,53,0.08)]">
+                    <div className="text-[14px] text-[rgba(39,38,53,0.7)] mb-2">Bank Name</div>
+                    <input
+                      value={bankName}
+                      onChange={(e) => setBankName(e.target.value)}
+                      placeholder="John Doe"
+                      className="w-full h-12 px-4 rounded-[10px] bg-white border border-[rgba(39,38,53,0.10)] outline-none text-[14px] text-[#272635]"
+                    />
+                  </div>
+
+                  <div className="bg-[#f9faf7] rounded-[12px] p-5 border border-[rgba(39,38,53,0.08)]">
                     <div className="text-[14px] text-[rgba(39,38,53,0.7)] mb-2">Account number</div>
                     <div className="text-[12px] text-[rgba(39,38,53,0.45)] mb-3">
                       This is usually a 10-digit number provided by your bank as your bank identification number.
@@ -190,7 +264,6 @@ export default function AddBankPage() {
                   </div>
                 </>
               ) : (
-                /* Mobile money form */
                 <>
                   <div className="bg-[#f9faf7] rounded-[12px] p-5 border border-[rgba(39,38,53,0.08)]">
                     <div className="text-[14px] text-[rgba(39,38,53,0.7)] mb-3">Select preferred provider</div>
@@ -243,12 +316,12 @@ export default function AddBankPage() {
 
                 <button
                   type="submit"
-                  disabled={!canSave}
+                  disabled={!canSave || saving}
                   className={`h-12 px-6 rounded-[10px] text-[14px] text-white transition ${
-                    canSave ? "bg-[#273125] hover:bg-[#1a2119]" : "bg-[#6c757d] cursor-not-allowed"
+                    canSave && !saving ? "bg-[#273125] hover:bg-[#1a2119]" : "bg-[#6c757d] cursor-not-allowed"
                   }`}
                 >
-                  Save Details
+                  {saving ? "Saving..." : "Save Details"}
                 </button>
               </div>
             </div>
