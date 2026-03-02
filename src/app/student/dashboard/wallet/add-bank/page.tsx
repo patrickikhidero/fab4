@@ -231,21 +231,7 @@ export default function AddBankPage() {
                     />
                   </div>
 
-                  <div className="grid grid-cols-2 gap-3">
-                    <div className="bg-[#f9faf7] rounded-[12px] p-5 border border-[rgba(39,38,53,0.08)]">
-                      <div className="text-[14px] text-[rgba(39,38,53,0.7)] mb-2">Country code</div>
-                      <div className="relative">
-                        <input
-                          value={countryCode}
-                          onChange={(e) => setCountryCode(e.target.value)}
-                          placeholder="Select"
-                          className="w-full h-12 px-4 pr-10 rounded-[10px] bg-white border border-[rgba(39,38,53,0.10)] outline-none text-[14px] text-[#272635]"
-                        />
-                        <ChevronDown className="size-4 text-[rgba(39,38,53,0.45)] absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" />
-                      </div>
-                    </div>
-
-                    <div className="bg-[#f9faf7] rounded-[12px] p-5 border border-[rgba(39,38,53,0.08)]">
+                  <div className="bg-[#f9faf7] rounded-[12px] p-5 border border-[rgba(39,38,53,0.08)]">
                       <div className="text-[14px] text-[rgba(39,38,53,0.7)] mb-2">Currency code</div>
                       <div className="relative">
                         <select
@@ -258,10 +244,9 @@ export default function AddBankPage() {
                           <option value="GHS">GHS</option>
                           <option value="XOF">XOF</option>
                         </select>
-                        <ChevronDown className="size-4 text-[rgba(39,38,53,0.45)] absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+                        {/* <ChevronDown className="size-4 text-[rgba(39,38,53,0.45)] absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none" /> */}
                       </div>
                     </div>
-                  </div>
                 </>
               ) : (
                 <>

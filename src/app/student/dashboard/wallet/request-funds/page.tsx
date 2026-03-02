@@ -80,7 +80,7 @@ export default function RequestFundsPage() {
   const purposeOptions: PurposeOption[] = useMemo(
     () => [
       { value: "ACCOMMODATION", label: "Accommodation" },
-      { value: "TUITION", label: "Tuition" },
+      { value: "TUITION_FEES", label: "Tuition" },
       { value: "BOOKS", label: "Books" },
       { value: "PROJECT", label: "Project" },
       { value: "TRANSPORT", label: "Transport" },

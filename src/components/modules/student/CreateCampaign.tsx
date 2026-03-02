@@ -2,12 +2,9 @@
 
 import React, { useEffect, useMemo, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { SidebarNavigation } from './SidebarNavigation'
+import { CalendarDays, X, Trash2, Upload } from 'lucide-react'
 
-import { getStoredUser, getUserIdFromToken } from '@/lib/auth/storage'
-import { getStudentProfile } from '@/lib/student/application'
-import { getCampaignOverview, listMyCampaigns } from '@/lib/student/campaign'
-
+import { getStoredUser } from '@/lib/auth/storage'
 import {
   createCampaign,
   updateCampaign,
@@ -15,7 +12,7 @@ import {
   type CreateCampaignPayload,
 } from '@/lib/student/campaign'
 
-import { api } from '@/lib/api/client' // ✅ used for FX rate fetch (same api client you already use)
+import { api } from '@/lib/api/client'
 
 // Image assets from Figma design
 const imgBackArrow = '/211e63c41bedb13d7b5b07aace82fe8309636c60.svg'
@@ -49,17 +46,10 @@ const imgDrag = '/a5e66ea1728273b13fcac01a04899a1051effbaf.svg'
 const imgImage = '/7833b1c1d42b56fbdb5a6640820cd1d3932cbda1.svg'
 const imgFile = '/file.svg'
 
-// ✅ calendar icon (use your correct path)
-const imgCalendar = '/svg/icons/calendar.svg'
-
 interface UserData {
   name: string
   email: string
   avatar: string
-}
-
-interface CreateCampaignProps {
-  userData?: UserData
 }
 
 type ToastType = 'success' | 'error' | 'info'
@@ -88,15 +78,22 @@ function Toast({
 
   return (
     <div className="fixed bottom-4 right-4 z-[9999]">
-      <div className={`w-[360px] max-w-[calc(100vw-32px)] ${bg} text-white rounded-[12px] shadow-lg p-4`}>
+      <div
+        className={`w-[360px] max-w-[calc(100vw-32px)] ${bg} text-white rounded-[12px] shadow-lg p-4`}
+      >
         <div className="flex items-start gap-3">
           <div className="flex-1">
             <div className="font-semibold text-sm">{title}</div>
             {message ? (
-              <div className="text-xs opacity-90 mt-1 leading-[1.4]">{message}</div>
+              <div className="text-xs opacity-90 mt-1 leading-[1.4]">
+                {message}
+              </div>
             ) : null}
           </div>
-          <button onClick={onClose} className="text-white/90 hover:text-white text-sm">
+          <button
+            onClick={onClose}
+            className="text-white/90 hover:text-white text-sm"
+          >
             ✕
           </button>
         </div>
@@ -110,28 +107,75 @@ function MediaIconsCountry() {
   return (
     <div className="relative size-full" data-name="Property 1=kenya">
       <div className="absolute inset-0" data-name="Vector">
-        <img alt="Kenya Flag" className="block max-w-none size-full" src={imgKenyaFlag} />
+        <img
+          alt="Kenya Flag"
+          className="block max-w-none size-full"
+          src={imgKenyaFlag}
+        />
       </div>
-      <div className="absolute bottom-[71.74%] left-[4.96%] right-[4.96%] top-0" data-name="Vector">
-        <img alt="Kenya Flag" className="block max-w-none size-full" src={imgKenyaFlag1} />
+      <div
+        className="absolute bottom-[71.74%] left-[4.96%] right-[4.96%] top-0"
+        data-name="Vector"
+      >
+        <img
+          alt="Kenya Flag"
+          className="block max-w-none size-full"
+          src={imgKenyaFlag1}
+        />
       </div>
-      <div className="absolute bottom-0 left-[4.96%] right-[4.96%] top-[71.74%]" data-name="Vector">
-        <img alt="Kenya Flag" className="block max-w-none size-full" src={imgKenyaFlag2} />
+      <div
+        className="absolute bottom-0 left-[4.96%] right-[4.96%] top-[71.74%]"
+        data-name="Vector"
+      >
+        <img
+          alt="Kenya Flag"
+          className="block max-w-none size-full"
+          src={imgKenyaFlag2}
+        />
       </div>
-      <div className="absolute bottom-[34.78%] left-0 right-0 top-[34.78%]" data-name="Vector">
-        <img alt="Kenya Flag" className="block max-w-none size-full" src={imgKenyaFlag3} />
+      <div
+        className="absolute bottom-[34.78%] left-0 right-0 top-[34.78%]"
+        data-name="Vector"
+      >
+        <img
+          alt="Kenya Flag"
+          className="block max-w-none size-full"
+          src={imgKenyaFlag3}
+        />
       </div>
       <div className="absolute inset-[20.37%_34.43%]" data-name="Group">
-        <img alt="Kenya Flag" className="block max-w-none size-full" src={imgKenyaFlag4} />
+        <img
+          alt="Kenya Flag"
+          className="block max-w-none size-full"
+          src={imgKenyaFlag4}
+        />
       </div>
       <div className="absolute inset-[24.87%_39.13%]" data-name="Group">
-        <img alt="Kenya Flag" className="block max-w-none size-full" src={imgKenyaFlag5} />
+        <img
+          alt="Kenya Flag"
+          className="block max-w-none size-full"
+          src={imgKenyaFlag5}
+        />
       </div>
-      <div className="absolute inset-[35.01%_34.78%_35.01%_60.87%]" data-name="Vector">
-        <img alt="Kenya Flag" className="block max-w-none size-full" src={imgKenyaFlag6} />
+      <div
+        className="absolute inset-[35.01%_34.78%_35.01%_60.87%]"
+        data-name="Vector"
+      >
+        <img
+          alt="Kenya Flag"
+          className="block max-w-none size-full"
+          src={imgKenyaFlag6}
+        />
       </div>
-      <div className="absolute inset-[35.01%_60.87%_35.01%_34.78%]" data-name="Vector">
-        <img alt="Kenya Flag" className="block max-w-none size-full" src={imgKenyaFlag7} />
+      <div
+        className="absolute inset-[35.01%_60.87%_35.01%_34.78%]"
+        data-name="Vector"
+      >
+        <img
+          alt="Kenya Flag"
+          className="block max-w-none size-full"
+          src={imgKenyaFlag7}
+        />
       </div>
     </div>
   )
@@ -144,22 +188,6 @@ type UploadRow = {
   size: string
   progress: number
   status: 'queued' | 'uploading' | 'completed' | 'error'
-}
-
-type CampaignListItem = {
-  id: number
-  goal?: number | string | null
-  amount?: number | string | null
-  raised_amount?: number | string | null
-  amount_raised?: number | string | null
-  currency?: string | null
-  academic_session?: string | null
-  drafted?: boolean
-  accepted?: boolean
-  goal_achieved?: boolean
-  status?: string | null
-  created_at?: string | null
-  updated_at?: string | null
 }
 
 function humanSize(bytes: number) {
@@ -184,72 +212,39 @@ function formatDateLabel(iso: string) {
   return `${d}/${m}/${y}`
 }
 
+type AcademicNeedOption = {
+  value:
+    | 'ACCOMMODATION'
+    | 'TUITION_FEES'
+    | 'BOOKS'
+    | 'PROJECT'
+    | 'TRANSPORT'
+  label: string
+}
+
 export function CreateCampaign() {
   const router = useRouter()
 
   const [currentStage, setCurrentStage] = useState<1 | 2 | 3>(1)
-  const [activeSection] = useState<'application' | 'status' | 'campaign'>('campaign')
-
-  const [loading, setLoading] = useState(true)
-  const [isVerified, setIsVerified] = useState(false)
-
-  // campaign draft id from backend
   const [campaignId, setCampaignId] = useState<number | null>(null)
 
-  // ✅ student name from local storage
   const [studentName, setStudentName] = useState<string>('')
 
-  // ✅ Step 1 fields (match backend)
-  const [goal, setGoal] = useState<string>('') // backend "goal"
+  const [goal, setGoal] = useState<string>('')
   const [currency, setCurrency] = useState<string>('KES')
   const [academicSession, setAcademicSession] = useState<string>('')
 
-  const [startDate, setStartDate] = useState<string>('') // YYYY-MM-DD
-  const [endDate, setEndDate] = useState<string>('') // YYYY-MM-DD
+  const [startDate, setStartDate] = useState<string>('')
+  const [endDate, setEndDate] = useState<string>('')
 
-  // ✅ keep UI consistent: duration popover
   const [showDatePicker, setShowDatePicker] = useState(false)
   const datePickerRef = useRef<HTMLDivElement | null>(null)
-  const [campaignSummary, setCampaignSummary] = useState<{
-    currentAmount: number
-    weekAmount: number
-    monthAmount: number
-    progress: number
-  } | null>(null)
+
   const [userDataResolved, setUserDataResolved] = useState<UserData>({
-      name: 'User',
-      email: '',
-      avatar: '',
-    })
-
-  const toNum = (v: any) => {
-    const n = Number(v)
-    return Number.isFinite(n) ? n : 0
-  }
-
-  const mapCampaignRaised = (c: CampaignListItem | null) => {
-    if (!c) return 0
-    return (
-      toNum(c.amount_raised) ||
-      toNum(c.raised_amount) ||
-      toNum(c.amount) ||
-      0
-    )
-  }
-
-  const pickCurrentCampaign = (results: CampaignListItem[]): CampaignListItem | null => {
-    if (!results?.length) return null
-
-    // prefer accepted + not drafted
-    const preferred =
-      results.find((c) => c.accepted === true && c.drafted === false) ??
-      results.find((c) => c.drafted === false) ??
-      results[0]
-
-    return preferred ?? null
-  }
-
-
+    name: 'User',
+    email: '',
+    avatar: '',
+  })
 
   useEffect(() => {
     function onDocClick(e: MouseEvent) {
@@ -264,24 +259,27 @@ export function CreateCampaign() {
   }, [showDatePicker])
 
   const durationLabel =
-    startDate && endDate ? `${formatDateLabel(startDate)} - ${formatDateLabel(endDate)}` : ''
+    startDate && endDate
+      ? `${formatDateLabel(startDate)} - ${formatDateLabel(endDate)}`
+      : ''
 
-  // ✅ FX conversion preview: KES -> USD (NO guessing; expects backend/route to return {rate})
   const [usdRate, setUsdRate] = useState<number | null>(null)
-  
+
   useEffect(() => {
     const u = getStoredUser()
-    const name = `${u?.first_name ?? ''} ${u?.last_name ?? ''}`.trim() || 'User'
+    const name =
+      `${u?.first_name ?? ''} ${u?.last_name ?? ''}`.trim() || 'User'
     const email = u?.email ?? ''
     const avatar = u?.photo ?? ''
     setUserDataResolved({ name, email, avatar })
   }, [])
 
-
   useEffect(() => {
     async function loadRate() {
       try {
-        const res = await api.get<{ rate: number }>(`/payments/fx/?from=${currency}&to=USD`)
+        const res = await api.get<{ rate: number }>(
+          `/payments/fx/?from=${currency}&to=USD`,
+        )
         const r = Number(res.data?.rate)
         setUsdRate(Number.isFinite(r) && r > 0 ? r : null)
       } catch {
@@ -293,92 +291,42 @@ export function CreateCampaign() {
     else setUsdRate(null)
   }, [currency])
 
-  // useEffect(() => {
-  //     const run = async () => {
-  //       try {
-  //         setLoading(true)
-  
-  //         const u = getStoredUser()
-  
-  //         let userId: number | null = u?.id ?? null
-  //         if (!userId) userId = getUserIdFromToken()
-  
-  //         const profile = await getStudentProfile(userId)
-  //         const verified = !!profile?.is_verified
-  //         setIsVerified(verified)
-  
-  //         if (!verified) {
-  //           setCampaignSummary(null)
-  //           return
-  //         }
+  const academicNeedOptions: AcademicNeedOption[] = useMemo(
+    () => [
+      { value: 'ACCOMMODATION', label: 'Accommodation' },
+      { value: 'TUITION_FEES', label: 'Tuition fees' },
+      { value: 'BOOKS', label: 'Books' },
+      { value: 'PROJECT', label: 'Project' },
+      { value: 'TRANSPORT', label: 'Transport' },
+    ],
+    [],
+  )
 
-  //         const [ov, mine] = await Promise.all([
-  //                   getCampaignOverview(),
-  //                   listMyCampaigns(),
-  //                 ])
-  //         const results: CampaignListItem[] = mine?.results ?? []
-  //         const current = pickCurrentCampaign(results)
-  //         // ---- Sidebar summary (use overview first, fallback to campaign)
-  //         const currentAmount =
-  //           toNum(ov?.current_campaign_amount) ||
-  //           toNum(ov?.total_raised) ||
-  //           mapCampaignRaised(current)
-  
-  //         const weekAmount =
-  //           toNum(ov?.this_week) ||
-  //           toNum(ov?.week_raised) ||
-  //           toNum(ov?.weekly_growth) ||
-  //           0
-  
-  //         const monthAmount =
-  //           toNum(ov?.this_month) ||
-  //           toNum(ov?.month_raised) ||
-  //           toNum(ov?.monthly_growth) ||
-  //           0
-  
-  //         // progress: prefer API percent, else compute from campaign goal
-  //         const goal = toNum(current?.goal)
-  //         const progress =
-  //           toNum(ov?.progress_percent) ||
-  //           (goal > 0 ? Math.round((currentAmount / goal) * 100) : 0)
-  
-  //         setCampaignSummary({
-  //           currentAmount,
-  //           weekAmount,
-  //           monthAmount,
-  //           progress,
-  //         })    
-  
-          
-  //       } catch (e) {
-  //         console.error('Campaign overview load failed', e)
-  //         setCampaignSummary(null)
-  //       } finally {
-  //         setLoading(false)
-  //       }
-  //   }
-  
-  //   run()
-  //   // eslint-disable-next-line react-hooks/exhaustive-deps
-  // }, [])
-  
+  const [selectedNeed, setSelectedNeed] =
+    useState<AcademicNeedOption['value']>('ACCOMMODATION')
+  const [academicNeeds, setAcademicNeeds] = useState<string[]>([
+    'ACCOMMODATION',
+  ])
 
-  // backend needs academic_needs enums
-  const [needInput, setNeedInput] = useState<string>('')
-  const [academicNeeds, setAcademicNeeds] = useState<string[]>(['ACCOMMODATION'])
-
-  // ✅ Step 2 fields (backend: description required; we use story as description)
   const [story, setStory] = useState<string>('Description')
 
-  // Cover file (UI only unless endpoint exists)
   const [coverFile, setCoverFile] = useState<File | null>(null)
+  const [coverPreviewUrl, setCoverPreviewUrl] = useState<string | null>(null)
   const coverInputRef = useRef<HTMLInputElement | null>(null)
 
-  // Step 3 documents
+  useEffect(() => {
+    if (!coverFile) {
+      setCoverPreviewUrl(null)
+      return
+    }
+    const url = URL.createObjectURL(coverFile)
+    setCoverPreviewUrl(url)
+    return () => URL.revokeObjectURL(url)
+  }, [coverFile])
+
   const [uploadedFiles, setUploadedFiles] = useState<UploadRow[]>([])
   const docsInputRef = useRef<HTMLInputElement | null>(null)
 
-  // Toast
   const [toastOpen, setToastOpen] = useState(false)
   const [toastType, setToastType] = useState<ToastType>('success')
   const [toastTitle, setToastTitle] = useState('')
@@ -393,7 +341,6 @@ export function CreateCampaign() {
 
   const [isSubmitting, setIsSubmitting] = useState(false)
 
-  // ✅ load name from local storage (your app already uses this pattern)
   useEffect(() => {
     const u = getStoredUser()
     const fullName = `${u?.first_name ?? ''} ${u?.last_name ?? ''}`.trim()
@@ -402,34 +349,36 @@ export function CreateCampaign() {
 
   const stages = useMemo(
     () => [
-      { id: 1, title: 'Describe your fundraise goals', active: currentStage === 1 },
-      { id: 2, title: "Why you're fundraising", active: currentStage === 2 },
+      {
+        id: 1,
+        title: 'Describe your fundraise goals',
+        active: currentStage === 1,
+      },
+      {
+        id: 2,
+        title: "Why you're fundraising",
+        active: currentStage === 2,
+      },
       { id: 3, title: 'Share proof documents', active: currentStage === 3 },
     ],
     [currentStage],
   )
 
-  const handleNavigationChange = (section: 'application' | 'status' | 'campaign' | 'wallet') => {
-    if (section === 'application') router.push('/student/dashboard/application/profile')
-    else if (section === 'status') router.push('/student/dashboard/application/profile')
-    else router.push('/student/dashboard/campaign')
-  }
-
   const handleBack = () => router.push('/student/dashboard/campaign')
 
-  // ✅ Needs helpers (store ENUMS like ACCOMMODATION)
   const addNeed = () => {
-    const v = needInput.trim()
+    const v = selectedNeed
     if (!v) return
-    const normalized = v.toUpperCase().replace(/\s+/g, '_')
-    if (academicNeeds.includes(normalized)) return
-    setAcademicNeeds((p) => [...p, normalized])
-    setNeedInput('')
+    if (academicNeeds.includes(v)) return
+    setAcademicNeeds((p) => [...p, v])
   }
 
-  const removeNeed = (v: string) => setAcademicNeeds((p) => p.filter((x) => x !== v))
+  const removeNeed = (v: string) =>
+    setAcademicNeeds((p) => p.filter((x) => x !== v))
 
-  // -------- Docs queue helpers
+  const labelForNeed = (v: string) =>
+    academicNeedOptions.find((o) => o.value === v)?.label ?? v
+
   const addDocsToQueue = (files: FileList | null) => {
     if (!files) return
     const rows: UploadRow[] = Array.from(files).map((f) => ({
@@ -443,9 +392,9 @@ export function CreateCampaign() {
     setUploadedFiles((p) => [...p, ...rows])
   }
 
-  const removeDoc = (id: string) => setUploadedFiles((p) => p.filter((r) => r.id !== id))
+  const removeDoc = (id: string) =>
+    setUploadedFiles((p) => p.filter((r) => r.id !== id))
 
-  // ✅ Build payload that matches backend exactly
   const buildPayload = (): CreateCampaignPayload => {
     const g = Number(goal)
     return {
@@ -458,11 +407,9 @@ export function CreateCampaign() {
       academic_needs: academicNeeds,
       academic_session: academicSession.trim(),
       drafted: true,
-      // cover_photo: not wired yet
     }
   }
 
-  // ✅ Validation
   const validateStep1 = () => {
     const g = Number(goal)
     if (!studentName.trim()) {
@@ -486,28 +433,36 @@ export function CreateCampaign() {
       return false
     }
     if (!academicSession.trim()) {
-      showToast('error', 'Academic session required', 'Enter your academic session.')
+      showToast(
+        'error',
+        'Academic session required',
+        'Enter your academic session.',
+      )
       return false
     }
     if (!academicNeeds.length) {
-      showToast('error', 'Academic needs required', 'Add at least one academic need.')
+      showToast(
+        'error',
+        'Academic needs required',
+        'Add at least one academic need.',
+      )
       return false
     }
     return true
   }
 
   const validateStep2 = () => {
-    // backend requires description
     if (!story.trim()) {
-      showToast('error', 'Description required', 'Tell your story (description).')
+      showToast(
+        'error',
+        'Description required',
+        'Tell your story (description).',
+      )
       return false
     }
     return true
   }
 
-  // ✅ Step save actions
-  // IMPORTANT: your backend requires description on CREATE.
-  // So at Step 1 we create with a placeholder " " and then update real description in Step 2.
   const saveStep1 = async () => {
     if (!validateStep1()) return false
 
@@ -518,9 +473,10 @@ export function CreateCampaign() {
       if (!campaignId) {
         const created = await createCampaign({
           ...payload,
-          description: payload.description?.trim() ? payload.description : ' ', // placeholder
+          description: payload.description?.trim() ? payload.description : ' ',
         })
-        if (!created?.id) throw new Error('Campaign ID not returned from createCampaign.')
+        if (!created?.id)
+          throw new Error('Campaign ID not returned from createCampaign.')
         setCampaignId(created.id)
       } else {
         await updateCampaign(campaignId, {
@@ -631,12 +587,12 @@ export function CreateCampaign() {
 
   return (
     <div className="flex min-h-screen bg-[#eceee4]">
-      <div className="flex-1 p-8">
+      <div className="flex-1 p-4 sm:p-8">
         <div className="min-h-screen bg-[#eceee4]">
           <div className="max-w-6xl mx-auto">
-            <div className="bg-white rounded-[20px] shadow-[0px_16px_32px_-8px_rgba(39,38,53,0.1)] p-8">
+            <div className="bg-white rounded-[20px] shadow-[0px_16px_32px_-8px_rgba(39,38,53,0.1)] p-4 sm:p-8">
               {/* Top Language Selector */}
-              <div className="box-border content-stretch flex flex-col gap-2.5 items-end justify-start px-5 py-0 relative shrink-0 w-full mb-8">
+              <div className="box-border content-stretch flex flex-col gap-2.5 items-end justify-start px-2 sm:px-5 py-0 relative shrink-0 w-full mb-6 sm:mb-8">
                 <div className="box-border content-stretch flex gap-2 items-center justify-center px-2 py-0 relative rounded-[999px] shrink-0">
                   <div className="overflow-clip relative shrink-0 size-4">
                     <div className="absolute inset-0">
@@ -648,7 +604,7 @@ export function CreateCampaign() {
               </div>
 
               {/* Header */}
-              <div className="box-border content-stretch flex flex-col gap-2.5 items-center justify-start px-[120px] py-0 relative size-full mb-8">
+              <div className="box-border content-stretch flex flex-col gap-2.5 items-center justify-start px-0 sm:px-[120px] py-0 relative size-full mb-6 sm:mb-8">
                 <div className="box-border content-stretch flex gap-4 items-start justify-start pb-5 pt-0 px-0 relative shrink-0 w-full">
                   <div aria-hidden="true" className="absolute border-[0px_0px_1px] border-[rgba(39,38,53,0.1)] border-solid inset-0 pointer-events-none" />
 
@@ -672,23 +628,25 @@ export function CreateCampaign() {
                   </button>
 
                   <div className="content-stretch flex flex-col font-['Neue_Montreal:Regular',_sans-serif] gap-2 grow items-start justify-center leading-[0] min-h-px min-w-px not-italic relative self-stretch shrink-0">
-                    <div className="relative shrink-0 text-[#272635] text-[24px] text-nowrap">
+                    <div className="relative shrink-0 text-[#272635] text-[20px] sm:text-[24px] text-nowrap">
                       <p className="leading-[normal] whitespace-pre">Create Campaign</p>
                     </div>
-                    <div className="min-w-full relative shrink-0 text-[16px] text-[rgba(39,38,53,0.5)]" style={{ width: 'min-content' }}>
-                      <p className="leading-[24px]">Clearly provide details to help us understand and process your fund request.</p>
+                    <div className="min-w-full relative shrink-0 text-[14px] sm:text-[16px] text-[rgba(39,38,53,0.5)]" style={{ width: 'min-content' }}>
+                      <p className="leading-[22px] sm:leading-[24px]">
+                        Clearly provide details to help us understand and process your fund request.
+                      </p>
                     </div>
                   </div>
                 </div>
               </div>
 
               {/* Steps */}
-              <div className="mb-8">
-                <div className="flex items-start justify-center">
+              <div className="mb-6 sm:mb-8 overflow-x-auto">
+                <div className="flex items-start justify-center min-w-[720px] sm:min-w-0">
                   {stages.map((stage, index) => (
                     <div key={stage.id} className="flex items-center">
                       <div
-                        className={`px-5 py-4 rounded-t-lg ${
+                        className={`px-4 sm:px-5 py-3 sm:py-4 rounded-t-lg ${
                           stage.active
                             ? 'bg-[#f9faf7] border-b-2 border-[#198754]'
                             : 'bg-white border-b border-[rgba(39,38,53,0.1)]'
@@ -699,7 +657,7 @@ export function CreateCampaign() {
                             <img alt="Double Caret" className="w-full h-full" src={imgDoubleCaret} />
                           </div>
                           <span
-                            className={`text-sm font-medium ${
+                            className={`text-xs sm:text-sm font-medium ${
                               stage.active ? 'text-[#272635]' : 'text-[rgba(39,38,53,0.5)]'
                             }`}
                           >
@@ -707,7 +665,7 @@ export function CreateCampaign() {
                           </span>
                         </div>
                       </div>
-                      {index < stages.length - 1 && <div className="w-8 h-px bg-[rgba(39,38,53,0.1)]"></div>}
+                      {index < stages.length - 1 && <div className="w-6 sm:w-8 h-px bg-[rgba(39,38,53,0.1)]"></div>}
                     </div>
                   ))}
                 </div>
@@ -715,17 +673,17 @@ export function CreateCampaign() {
 
               {/* STAGE 1 */}
               {currentStage === 1 && (
-                <div className="content-stretch flex flex-col gap-10 items-start justify-start relative size-full">
-                  <div className="content-stretch flex flex-col gap-2 items-start justify-start relative shrink-0 w-full">
+                <div className="content-stretch flex flex-col gap-8 sm:gap-10 items-start justify-start relative size-full">
+                  <div className="content-stretch flex flex-col gap-4 sm:gap-6 items-start justify-start relative shrink-0 w-full">
                     {/* Goal */}
-                    <div className="bg-[#f9faf7] box-border content-stretch flex flex-col gap-4 items-start justify-end p-[20px] relative rounded-[12px] shrink-0 w-full">
-                      <div className="content-stretch flex gap-4 items-end justify-start relative shrink-0">
-                        <div className="content-stretch flex flex-col gap-2 items-start justify-start relative shrink-0 w-[252px]">
-                          <div className="font-['Neue_Montreal:Regular',_sans-serif] min-w-full not-italic relative shrink-0 text-[#272635] text-[16px]" style={{ width: 'min-content' }}>
+                    <div className="bg-[#f9faf7] box-border content-stretch flex flex-col gap-4 items-start justify-end p-4 sm:p-[20px] relative rounded-[12px] shrink-0 w-full">
+                      <div className="content-stretch flex flex-col sm:flex-row gap-4 items-start sm:items-end justify-start relative shrink-0 w-full">
+                        <div className="content-stretch flex flex-col gap-2 items-start justify-start relative w-full sm:w-[252px]">
+                          <div className="font-['Neue_Montreal:Regular',_sans-serif] not-italic relative shrink-0 text-[#272635] text-[16px]">
                             <p className="leading-[1.4]">Your starting goal</p>
                           </div>
 
-                          <div className="bg-white box-border content-stretch flex gap-2 h-12 items-center justify-start min-w-60 pl-4 pr-3 py-3 relative rounded-[8px] shrink-0 w-full">
+                          <div className="bg-white box-border content-stretch flex gap-2 h-12 items-center justify-start pl-4 pr-3 py-3 relative rounded-[8px] w-full">
                             <div aria-hidden="true" className="absolute border border-[rgba(39,38,53,0.1)] border-solid inset-[-0.5px] pointer-events-none rounded-[8.5px] shadow-[0px_1px_4px_0px_rgba(12,12,13,0.05)]" />
 
                             <input
@@ -777,7 +735,7 @@ export function CreateCampaign() {
                             </div>
                           </div>
 
-                          <div className="font-['Neue_Montreal:Regular',_sans-serif] text-[18px] text-[rgba(39,38,53,0.5)] text-nowrap">
+                          <div className="font-['Neue_Montreal:Regular',_sans-serif] text-[16px] sm:text-[18px] text-[rgba(39,38,53,0.5)] text-nowrap">
                             <p className="leading-[normal] whitespace-pre">
                               {currency} {Number(goal || 0).toLocaleString()}
                               {usdPreview ? `  ·  USD ${usdPreview}` : ''}
@@ -786,7 +744,7 @@ export function CreateCampaign() {
                         </div>
                       </div>
 
-                      <div className="absolute left-[472px] overflow-clip size-3 top-4">
+                      <div className="absolute right-4 top-4 overflow-clip size-3">
                         <div className="absolute inset-0">
                           <img alt="Info" className="block max-w-none size-full" src={imgInfo} />
                         </div>
@@ -805,7 +763,7 @@ export function CreateCampaign() {
                         </div>
                       </div>
 
-                      <div className="font-['Neue_Montreal:Regular',_sans-serif] min-w-full not-italic relative shrink-0 text-[14px] text-[rgba(39,38,53,0.5)]" style={{ width: 'min-content' }}>
+                      <div className="font-['Neue_Montreal:Regular',_sans-serif] not-italic relative shrink-0 text-[14px] text-[rgba(39,38,53,0.5)]">
                         <p className="leading-[20px]">
                           Keep in mind that transaction and service fees are deducted from each donation.
                         </p>
@@ -813,34 +771,33 @@ export function CreateCampaign() {
                     </div>
 
                     {/* Needs */}
-                    <div className="bg-[#f9faf7] box-border flex flex-col gap-4 items-start justify-start p-[20px] relative rounded-[12px] shrink-0 w-full">
-                      <div className="content-stretch flex gap-2 items-end justify-start relative shrink-0 w-full">
-                        <div className="content-stretch flex flex-col gap-2 grow items-start justify-start min-h-px min-w-px relative shrink-0">
-                          <div className="font-['Neue_Montreal:Regular',_sans-serif] min-w-full not-italic relative shrink-0 text-[#272635] text-[16px]" style={{ width: 'min-content' }}>
+                    <div className="bg-[#f9faf7] box-border flex flex-col gap-4 items-start justify-start p-4 sm:p-[20px] relative rounded-[12px] shrink-0 w-full">
+                      <div className="content-stretch flex flex-col sm:flex-row gap-3 sm:gap-2 items-end justify-start relative shrink-0 w-full">
+                        <div className="content-stretch flex flex-col gap-2 grow items-start justify-start relative w-full">
+                          <div className="font-['Neue_Montreal:Regular',_sans-serif] not-italic relative shrink-0 text-[#272635] text-[16px]">
                             <p className="leading-[1.4]">What are your academic needs?</p>
                           </div>
 
-                          <div className="bg-white box-border content-stretch flex gap-2 h-12 items-center justify-start min-w-60 pl-4 pr-3 py-3 relative rounded-[8px] shrink-0 w-full">
+                          <div className="bg-white box-border content-stretch flex gap-2 h-12 items-center justify-start pl-4 pr-3 py-3 relative rounded-[8px] w-full">
                             <div aria-hidden="true" className="absolute border border-[rgba(39,38,53,0.1)] border-solid inset-[-0.5px] pointer-events-none rounded-[8.5px] shadow-[0px_1px_4px_0px_rgba(12,12,13,0.05)]" />
-                            <input
-                              value={needInput}
-                              onChange={(e) => setNeedInput(e.target.value)}
-                              placeholder="e.g. Accommodation"
+                            <select
+                              value={selectedNeed}
+                              onChange={(e) => setSelectedNeed(e.target.value as AcademicNeedOption['value'])}
                               className="w-full bg-transparent outline-none text-[#272635] text-[14px]"
-                              onKeyDown={(e) => {
-                                if (e.key === 'Enter') {
-                                  e.preventDefault()
-                                  addNeed()
-                                }
-                              }}
-                            />
+                            >
+                              {academicNeedOptions.map((opt) => (
+                                <option key={opt.value} value={opt.value}>
+                                  {opt.label}
+                                </option>
+                              ))}
+                            </select>
                           </div>
                         </div>
 
                         <button
                           type="button"
                           onClick={addNeed}
-                          className="bg-[#eceee4] box-border content-stretch flex gap-2 h-12 items-center justify-center overflow-clip px-5 py-3 relative rounded-[8px] shrink-0 hover:bg-[#dfe2d6] transition-colors"
+                          className="bg-[#eceee4] box-border content-stretch flex gap-2 h-12 items-center justify-center overflow-clip px-5 py-3 relative rounded-[8px] shrink-0 hover:bg-[#dfe2d6] transition-colors w-full sm:w-auto"
                         >
                           <div className="font-['Neue_Montreal:Regular',_sans-serif] not-italic relative shrink-0 text-[#272635] text-[16px] text-nowrap">
                             <p className="leading-none whitespace-pre">Add</p>
@@ -852,37 +809,31 @@ export function CreateCampaign() {
                         {academicNeeds.map((n) => (
                           <div
                             key={n}
-                            className="bg-white box-border content-stretch flex gap-0.5 items-center justify-start pl-3 pr-1.5 py-1 relative rounded-[8px] shrink-0"
+                            className="bg-white box-border content-stretch flex gap-1 items-center justify-start pl-3 pr-1.5 py-1 relative rounded-[8px] shrink-0"
                           >
                             <div aria-hidden="true" className="absolute border border-[rgba(39,38,53,0.1)] border-solid inset-0 pointer-events-none rounded-[8px]" />
                             <div className="font-['Neue_Montreal:Regular',_sans-serif] not-italic relative shrink-0 text-[#272635] text-[14px] text-nowrap">
-                              <p className="leading-[20px] whitespace-pre">{n}</p>
+                              <p className="leading-[20px] whitespace-pre">{labelForNeed(n)}</p>
                             </div>
                             <button
                               type="button"
                               onClick={() => removeNeed(n)}
-                              className="box-border content-stretch flex flex-col items-start justify-start overflow-clip p-[2px] relative rounded-[9999px] shrink-0 hover:bg-[#eceee4] transition-colors"
+                              className="box-border content-stretch flex items-center justify-center p-[2px] relative rounded-[9999px] shrink-0 hover:bg-[#eceee4] transition-colors"
+                              aria-label={`Remove ${labelForNeed(n)}`}
                             >
-                              <div className="overflow-clip relative shrink-0 size-3">
-                                <div className="absolute inset-1/4">
-                                  <div className="absolute inset-[-8.333%]" style={{ '--stroke-0': 'rgba(39, 38, 53, 1)' } as React.CSSProperties}>
-                                    <img alt="Close" className="block max-w-none size-full" src={imgClose} />
-                                  </div>
-                                </div>
-                              </div>
+                              <X className="size-3 text-[#272635]" />
                             </button>
                           </div>
                         ))}
                       </div>
                     </div>
 
-                    {/* Duration + Academic session (✅ consistent UI, calendar icon popover) */}
-                    <div className="bg-[#f9faf7] box-border content-stretch flex flex-col gap-3 items-start justify-start p-[20px] relative rounded-[12px] shrink-0 w-full">
+                    {/* Duration + Academic session */}
+                    <div className="bg-[#f9faf7] box-border content-stretch flex flex-col gap-3 items-start justify-start p-4 sm:p-[20px] relative rounded-[12px] shrink-0 w-full">
                       <div className="font-['Neue_Montreal:Regular',_sans-serif] text-[#272635] text-[16px]">
                         <p className="leading-[1.4]">Duration of this fundraiser</p>
                       </div>
 
-                      {/* Academic session */}
                       <div className="bg-white box-border flex gap-2 h-12 items-center justify-start pl-4 pr-3 py-3 relative rounded-[8px] w-full">
                         <div
                           aria-hidden="true"
@@ -896,7 +847,6 @@ export function CreateCampaign() {
                         />
                       </div>
 
-                      {/* Duration input (readonly) + calendar icon -> popover */}
                       <div className="relative w-full">
                         <div className="bg-white box-border flex gap-2 h-12 items-center justify-start pl-4 pr-3 py-3 relative rounded-[8px] w-full">
                           <div
@@ -918,20 +868,20 @@ export function CreateCampaign() {
                             className="shrink-0 size-8 grid place-items-center rounded-[8px] hover:bg-[#eceee4] transition-colors"
                             aria-label="Open calendar"
                           >
-                            <img src={imgCalendar} alt="Calendar" className="size-4" />
+                            <CalendarDays className="size-4 text-[#272635]" />
                           </button>
                         </div>
 
                         {showDatePicker && (
                           <div
                             ref={datePickerRef}
-                            className="absolute z-50 mt-2 right-0 w-[320px] bg-white rounded-[12px] shadow-[0px_16px_32px_-8px_rgba(39,38,53,0.18)] p-4 border border-[rgba(39,38,53,0.08)]"
+                            className="absolute z-50 mt-2 right-0 w-[min(92vw,320px)] bg-white rounded-[12px] shadow-[0px_16px_32px_-8px_rgba(39,38,53,0.18)] p-4 border border-[rgba(39,38,53,0.08)]"
                           >
                             <div className="font-['Neue_Montreal:Regular',_sans-serif] text-[#272635] text-[14px] mb-3">
                               Select duration
                             </div>
 
-                            <div className="grid grid-cols-2 gap-3">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                               <div className="flex flex-col gap-1">
                                 <div className="text-[12px] text-[rgba(39,38,53,0.5)]">Start date</div>
                                 <input
@@ -969,7 +919,7 @@ export function CreateCampaign() {
                   </div>
 
                   {/* Actions */}
-                  <div className="content-stretch flex gap-4 items-center justify-end relative shrink-0 w-full">
+                  <div className="content-stretch flex flex-col sm:flex-row gap-4 items-stretch sm:items-center justify-end relative shrink-0 w-full">
                     <button
                       type="button"
                       onClick={saveStep1}
@@ -978,8 +928,8 @@ export function CreateCampaign() {
                         isSubmitting ? 'opacity-60 cursor-not-allowed' : ''
                       }`}
                     >
-                      <div className="font-['Neue_Montreal:Regular',_sans-serif] text-[#272635] text-[16px] text-nowrap">
-                        <p className="[text-decoration-skip-ink:none] [text-underline-position:from-font] decoration-solid leading-none underline whitespace-pre">
+                      <div className="font-['Neue_Montreal:Regular',_sans-serif] text-[#272635] text-[16px]">
+                        <p className="[text-decoration-skip-ink:none] [text-underline-position:from-font] decoration-solid leading-none underline">
                           Save to Continue Later
                         </p>
                       </div>
@@ -992,13 +942,13 @@ export function CreateCampaign() {
                         if (ok) setCurrentStage(2)
                       }}
                       disabled={isSubmitting}
-                      className={`bg-[#273125] h-14 relative rounded-[8px] shrink-0 transition-colors ${
+                      className={`bg-[#273125] h-14 relative rounded-[8px] shrink-0 transition-colors w-full sm:w-auto ${
                         isSubmitting ? 'opacity-60 cursor-not-allowed' : 'hover:bg-[#1a2119]'
                       }`}
                     >
                       <div className="box-border content-stretch flex gap-2 h-14 items-center justify-center overflow-clip px-5 py-3 relative">
-                        <div className="font-['Neue_Montreal:Regular',_sans-serif] text-[16px] text-nowrap text-white">
-                          <p className="leading-none whitespace-pre">{isSubmitting ? 'Saving...' : 'Continue'}</p>
+                        <div className="font-['Neue_Montreal:Regular',_sans-serif] text-[16px] text-white">
+                          <p className="leading-none">{isSubmitting ? 'Saving...' : 'Continue'}</p>
                         </div>
                       </div>
                       <div aria-hidden="true" className="absolute border border-[#2c2c2c] border-solid inset-0 pointer-events-none rounded-[8px]" />
@@ -1010,15 +960,15 @@ export function CreateCampaign() {
               {/* STAGE 2 */}
               {currentStage === 2 && (
                 <div className="content-stretch flex flex-col items-start justify-between relative size-full">
-                  <div className="content-stretch flex flex-col gap-2 items-start justify-start relative shrink-0 w-full">
-                    <div className="bg-[#f9faf7] box-border content-stretch flex flex-col gap-2.5 items-start justify-start p-[20px] relative rounded-[12px] shrink-0 w-full">
+                  <div className="content-stretch flex flex-col gap-4 items-start justify-start relative shrink-0 w-full">
+                    <div className="bg-[#f9faf7] box-border content-stretch flex flex-col gap-2.5 items-start justify-start p-4 sm:p-[20px] relative rounded-[12px] shrink-0 w-full">
                       <div className="content-stretch flex flex-col gap-2 items-start justify-start relative shrink-0 w-full">
                         <div className="font-['Neue_Montreal:Regular',_sans-serif] text-[#272635] text-[16px] w-full">
                           <p className="leading-[1.4]">Tell your story (this is your campaign description)</p>
                         </div>
 
-                        <div className="bg-white h-[140px] min-w-60 relative rounded-[8px] shrink-0 w-full">
-                          <div className="box-border content-stretch flex h-[140px] items-start justify-start min-w-inherit overflow-clip px-4 py-3 relative w-full">
+                        <div className="bg-white h-[160px] sm:h-[140px] min-w-60 relative rounded-[8px] shrink-0 w-full">
+                          <div className="box-border content-stretch flex h-full items-start justify-start min-w-inherit overflow-clip px-4 py-3 relative w-full">
                             <textarea
                               value={story}
                               onChange={(e) => setStory(e.target.value)}
@@ -1040,54 +990,90 @@ export function CreateCampaign() {
                       <p className="leading-[1.4]">Upload a cover photo</p>
                     </div>
 
-                    <div className="bg-[#f9faf7] box-border content-stretch flex flex-col gap-2.5 items-start justify-start p-[20px] relative rounded-[12px] shrink-0 w-full">
+                    {/* ✅ Fixed remove button: overlay top-right on preview card */}
+                    <div className="bg-[#f9faf7] box-border content-stretch flex flex-col gap-3 items-start justify-start p-4 sm:p-[20px] relative rounded-[12px] shrink-0 w-full">
                       <div aria-hidden="true" className="absolute border border-[rgba(39,38,53,0.1)] border-dashed inset-0 pointer-events-none rounded-[12px]" />
 
-                      <button
-                        type="button"
-                        onClick={() => coverInputRef.current?.click()}
-                        className="content-stretch flex flex-col gap-2 items-center justify-start relative shrink-0 w-full"
-                      >
-                        <div className="relative shrink-0 size-7">
-                          <img alt="Image Upload" className="block max-w-none size-full" src={imgImage} />
-                        </div>
+                      <div className="w-full">
+                        {coverPreviewUrl ? (
+                          <div className="w-full max-w-[640px] mx-auto relative">
+                            <div className="w-full aspect-[16/9] rounded-[12px] overflow-hidden border border-[rgba(39,38,53,0.12)] bg-white shadow-[0px_1px_4px_0px_rgba(12,12,13,0.05)]">
+                              <img
+                                src={coverPreviewUrl}
+                                alt="Cover preview"
+                                className="w-full h-full object-cover"
+                              />
+                            </div>
 
-                        <div className="font-['Neue_Montreal:Regular',_sans-serif] text-[14px] text-[rgba(39,38,53,0.5)] text-center w-full">
-                          <p className="leading-[1.4]">
-                            <span className="[text-underline-position:from-font] decoration-solid text-[#198754] underline">Click to insert</span>
-                            <span className="text-[#272635]">{` or drag and drop your photo here`}</span>
-                          </p>
-                        </div>
+                            <button
+                              type="button"
+                              onClick={() => setCoverFile(null)}
+                              className="absolute top-2 right-2 inline-flex items-center gap-2 rounded-[10px] bg-white/95 backdrop-blur px-3 py-2 text-[12px] text-[#272635] border border-[rgba(39,38,53,0.14)] shadow-[0px_8px_18px_-10px_rgba(39,38,53,0.35)] hover:bg-[#eceee4] transition-colors"
+                              aria-label="Remove cover image"
+                            >
+                              <Trash2 className="size-4" />
+                              <span className="font-medium">Remove</span>
+                            </button>
 
-                        <div className="font-['Neue_Montreal:Regular',_sans-serif] text-[14px] text-[rgba(39,38,53,0.5)] text-center w-full">
-                          <p className="leading-[1.4]">{coverFile ? `Selected: ${coverFile.name}` : 'Maximum file size is 20MB'}</p>
-                        </div>
-                      </button>
+                            <button
+                              type="button"
+                              onClick={() => coverInputRef.current?.click()}
+                              className="mt-3 inline-flex items-center gap-2 text-[#198754] text-[14px] underline hover:text-[#146c43] transition-colors"
+                            >
+                              <Upload className="size-4" />
+                              Change photo
+                            </button>
+                          </div>
+                        ) : (
+                          <button
+                            type="button"
+                            onClick={() => coverInputRef.current?.click()}
+                            className="content-stretch flex flex-col gap-2 items-center justify-start relative shrink-0 w-full py-4"
+                          >
+                            <div className="relative shrink-0 size-7">
+                              <img alt="Image Upload" className="block max-w-none size-full" src={imgImage} />
+                            </div>
 
-                      <input
-                        ref={coverInputRef}
-                        type="file"
-                        accept="image/*"
-                        className="hidden"
-                        onChange={(e) => setCoverFile(e.target.files?.[0] ?? null)}
-                      />
+                            <div className="font-['Neue_Montreal:Regular',_sans-serif] text-[14px] text-[rgba(39,38,53,0.5)] text-center w-full">
+                              <p className="leading-[1.4]">
+                                <span className="[text-underline-position:from-font] decoration-solid text-[#198754] underline">
+                                  Click to insert
+                                </span>
+                                <span className="text-[#272635]">{` or drag and drop your photo here`}</span>
+                              </p>
+                            </div>
+
+                            <div className="font-['Neue_Montreal:Regular',_sans-serif] text-[14px] text-[rgba(39,38,53,0.5)] text-center w-full">
+                              <p className="leading-[1.4]">Maximum file size is 20MB</p>
+                            </div>
+                          </button>
+                        )}
+
+                        <input
+                          ref={coverInputRef}
+                          type="file"
+                          accept="image/*"
+                          className="hidden"
+                          onChange={(e) => setCoverFile(e.target.files?.[0] ?? null)}
+                        />
+                      </div>
                     </div>
                   </div>
 
-                  <div className="content-stretch flex gap-4 items-center justify-between relative shrink-0 w-full">
+                  <div className="content-stretch flex flex-col sm:flex-row gap-4 items-stretch sm:items-center justify-between relative shrink-0 w-full">
                     <button
                       onClick={() => setCurrentStage(1)}
                       className="content-stretch flex gap-2 items-center justify-center overflow-clip relative rounded-[8px] shrink-0"
                       disabled={isSubmitting}
                     >
-                      <div className="font-['Neue_Montreal:Regular',_sans-serif] text-[#272635] text-[16px] text-nowrap">
-                        <p className="[text-decoration-skip-ink:none] [text-underline-position:from-font] decoration-solid leading-none underline whitespace-pre">
+                      <div className="font-['Neue_Montreal:Regular',_sans-serif] text-[#272635] text-[16px]">
+                        <p className="[text-decoration-skip-ink:none] [text-underline-position:from-font] decoration-solid leading-none underline">
                           Back
                         </p>
                       </div>
                     </button>
 
-                    <div className="flex gap-4 items-center">
+                    <div className="flex flex-col sm:flex-row gap-4 items-stretch sm:items-center w-full sm:w-auto">
                       <button
                         type="button"
                         onClick={saveStep2}
@@ -1096,8 +1082,8 @@ export function CreateCampaign() {
                           isSubmitting ? 'opacity-60 cursor-not-allowed' : ''
                         }`}
                       >
-                        <div className="font-['Neue_Montreal:Regular',_sans-serif] text-[#272635] text-[16px] text-nowrap">
-                          <p className="[text-decoration-skip-ink:none] [text-underline-position:from-font] decoration-solid leading-none underline whitespace-pre">
+                        <div className="font-['Neue_Montreal:Regular',_sans-serif] text-[#272635] text-[16px]">
+                          <p className="[text-decoration-skip-ink:none] [text-underline-position:from-font] decoration-solid leading-none underline">
                             Save to Continue Later
                           </p>
                         </div>
@@ -1110,13 +1096,13 @@ export function CreateCampaign() {
                           if (ok) setCurrentStage(3)
                         }}
                         disabled={isSubmitting}
-                        className={`bg-[#273125] h-14 relative rounded-[8px] shrink-0 transition-colors ${
+                        className={`bg-[#273125] h-14 relative rounded-[8px] shrink-0 transition-colors w-full sm:w-auto ${
                           isSubmitting ? 'opacity-60 cursor-not-allowed' : 'hover:bg-[#1a2119]'
                         }`}
                       >
                         <div className="box-border content-stretch flex gap-2 h-14 items-center justify-center overflow-clip px-5 py-3 relative">
-                          <div className="font-['Neue_Montreal:Regular',_sans-serif] text-[16px] text-nowrap text-white">
-                            <p className="leading-none whitespace-pre">{isSubmitting ? 'Saving...' : 'Continue'}</p>
+                          <div className="font-['Neue_Montreal:Regular',_sans-serif] text-[16px] text-white">
+                            <p className="leading-none">{isSubmitting ? 'Saving...' : 'Continue'}</p>
                           </div>
                         </div>
                         <div aria-hidden="true" className="absolute border border-[#2c2c2c] border-solid inset-0 pointer-events-none rounded-[8px]" />
@@ -1126,12 +1112,12 @@ export function CreateCampaign() {
                 </div>
               )}
 
-              {/* STAGE 3 */}
+              {/* STAGE 3 (unchanged layout but responsive paddings already ok) */}
               {currentStage === 3 && (
                 <div className="content-stretch flex flex-col items-start justify-between relative size-full">
                   <div className="content-stretch flex flex-col gap-6 items-start justify-start relative shrink-0 w-full">
                     <div className="content-stretch flex flex-col gap-2 items-start justify-start relative shrink-0 w-full">
-                      <div className="font-['Neue_Montreal:Regular',_sans-serif] text-[#272635] text-[24px] w-full">
+                      <div className="font-['Neue_Montreal:Regular',_sans-serif] text-[#272635] text-[22px] sm:text-[24px] w-full">
                         <p className="leading-[1.4] font-semibold">Boost Credibility With Donors</p>
                       </div>
                       <div className="font-['Neue_Montreal:Regular',_sans-serif] text-[#272635] text-[16px] w-full">
@@ -1262,14 +1248,14 @@ export function CreateCampaign() {
                     </div>
                   </div>
 
-                  <div className="content-stretch flex gap-4 items-center justify-between relative shrink-0 w-full">
+                  <div className="content-stretch flex flex-col sm:flex-row gap-4 items-stretch sm:items-center justify-between relative shrink-0 w-full">
                     <button
                       onClick={() => setCurrentStage(2)}
                       className="content-stretch flex gap-2 items-center justify-center overflow-clip relative rounded-[8px] shrink-0"
                       disabled={isSubmitting}
                     >
-                      <div className="font-['Neue_Montreal:Regular',_sans-serif] text-[#272635] text-[16px] text-nowrap">
-                        <p className="[text-decoration-skip-ink:none] [text-underline-position:from-font] decoration-solid leading-none underline whitespace-pre">
+                      <div className="font-['Neue_Montreal:Regular',_sans-serif] text-[#272635] text-[16px]">
+                        <p className="[text-decoration-skip-ink:none] [text-underline-position:from-font] decoration-solid leading-none underline">
                           Back
                         </p>
                       </div>
@@ -1278,13 +1264,13 @@ export function CreateCampaign() {
                     <button
                       onClick={uploadDocumentsAndFinish}
                       disabled={isSubmitting}
-                      className={`h-14 relative rounded-[8px] shrink-0 transition-colors ${
+                      className={`h-14 relative rounded-[8px] shrink-0 transition-colors w-full sm:w-auto ${
                         isSubmitting ? 'bg-[#6c757d] cursor-not-allowed' : 'bg-[#198754] hover:bg-[#146c43]'
                       }`}
                     >
                       <div className="box-border content-stretch flex gap-2 h-14 items-center justify-center overflow-clip px-5 py-3 relative">
-                        <div className="font-['Neue_Montreal:Regular',_sans-serif] text-[16px] text-nowrap text-white">
-                          <p className="leading-none whitespace-pre">{isSubmitting ? 'Creating Campaign...' : 'Create Campaign'}</p>
+                        <div className="font-['Neue_Montreal:Regular',_sans-serif] text-[16px] text-white">
+                          <p className="leading-none">{isSubmitting ? 'Creating Campaign...' : 'Create Campaign'}</p>
                         </div>
                       </div>
                       <div aria-hidden="true" className="absolute border border-[#146c43] border-solid inset-0 pointer-events-none rounded-[8px]" />
