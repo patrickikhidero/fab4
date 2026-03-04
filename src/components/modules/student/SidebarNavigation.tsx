@@ -70,9 +70,12 @@ export function SidebarNavigation({
         <div className="inline-grid place-items-start relative shrink-0 w-full">
           <div className="flex flex-col gap-6 items-start justify-start pt-16 w-[300px]">
             <div className="flex flex-col gap-10 items-start justify-center px-10 w-full">
-              <div className="text-lg font-semibold tracking-wide text-[var(--color-primary-text)] opacity-60">
-                LOGO
-              </div>
+              {/* LOGO */}
+              <img
+                src="/assets/logo.svg"
+                alt="FabFour Foundation"
+                className="h-6 w-auto opacity-60"
+              />
 
               <div className="flex flex-col gap-4 items-start justify-start w-full">
                 <div className="text-[#272635] text-[28px] w-full">
