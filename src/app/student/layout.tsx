@@ -9,7 +9,7 @@ import { getStoredUser, getUserIdFromToken } from "@/lib/auth/storage";
 import { getStudentProfile, type StudentProfileResponse } from "@/lib/student/application";
 import { getCampaignOverview, listMyCampaigns } from "@/lib/student/campaign";
 
-type DashboardSection = "application" | "campaign" | "wallet" | "status" | "conversations";
+type DashboardSection = "application" | "campaign" | "wallet" | "conversations";
 
 type UserData = {
   name: string;

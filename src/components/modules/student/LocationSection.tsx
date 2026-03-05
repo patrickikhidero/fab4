@@ -44,22 +44,24 @@ export const LocationSection: React.FC<LocationSectionProps> = ({
       </div>
 
       {/* Form Fields */}
-      <div className="content-stretch flex flex-col gap-5 items-start justify-start relative shrink-0 w-full" data-node-id="466:2454">
+      <div className="content-stretch flex flex-col gap-5 items-start justify-start relative w-full">
         <div className="grid grid-cols-2 gap-5 w-full">
           <FormSelect
             label="Country"
+            placeholder="Select Country"
             value={formData.country}
             onChange={(value) => onFormChange('country', value)}
             options={countries}
-            placeholder="Select Country"
+            
             required
           />
           <FormSelect
             label="State/Province"
+            placeholder="Select State"
             value={formData.state}
             onChange={(value) => onFormChange('state', value)}
             options={states}
-            placeholder="Select State"
+            
             required
           />
         </div>

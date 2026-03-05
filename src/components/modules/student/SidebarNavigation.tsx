@@ -16,7 +16,7 @@ interface CampaignSummary {
   progress: number;
 }
 
-type DashboardSection = "application" | "status" | "campaign" | "wallet" | "conversations";
+type DashboardSection = "application" | "campaign" | "wallet" | "conversations";
 
 interface SidebarNavigationProps {
   currentStep: number;
@@ -65,156 +65,157 @@ export function SidebarNavigation({
   };
 
   return (
-    <div className="flex w-[300px] h-[1024px] items-start shrink-0 relative">
-      <div className="basis-0 flex flex-col grow h-full items-start justify-start relative shrink-0">
-        <div className="inline-grid place-items-start relative shrink-0 w-full">
-          <div className="flex flex-col gap-6 items-start justify-start pt-16 w-[300px]">
-            <div className="flex flex-col gap-10 items-start justify-center px-10 w-full">
-              {/* LOGO */}
-              <img
-                src="/assets/logo.svg"
-                alt="FabFour Foundation"
-                className="h-6 w-auto opacity-60"
-              />
+  <aside className="w-[300px] shrink-0 sticky top-0 h-screen">
+    <div className="h-full flex flex-col">
+      {/* TOP AREA (scrolls only if needed) */}
+      <div className="flex-1 overflow-y-auto">
+        <div className="flex flex-col gap-6 pt-16 w-[300px]">
+          <div className="flex flex-col gap-10 items-start justify-center px-10 w-full">
+            <img
+              src="/assets/logo.svg"
+              alt="FabFour Foundation"
+              className="h-6 w-auto opacity-60"
+            />
 
-              <div className="flex flex-col gap-4 items-start justify-start w-full">
-                <div className="text-[#272635] text-[28px] w-full">
-                  <p className="leading-[normal]">Welcome back,</p>
-                  <p className="text-[rgba(39,38,53,0.5)]">{userData.name}!</p>
-                </div>
+            <div className="flex flex-col gap-4 items-start justify-start w-full">
+              <div className="text-[#272635] text-[28px] w-full">
+                <p className="leading-[normal]">Welcome back,</p>
+                <p className="text-[rgba(39,38,53,0.5)]">{userData.name}!</p>
               </div>
-            </div>
-
-            <div className="flex flex-col gap-1 items-start justify-start px-7 w-full mb-4">
-              {!isVerified && (
-                <NavItem
-                  active={activeSection === "application"}
-                  label="Your Application"
-                  onClick={() => onNavigationChange("application")}
-                  icon={<Wallet className="h-5 w-5" />}
-                />
-              )}
-
-              {isVerified && (
-                <NavItem
-                  active={activeSection === "campaign"}
-                  label="Campaign"
-                  onClick={() => onNavigationChange("campaign")}
-                  icon={<Users className="h-5 w-5" />}
-                />
-              )}
-
-              {isVerified && (
-                <NavItem
-                  active={activeSection === "wallet"}
-                  label="Funds & Wallet"
-                  onClick={() => onNavigationChange("wallet")}
-                  icon={<Wallet className="h-5 w-5" />}
-                />
-              )}
             </div>
           </div>
 
-          {/* Bottom */}
-          <div className="flex flex-col gap-3 items-start justify-start mt-32 pb-16 px-10 w-[300px]">
-            {isVerified && campaignSummary && (
-              <div className="w-[220px] h-[183px] flex flex-col">
-                <div className="flex items-start justify-between">
-                  <div>
-                    <div className="text-[#272635] text-[14px] uppercase">current campaign</div>
-                    <div className="text-[#198754] text-[28px]">
-                      ${campaignSummary.currentAmount.toLocaleString()}
-                    </div>
-                  </div>
-
-                  <div className="h-[41px] w-[41px] grid place-items-center rounded-full border border-[rgba(39,38,53,0.12)]">
-                    <span className="text-[12px] text-[#272635]">{campaignSummary.progress}%</span>
-                  </div>
-                </div>
-
-                <div className="mt-4 h-[1px] w-full bg-[rgba(39,38,53,0.08)]" />
-
-                <div className="mt-4 space-y-2">
-                  <Row label="This week" value={`+$${campaignSummary.weekAmount.toLocaleString()}`} />
-                  <Row label="This month" value={`+$${campaignSummary.monthAmount.toLocaleString()}`} />
-                </div>
-
-                <button className="mt-4 text-left text-[12px] text-[#272635] underline underline-offset-4">
-                  View
-                </button>
-              </div>
+          <div className="flex flex-col gap-1 items-start justify-start px-7 w-full mb-4">
+            {!isVerified && (
+              <NavItem
+                active={activeSection === "application"}
+                label="Your Application"
+                onClick={() => onNavigationChange("application")}
+                icon={<Wallet className="h-5 w-5" />}
+              />
             )}
 
-            {/* ✅ User Profile (OLD layout preserved; only dropdown behavior changed) */}
-            <div className="w-[220px] h-[114px] flex flex-col relative" ref={menuRef}>
-              <div className="w-[220px] h-[40px] flex items-center gap-2">
-                <div
-                  className="w-[40px] h-[40px] rounded-[20px] bg-center bg-cover bg-no-repeat"
-                  style={{ backgroundImage: `url('${avatarSrc}')` }}
-                />
+            {isVerified && (
+              <NavItem
+                active={activeSection === "campaign"}
+                label="Campaign"
+                onClick={() => onNavigationChange("campaign")}
+                icon={<Users className="h-5 w-5" />}
+              />
+            )}
 
-                <div className="flex-1 flex flex-col gap-1 min-w-0">
-                  <div className="flex items-center justify-between gap-2">
-                    <div className="text-[#272635] text-[14px] truncate">{userData.name}</div>
+            {isVerified && (
+              <NavItem
+                active={activeSection === "wallet"}
+                label="Funds & Wallet"
+                onClick={() => onNavigationChange("wallet")}
+                icon={<Wallet className="h-5 w-5" />}
+              />
+            )}
+          </div>
+        </div>
+      </div>
 
-                    <button
-                      type="button"
-                      onClick={() => setMenuOpen((v) => !v)}
-                      className="shrink-0 h-7 w-7 grid place-items-center rounded-[8px] hover:bg-[#eceee4] transition-colors"
-                      aria-label="Open profile menu"
-                    >
-                      <ChevronDown className="h-4 w-4 text-[#272635]" />
-                    </button>
-                  </div>
-
-                  <div className="text-[rgba(39,38,53,0.5)] text-[12px] truncate">{userData.email}</div>
+      {/* BOTTOM AREA (always visible, doesn't move) */}
+      <div className="shrink-0 pb-10 px-10">
+        {isVerified && campaignSummary && (
+          <div className="w-[220px] h-[183px] flex flex-col mb-6">
+            <div className="flex items-start justify-between">
+              <div>
+                <div className="text-[#272635] text-[14px] uppercase">
+                  current campaign
+                </div>
+                <div className="text-[#198754] text-[28px]">
+                  ${campaignSummary.currentAmount.toLocaleString()}
                 </div>
               </div>
 
-              {/* ✅ Bootstrap-like popup (absolute, overlays, opens upward) */}
-              {menuOpen && (
-                <div
-                  className={[
-                    "absolute right-0 bottom-full mb-2 w-[220px]",
-                    "bg-white rounded-[12px] border border-[rgba(39,38,53,0.08)]",
-                    "shadow-[0px_16px_32px_-8px_rgba(39,38,53,0.18)] overflow-hidden",
-                    "z-[9999]",
-                  ].join(" ")}
-                >
-                  <button
-                    type="button"
-                    onClick={goProfile}
-                    className="w-full px-3 py-2 text-left text-[13px] text-[#272635] hover:bg-[#f9faf7] flex items-center gap-2"
-                  >
-                    <UserIcon className="h-4 w-4" />
-                    <span>My Account</span>
-                  </button>
-
-                  <div className="h-px bg-[rgba(39,38,53,0.08)]" />
-
-                  <button
-                    type="button"
-                    onClick={logout}
-                    className="w-full px-3 py-2 text-left text-[13px] text-[#272635] hover:bg-[#f9faf7] flex items-center gap-2"
-                  >
-                    <LogOut className="h-4 w-4" />
-                    <span>Logout</span>
-                  </button>
-                </div>
-              )}
-
-              {/* ✅ Divider (no svg, just a div) */}
-              <div className="w-[220px] h-px mt-[20px] bg-[rgba(39,38,53,0.08)]" />
-
-              <div className="w-[220px] h-[34px] mt-[20px] text-[rgba(39,38,53,0.5)] text-[14px]">
-                © 2024 FabFour Foundation. All rights reserved.
+              <div className="h-[41px] w-[41px] grid place-items-center rounded-full border border-[rgba(39,38,53,0.12)]">
+                <span className="text-[12px] text-[#272635]">
+                  {campaignSummary.progress}%
+                </span>
               </div>
             </div>
+
+            <div className="mt-4 h-[1px] w-full bg-[rgba(39,38,53,0.08)]" />
+
+            <div className="mt-4 space-y-2">
+              <Row label="This week" value={`+$${campaignSummary.weekAmount.toLocaleString()}`} />
+              <Row label="This month" value={`+$${campaignSummary.monthAmount.toLocaleString()}`} />
+            </div>
+
+            <button className="mt-4 text-left text-[12px] text-[#272635] underline underline-offset-4">
+              View
+            </button>
+          </div>
+        )}
+
+        <div className="w-[220px] flex flex-col relative" ref={menuRef}>
+          <div className="w-[220px] h-[40px] flex items-center gap-2">
+            <div
+              className="w-[40px] h-[40px] rounded-[20px] bg-center bg-cover bg-no-repeat"
+              style={{ backgroundImage: `url('${avatarSrc}')` }}
+            />
+
+            <div className="flex-1 flex flex-col gap-1 min-w-0">
+              <div className="flex items-center justify-between gap-2">
+                <div className="text-[#272635] text-[14px] truncate">{userData.name}</div>
+
+                <button
+                  type="button"
+                  onClick={() => setMenuOpen((v) => !v)}
+                  className="shrink-0 h-7 w-7 grid place-items-center rounded-[8px] hover:bg-[#eceee4] transition-colors"
+                  aria-label="Open profile menu"
+                >
+                  <ChevronDown className="h-4 w-4 text-[#272635]" />
+                </button>
+              </div>
+
+              <div className="text-[rgba(39,38,53,0.5)] text-[12px] truncate">{userData.email}</div>
+            </div>
+          </div>
+
+          {menuOpen && (
+            <div
+              className={[
+                "absolute right-0 bottom-full mb-2 w-[220px]",
+                "bg-white rounded-[12px] border border-[rgba(39,38,53,0.08)]",
+                "shadow-[0px_16px_32px_-8px_rgba(39,38,53,0.18)] overflow-hidden",
+                "z-[9999]",
+              ].join(" ")}
+            >
+              <button
+                type="button"
+                onClick={goProfile}
+                className="w-full px-3 py-2 text-left text-[13px] text-[#272635] hover:bg-[#f9faf7] flex items-center gap-2"
+              >
+                <UserIcon className="h-4 w-4" />
+                <span>My Account</span>
+              </button>
+
+              <div className="h-px bg-[rgba(39,38,53,0.08)]" />
+
+              <button
+                type="button"
+                onClick={logout}
+                className="w-full px-3 py-2 text-left text-[13px] text-[#272635] hover:bg-[#f9faf7] flex items-center gap-2"
+              >
+                <LogOut className="h-4 w-4" />
+                <span>Logout</span>
+              </button>
+            </div>
+          )}
+
+          <div className="w-[220px] h-px mt-5 bg-[rgba(39,38,53,0.08)]" />
+
+          <div className="w-[220px] mt-5 text-[rgba(39,38,53,0.5)] text-[14px]">
+            © 2024 FabFour Foundation. All rights reserved.
           </div>
         </div>
       </div>
     </div>
-  );
+  </aside>
+)
 }
 
 function NavItem({
