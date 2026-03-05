@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useEffect, useState } from "react";
@@ -11,7 +12,6 @@ import { listDonationsByCampaign } from "@/lib/student/donations";
 const imgArrow = "/29a615b320e09cd458090219f8e83fd794a5404f.svg";
 const imgArrow1 = "/1763841bb245d3b7f2dc8db8079ee0686b7664af.svg";
 const imgArrow2 = "/405a8c19d5f6673a8a5391077b715ebb72246911.svg";
-const imgLine1 = "/f1485ba9c642cd505ed93e33186ec08e310dce13.svg";
 const imgUsers = "/77732e3e998572eabf9798e67462c7ef2ca5f194.svg";
 const imgCaretLeft = "/56081696a1312ef9611e978678f37ddf156bff77.svg";
 const imgCaretRight = "/5bdd3bf8706f1d9ca913b8414ffc8824726bba6b.svg";
@@ -48,6 +48,10 @@ type CampaignListItem = {
   status?: string | null;
 };
 
+export default function CampaignPage() {
+  return <CampaignOverview />;
+}
+
 export function CampaignOverview() {
   const router = useRouter();
 
@@ -58,6 +62,7 @@ export function CampaignOverview() {
   const [isVerified, setIsVerified] = useState(false);
   const [donors, setDonors] = useState<Donor[]>([]);
   const [campaignMetrics, setCampaignMetrics] = useState<CampaignMetrics | null>(null);
+  const [currentCampaignId, setCurrentCampaignId] = useState<number | null>(null);
   const [loading, setLoading] = useState(true);
 
   const toNum = (v: any) => {
@@ -162,6 +167,7 @@ export function CampaignOverview() {
         if (!verified) {
           setCampaignMetrics(null);
           setDonors([]);
+          setCurrentCampaignId(null);
           return;
         }
 
@@ -170,6 +176,8 @@ export function CampaignOverview() {
         const results: CampaignListItem[] = (mine as any)?.results ?? [];
         const current = pickCurrentCampaign(results);
         const campaignId = current?.id ?? null;
+
+        setCurrentCampaignId(campaignId);
 
         const goal = toNum(current?.goal);
         const totalRaised = toNum((ov as any)?.overall_stats?.total_amount_raised);
@@ -197,6 +205,7 @@ export function CampaignOverview() {
         console.error("Campaign overview load failed", e);
         setCampaignMetrics(null);
         setDonors([]);
+        setCurrentCampaignId(null);
       } finally {
         setLoading(false);
       }
@@ -272,10 +281,6 @@ export function CampaignOverview() {
 
             <div className="mt-2 text-[#272635] text-[28px]">${metrics.goal.toLocaleString()}</div>
 
-            {/* <div className="mt-4 h-[1px] w-full">
-              <img alt="Line" className="block w-full" src={imgLine1} />
-            </div> */}
-
             <button className="mt-3 flex items-center gap-2 text-[#198754] text-[12px]">
               <span>View Status</span>
               <img alt="Arrow" className="size-4" src={imgArrow} />
@@ -296,11 +301,14 @@ export function CampaignOverview() {
               <span>{metrics.academicSessions} Academic year</span>
             </div>
 
-            {/* <div className="mt-4 h-[1px] w-full">
-              <img alt="Line" className="block w-full" src={imgLine1} />
-            </div> */}
-
-            <button className="mt-3 flex items-center gap-2 text-[#198754] text-[12px]">
+            {/* ✅ CLICKABLE VIEW */}
+            <button
+              className="mt-3 flex items-center gap-2 text-[#198754] text-[12px]"
+              onClick={() => {
+                if (!currentCampaignId) return;
+                router.push(`/student/dashboard/campaign/${currentCampaignId}`);
+              }}
+            >
               <span>View</span>
               <img alt="Arrow" className="size-4" src={imgArrow} />
             </button>
