@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useEffect, useState } from "react";
@@ -220,13 +219,13 @@ export function CampaignOverview() {
 
   if (!isVerified) {
     return (
-      <div className="py-24 text-center">
+      <div className="py-16 sm:py-24 text-center px-4">
         <div className="text-[#272635] text-[18px] font-medium">Campaign is not available</div>
-        <div className="mt-2 text-[13px] text-[rgba(39,38,53,0.6)]">
+        <div className="mt-2 text-[13px] text-[rgba(39,38,53,0.6)] max-w-[420px] mx-auto">
           Complete your application and get verified to access Campaign features.
         </div>
         <button
-          className="mt-6 btn-secondary h-10 px-4 rounded-[12px]"
+          className="mt-6 h-10 px-4 rounded-[12px] border border-[rgba(39,38,53,0.1)] bg-white text-[#272635]"
           onClick={() => router.push("/student/dashboard")}
         >
           Go back
@@ -236,16 +235,16 @@ export function CampaignOverview() {
   }
 
   return (
-    <div className="max-w-6xl mx-auto">
+    <div className="max-w-6xl mx-auto min-w-0">
       {/* page header */}
-      <div className="flex items-center justify-between mb-8">
-        <div className="text-[#272635] text-[28px] font-['Neue_Montreal:Regular',_sans-serif]">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
+        <div className="text-[#272635] text-[24px] sm:text-[28px] font-['Neue_Montreal:Regular',_sans-serif]">
           Campaign
         </div>
 
         <button
           onClick={() => router.push("/student/dashboard/campaign/create")}
-          className="inline-flex items-center gap-2 text-[#272635] text-[16px] hover:bg-black/5 px-3 py-2 rounded-[10px] transition-colors"
+          className="inline-flex items-center justify-center gap-2 text-[#272635] text-[14px] sm:text-[16px] hover:bg-black/5 px-3 py-2 rounded-[10px] transition-colors self-start sm:self-auto"
         >
           <span>Create Campaign</span>
           <span className="relative size-5">
@@ -261,25 +260,27 @@ export function CampaignOverview() {
       </div>
 
       {/* Overview Section */}
-      <div className="flex gap-10 items-start mb-10">
-        <div className="shrink-0">
-          <div className="text-[#272635] text-[18px] uppercase">overview of campaigns</div>
-          <div className="mt-2 text-[16px] text-[rgba(39,38,53,0.5)] w-[277px] leading-[24px]">
+      <div className="flex flex-col xl:flex-row gap-6 xl:gap-10 items-start mb-10">
+        <div className="shrink-0 w-full xl:w-auto">
+          <div className="text-[#272635] text-[16px] sm:text-[18px] uppercase">overview of campaigns</div>
+          <div className="mt-2 text-[14px] sm:text-[16px] text-[rgba(39,38,53,0.5)] w-full xl:w-[277px] leading-[24px]">
             This is the performance of all campaign created for you over the period of your academics
           </div>
         </div>
 
-        <div className="flex-1 grid grid-cols-1 md:grid-cols-2 gap-5">
+        <div className="flex-1 grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-5 w-full">
           {/* Goal Card */}
-          <div className="relative rounded-[12px] p-4 border border-[rgba(39,38,53,0.1)] shadow-[0px_1px_4px_0px_rgba(12,12,13,0.05)]">
-            <div className="flex items-center gap-2">
+          <div className="relative rounded-[12px] p-4 border border-[rgba(39,38,53,0.1)] shadow-[0px_1px_4px_0px_rgba(12,12,13,0.05)] min-w-0">
+            <div className="flex flex-wrap items-center gap-2">
               <div className="text-[#272635] text-[14px] uppercase">campaign goal</div>
               <div className="bg-yellow-100 px-2 py-1 rounded-full text-[#272635] text-[10px]">
                 {metrics.status === "active" ? "Active" : "Under review"}
               </div>
             </div>
 
-            <div className="mt-2 text-[#272635] text-[28px]">${metrics.goal.toLocaleString()}</div>
+            <div className="mt-2 text-[#272635] text-[24px] sm:text-[28px] break-words">
+              ${metrics.goal.toLocaleString()}
+            </div>
 
             <button className="mt-3 flex items-center gap-2 text-[#198754] text-[12px]">
               <span>View Status</span>
@@ -288,20 +289,21 @@ export function CampaignOverview() {
           </div>
 
           {/* Overall Card */}
-          <div className="relative rounded-[12px] p-4 border border-[rgba(39,38,53,0.1)] shadow-[0px_1px_4px_0px_rgba(12,12,13,0.05)]">
+          <div className="relative rounded-[12px] p-4 border border-[rgba(39,38,53,0.1)] shadow-[0px_1px_4px_0px_rgba(12,12,13,0.05)] min-w-0">
             <div className="flex items-center gap-2">
               <img alt="Users" className="size-8" src={imgUsers} />
               <div className="text-[#272635] text-[14px] uppercase">overall campaigns</div>
             </div>
 
-            <div className="mt-2 text-[#272635] text-[28px]">${metrics.raised.toLocaleString()}</div>
+            <div className="mt-2 text-[#272635] text-[24px] sm:text-[28px] break-words">
+              ${metrics.raised.toLocaleString()}
+            </div>
 
-            <div className="mt-2 flex items-center gap-2 text-[#272635] text-[12px]">
+            <div className="mt-2 flex items-center gap-2 text-[#272635] text-[12px] flex-wrap">
               <img alt="Calendar" className="size-4" src="/svg/icons/calendar.svg" />
               <span>{metrics.academicSessions} Academic year</span>
             </div>
 
-            {/* ✅ CLICKABLE VIEW */}
             <button
               className="mt-3 flex items-center gap-2 text-[#198754] text-[12px]"
               onClick={() => {
@@ -317,22 +319,22 @@ export function CampaignOverview() {
       </div>
 
       {/* Donor History */}
-      <div className="flex items-start justify-between mb-6">
-        <div className="w-[508px]">
-          <div className="text-[#272635] text-[18px] uppercase">history of donors</div>
-          <div className="mt-2 text-[16px] text-[rgba(39,38,53,0.5)] leading-[24px]">
+      <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-4 mb-6">
+        <div className="w-full lg:w-[508px] min-w-0">
+          <div className="text-[#272635] text-[16px] sm:text-[18px] uppercase">history of donors</div>
+          <div className="mt-2 text-[14px] sm:text-[16px] text-[rgba(39,38,53,0.5)] leading-[24px]">
             This is the performance of all campaign created for you over the period of your academics
           </div>
         </div>
 
-        <div className="flex gap-2 items-center text-[#272635] text-[12px]">
+        <div className="flex gap-2 items-center text-[#272635] text-[12px] self-start lg:self-auto">
           <span>Current</span>
           <img alt="Caret Down" className="size-4" src="/svg/icons/dropdown-arrow.svg" />
         </div>
       </div>
 
       {/* Tabs */}
-      <div className="flex gap-8 items-center mb-6">
+      <div className="flex flex-wrap gap-x-6 gap-y-3 items-center mb-6">
         <Tab
           active={activeTab === "all"}
           onClick={() => {
@@ -361,8 +363,68 @@ export function CampaignOverview() {
         />
       </div>
 
-      {/* Table */}
-      <div className="rounded-[12px] border border-[rgba(39,38,53,0.1)] overflow-hidden">
+      {/* Mobile cards */}
+      <div className="lg:hidden space-y-3">
+        {paginatedDonors.length === 0 ? (
+          <div className="rounded-[12px] border border-[rgba(39,38,53,0.1)] px-6 py-14 text-center">
+            <div className="text-[14px] font-medium text-[rgba(39,38,53,0.75)]">No donors to show</div>
+            <div className="mt-1 text-[12px] text-[rgba(39,38,53,0.55)] leading-5">
+              Once donations start coming in, they will appear here.
+            </div>
+          </div>
+        ) : (
+          paginatedDonors.map((donor) => (
+            <div
+              key={donor.id}
+              className="rounded-[12px] border border-[rgba(39,38,53,0.1)] p-4 bg-white"
+            >
+              <div className="flex items-start justify-between gap-3">
+                <div className="min-w-0">
+                  <div className="text-[14px] text-[#272635] font-medium break-words">
+                    {donor.name}
+                  </div>
+                  <div className="mt-1 text-[12px] text-[rgba(39,38,53,0.5)]">{donor.date}</div>
+                </div>
+
+                <div className="text-[14px] text-[#272635] shrink-0">
+                  ${donor.amount.toFixed(2)}
+                </div>
+              </div>
+            </div>
+          ))
+        )}
+
+        <div className="flex items-center justify-end pt-2">
+          <div className="flex gap-2">
+            <button
+              onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
+              disabled={currentPage === 1}
+              className={`min-h-[32px] min-w-[32px] rounded-[8px] grid place-items-center transition-colors ${
+                currentPage === 1
+                  ? "bg-[rgba(39,38,53,0.1)] cursor-not-allowed"
+                  : "bg-white hover:bg-[rgba(39,38,53,0.05)] border border-[rgba(39,38,53,0.1)]"
+              }`}
+            >
+              <img alt="Prev" className="size-5" src={imgCaretLeft} />
+            </button>
+
+            <button
+              onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
+              disabled={currentPage === totalPages}
+              className={`min-h-[32px] min-w-[32px] rounded-[8px] grid place-items-center transition-colors ${
+                currentPage === totalPages
+                  ? "bg-[rgba(39,38,53,0.1)] cursor-not-allowed"
+                  : "bg-white hover:bg-[rgba(39,38,53,0.05)] border border-[rgba(39,38,53,0.1)]"
+              }`}
+            >
+              <img alt="Next" className="size-5" src={imgCaretRight} />
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* Desktop table */}
+      <div className="hidden lg:block rounded-[12px] border border-[rgba(39,38,53,0.1)] overflow-hidden">
         <div className="flex border-b border-[rgba(39,38,53,0.1)] text-[12px] uppercase text-[#272635]">
           <div className="w-[279px] px-4 py-3">Names</div>
           <div className="w-[240px] px-4 py-3">Donation</div>
@@ -439,11 +501,11 @@ function Tab({
   return (
     <button
       onClick={onClick}
-      className={`text-[16px] pb-2 border-b-2 transition-colors ${
+      className={`text-[14px] sm:text-[16px] pb-2 border-b-2 transition-colors ${
         active ? "text-[#198754] border-[#198754]" : "text-[rgba(39,38,53,0.5)] border-transparent"
       }`}
     >
-      <span className="inline-flex items-center gap-2">
+      <span className="inline-flex items-center gap-2 flex-wrap">
         {label}
         {typeof count === "number" ? (
           <span className="bg-[rgba(39,38,53,0.1)] px-2 py-1 rounded-full text-[10px] text-[#272635]">

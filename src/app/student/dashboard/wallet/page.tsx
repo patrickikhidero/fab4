@@ -144,7 +144,7 @@ export default function WalletPage() {
   }, [rows, tab]);
 
   return (
-    <div className="glass rounded-[24px] p-10 min-h-[760px]">
+    <div className="glass rounded-[18px] sm:rounded-[24px] p-4 sm:p-6 lg:p-10 min-h-[640px] lg:min-h-[760px] min-w-0">
       <Header
         onRequestFunds={() =>
           router.push("/student/dashboard/wallet/request-funds")
@@ -152,7 +152,7 @@ export default function WalletPage() {
       />
 
       {/* Equal width + equal height cards */}
-      <div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className="mt-6 sm:mt-8 grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
         <WalletBalanceCard amount={walletBalance} />
         <BankCard
           bankInfo={bankInfo}
@@ -162,10 +162,26 @@ export default function WalletPage() {
         />
       </div>
 
-      <div className="mt-10">
+      <div className="mt-8 sm:mt-10 min-w-0">
         <Tabs tab={tab} setTab={setTab} counts={countTabs(rows)} />
 
-        <div className="mt-4 rounded-[16px] border border-[rgba(39,38,53,0.08)] bg-white">
+        {/* Mobile cards */}
+        <div className="mt-4 lg:hidden">
+          {loading ? (
+            <div className="rounded-[16px] border border-[rgba(39,38,53,0.08)] bg-white px-4 py-10 text-[13px] text-[rgba(39,38,53,0.6)]">
+              Loading...
+            </div>
+          ) : filteredRows.length === 0 ? (
+            <div className="rounded-[16px] border border-[rgba(39,38,53,0.08)] bg-white">
+              <EmptyState />
+            </div>
+          ) : (
+            <RequestsMobileList rows={filteredRows} />
+          )}
+        </div>
+
+        {/* Desktop table */}
+        <div className="hidden lg:block mt-4 rounded-[16px] border border-[rgba(39,38,53,0.08)] bg-white overflow-hidden">
           <TableHeader />
 
           {loading ? (
@@ -191,13 +207,13 @@ export default function WalletPage() {
 
 function Header({ onRequestFunds }: { onRequestFunds: () => void }) {
   return (
-    <div className="flex items-start justify-between">
-      <div>
-        <div className="text-[24px] font-medium text-[var(--color-primary-text)]">
+    <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 sm:gap-6">
+      <div className="min-w-0">
+        <div className="text-[22px] sm:text-[24px] font-medium text-[var(--color-primary-text)]">
           Funds Request
         </div>
 
-        <div className="mt-2 text-[12px] uppercase tracking-wide text-[rgba(39,38,53,0.6)]">
+        <div className="mt-2 text-[11px] sm:text-[12px] uppercase tracking-wide text-[rgba(39,38,53,0.6)]">
           Wallet & Bank
         </div>
 
@@ -208,7 +224,7 @@ function Header({ onRequestFunds }: { onRequestFunds: () => void }) {
 
       <button
         onClick={onRequestFunds}
-        className="flex items-center gap-2 h-10 px-4 rounded-[12px] bg-white border border-[rgba(39,38,53,0.08)] hover:bg-[rgba(39,38,53,0.03)] transition"
+        className="flex items-center justify-center gap-2 h-10 px-4 rounded-[12px] bg-white border border-[rgba(39,38,53,0.08)] hover:bg-[rgba(39,38,53,0.03)] transition w-full sm:w-auto shrink-0"
       >
         <span className="text-[13px]">Request for Funds</span>
         <span className="text-[16px]">↗</span>
@@ -219,9 +235,9 @@ function Header({ onRequestFunds }: { onRequestFunds: () => void }) {
 
 function WalletBalanceCard({ amount }: { amount: number }) {
   return (
-    <div className="h-[150px] rounded-[16px] bg-[var(--color-primary)] text-white px-6 py-5 flex flex-col justify-between shadow-[0px_10px_30px_-8px_rgba(0,0,0,0.2)]">
+    <div className="h-[150px] rounded-[16px] bg-[var(--color-primary)] text-white px-5 sm:px-6 py-5 flex flex-col justify-between shadow-[0px_10px_30px_-8px_rgba(0,0,0,0.2)] min-w-0">
       <div className="flex items-center gap-3">
-        <div className="h-9 w-9 rounded-[10px] bg-white/15 flex items-center justify-center">
+        <div className="h-9 w-9 rounded-[10px] bg-white/15 flex items-center justify-center shrink-0">
           <Wallet size={18} />
         </div>
         <div className="text-[12px] uppercase tracking-wide opacity-80">
@@ -229,7 +245,7 @@ function WalletBalanceCard({ amount }: { amount: number }) {
         </div>
       </div>
 
-      <div className="text-[30px] font-medium">
+      <div className="text-[26px] sm:text-[30px] font-medium break-words">
         ${amount.toLocaleString()}
       </div>
     </div>
@@ -245,9 +261,9 @@ function BankCard({
 }) {
   if (!bankInfo) {
     return (
-      <div className="h-[150px] rounded-[16px] border border-[rgba(39,38,53,0.08)] bg-white px-6 py-5 flex flex-col justify-between shadow-[0px_10px_30px_-8px_rgba(39,38,53,0.08)]">
+      <div className="h-[150px] rounded-[16px] border border-[rgba(39,38,53,0.08)] bg-white px-5 sm:px-6 py-5 flex flex-col justify-between shadow-[0px_10px_30px_-8px_rgba(39,38,53,0.08)] min-w-0">
         <div className="flex items-center gap-3">
-          <div className="h-9 w-9 rounded-[10px] bg-[rgba(39,38,53,0.05)] flex items-center justify-center">
+          <div className="h-9 w-9 rounded-[10px] bg-[rgba(39,38,53,0.05)] flex items-center justify-center shrink-0">
             <Landmark size={18} />
           </div>
           <div className="text-[12px] uppercase tracking-wide text-[rgba(39,38,53,0.6)]">
@@ -255,11 +271,11 @@ function BankCard({
           </div>
         </div>
 
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between gap-3">
           <span className="text-[13px] text-[rgba(39,38,53,0.6)]">-</span>
           <button
             onClick={onAddOrChange}
-            className="text-[13px] text-[rgba(39,38,53,0.7)] underline underline-offset-4"
+            className="text-[13px] text-[rgba(39,38,53,0.7)] underline underline-offset-4 shrink-0"
           >
             Add Bank +
           </button>
@@ -269,9 +285,9 @@ function BankCard({
   }
 
   return (
-    <div className="h-[150px] rounded-[16px] border border-[rgba(39,38,53,0.08)] bg-white px-6 py-5 flex flex-col justify-between shadow-[0px_10px_30px_-8px_rgba(39,38,53,0.08)]">
+    <div className="h-[150px] rounded-[16px] border border-[rgba(39,38,53,0.08)] bg-white px-5 sm:px-6 py-5 flex flex-col justify-between shadow-[0px_10px_30px_-8px_rgba(39,38,53,0.08)] min-w-0">
       <div className="flex items-center gap-3">
-        <div className="h-9 w-9 rounded-[10px] bg-[rgba(39,38,53,0.05)] flex items-center justify-center">
+        <div className="h-9 w-9 rounded-[10px] bg-[rgba(39,38,53,0.05)] flex items-center justify-center shrink-0">
           <Landmark size={18} />
         </div>
         <div className="text-[12px] uppercase tracking-wide text-[rgba(39,38,53,0.6)]">
@@ -279,14 +295,14 @@ function BankCard({
         </div>
       </div>
 
-      <div>
-        <div className="text-[15px] font-medium">
+      <div className="min-w-0">
+        <div className="text-[15px] font-medium break-words">
           {bankInfo.bankName}
         </div>
-        <div className="text-[12px] text-[rgba(39,38,53,0.6)]">
+        <div className="text-[12px] text-[rgba(39,38,53,0.6)] break-words">
           {bankInfo.accountName}
         </div>
-        <div className="text-[12px] text-[rgba(39,38,53,0.6)]">
+        <div className="text-[12px] text-[rgba(39,38,53,0.6)] break-words">
           {bankInfo.accountMasked}
         </div>
       </div>
@@ -313,16 +329,18 @@ function Tabs({
   counts: { accepted: number; rejected: number };
 }) {
   return (
-    <div className="flex items-center gap-6 text-[13px]">
-      <TabButton active={tab === "all"} onClick={() => setTab("all")}>
-        All requests
-      </TabButton>
-      <TabButton active={tab === "accepted"} onClick={() => setTab("accepted")}>
-        Accepted <span className="ml-1 opacity-60">{counts.accepted}</span>
-      </TabButton>
-      <TabButton active={tab === "rejected"} onClick={() => setTab("rejected")}>
-        Rejected <span className="ml-1 opacity-60">{counts.rejected}</span>
-      </TabButton>
+    <div className="overflow-x-auto [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+      <div className="flex items-center gap-6 text-[13px] min-w-max pr-2">
+        <TabButton active={tab === "all"} onClick={() => setTab("all")}>
+          All requests
+        </TabButton>
+        <TabButton active={tab === "accepted"} onClick={() => setTab("accepted")}>
+          Accepted <span className="ml-1 opacity-60">{counts.accepted}</span>
+        </TabButton>
+        <TabButton active={tab === "rejected"} onClick={() => setTab("rejected")}>
+          Rejected <span className="ml-1 opacity-60">{counts.rejected}</span>
+        </TabButton>
+      </div>
     </div>
   );
 }
@@ -340,7 +358,7 @@ function TabButton({
     <button
       onClick={onClick}
       className={[
-        "relative pb-2",
+        "relative pb-2 whitespace-nowrap",
         active ? "text-[var(--color-primary-text)]" : "text-[rgba(39,38,53,0.5)]",
       ].join(" ")}
     >
@@ -398,9 +416,60 @@ function RequestsTable({ rows }: { rows: RequestRow[] }) {
   );
 }
 
+function RequestsMobileList({ rows }: { rows: RequestRow[] }) {
+  return (
+    <div className="space-y-3">
+      {rows.map((r) => (
+        <div
+          key={r.id}
+          className="rounded-[16px] border border-[rgba(39,38,53,0.08)] bg-white p-4"
+        >
+          <div className="flex items-start justify-between gap-3">
+            <span className="inline-flex items-center rounded-full bg-white border border-[rgba(39,38,53,0.08)] px-3 py-1 text-[12px] text-[rgba(39,38,53,0.75)]">
+              {r.purpose}
+            </span>
+
+            <StatusBadge status={r.status} />
+          </div>
+
+          <div className="mt-4 grid grid-cols-2 gap-x-4 gap-y-3 text-[12px]">
+            <InfoPair label="Deadline" value={r.deadline} />
+            <InfoPair label="Fees" value={r.fees} />
+            <InfoPair label="Date" value={r.date} />
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function InfoPair({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="min-w-0">
+      <div className="text-[rgba(39,38,53,0.5)]">{label}</div>
+      <div className="mt-1 text-[rgba(39,38,53,0.8)] break-words">{value}</div>
+    </div>
+  );
+}
+
+function StatusBadge({ status }: { status: RequestRow["status"] }) {
+  const cls =
+    status === "Accepted"
+      ? "bg-[#eaf6ef] text-[#198754]"
+      : status === "Rejected"
+        ? "bg-[#fdecec] text-[#c0392b]"
+        : "bg-[rgba(39,38,53,0.08)] text-[rgba(39,38,53,0.7)]";
+
+  return (
+    <span className={`inline-flex items-center rounded-full px-3 py-1 text-[11px] font-medium ${cls}`}>
+      {status}
+    </span>
+  );
+}
+
 function PaginationArrows() {
   return (
-    <div className="mt-4 flex justify-end gap-2">
+    <div className="mt-4 flex justify-center lg:justify-end gap-2">
       <button className="h-9 w-9 rounded-[10px] border border-[rgba(39,38,53,0.08)] bg-white/60 grid place-items-center">
         ‹
       </button>
@@ -413,7 +482,7 @@ function PaginationArrows() {
 
 function FooterLinks() {
   return (
-    <div className="mt-10 flex justify-end gap-6 text-[12px] text-[rgba(39,38,53,0.5)]">
+    <div className="mt-10 flex flex-wrap justify-center lg:justify-end gap-x-6 gap-y-2 text-[12px] text-[rgba(39,38,53,0.5)]">
       <span>Terms</span>
       <span>Legal</span>
       <span>Privacy policy</span>

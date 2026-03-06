@@ -23,7 +23,7 @@ function Tab({
       type="button"
       onClick={onClick}
       className={[
-        "relative text-[12px] leading-[16px] px-1 pb-3",
+        "relative text-[12px] leading-[16px] px-1 pb-3 whitespace-nowrap shrink-0",
         active ? "text-[#272635]" : "text-[rgba(39,38,53,0.45)]",
       ].join(" ")}
     >
@@ -47,13 +47,13 @@ function Input({
   onChange: (v: string) => void;
 }) {
   return (
-    <div className="flex flex-col gap-2">
+    <div className="flex flex-col gap-2 min-w-0">
       <div className="text-[12px] text-[#272635] leading-[16px]">{label}</div>
       <input
         value={value}
         onChange={(e) => onChange(e.target.value)}
         placeholder={placeholder}
-        className="h-10 px-3 rounded-[8px] bg-[#eef0e6] border border-[rgba(39,38,53,0.06)] outline-none text-[13px] text-[#272635]"
+        className="h-10 px-3 rounded-[8px] bg-[#eef0e6] border border-[rgba(39,38,53,0.06)] outline-none text-[13px] text-[#272635] min-w-0"
       />
     </div>
   );
@@ -71,12 +71,12 @@ function Select({
   options: string[];
 }) {
   return (
-    <div className="flex flex-col gap-2">
+    <div className="flex flex-col gap-2 min-w-0">
       <div className="text-[12px] text-[#272635] leading-[16px]">{label}</div>
       <select
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className="h-10 px-3 rounded-[8px] bg-[#eef0e6] border border-[rgba(39,38,53,0.06)] outline-none text-[13px] text-[#272635]"
+        className="h-10 px-3 rounded-[8px] bg-[#eef0e6] border border-[rgba(39,38,53,0.06)] outline-none text-[13px] text-[#272635] min-w-0"
       >
         <option value="">Select</option>
         {options.map((o) => (
@@ -104,7 +104,7 @@ function Toggle({
       aria-label={ariaLabel}
       onClick={() => onChange(!checked)}
       className={[
-        "h-[18px] w-[32px] rounded-full relative border transition-colors",
+        "h-[18px] w-[32px] rounded-full relative border transition-colors shrink-0",
         checked
           ? "bg-[#198754] border-[#198754]"
           : "bg-[#eef0e6] border-[rgba(39,38,53,0.12)]",
@@ -126,7 +126,7 @@ export default function ProfilePage() {
   const [tab, setTab] = useState<TabKey>("profile");
   const [loading, setLoading] = useState(true);
 
-  // Profile tab fields (from your current foundation)
+  // Profile tab fields
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
@@ -135,13 +135,13 @@ export default function ProfilePage() {
   const [state, setState] = useState("");
   const [address, setAddress] = useState("");
 
-  // Academics tab fields (from screenshot)
+  // Academics tab fields
   const [institutionName, setInstitutionName] = useState("University of Lagos");
   const [courseOfStudy, setCourseOfStudy] = useState("Bio Chemical Engineering");
   const [academicCountry, setAcademicCountry] = useState("Nigeria");
   const [academicState, setAcademicState] = useState("Lagos");
 
-  // Notification tab toggles (match the screenshot layout)
+  // Notification tab toggles
   const [donationsInApp, setDonationsInApp] = useState(true);
   const [donationsEmail, setDonationsEmail] = useState(true);
   const [donationsSms, setDonationsSms] = useState(false);
@@ -196,53 +196,57 @@ export default function ProfilePage() {
     "bg-[#f9faf7] rounded-[12px] p-4 border border-[rgba(39,38,53,0.06)]";
 
   return (
-    <div className="w-full flex justify-center">
-      <div className="w-full max-w-[860px]">
+    <div className="w-full flex justify-center min-w-0">
+      <div className="w-full max-w-[860px] min-w-0">
         {/* header row */}
-        <div className="mt-6 flex items-start gap-3">
+        <div className="mt-4 sm:mt-6 flex items-start gap-3">
           <button
             type="button"
             onClick={() => router.back()}
-            className="h-8 w-8 rounded-full bg-[#eef0e6] grid place-items-center"
+            className="h-8 w-8 rounded-full bg-[#eef0e6] grid place-items-center shrink-0"
             aria-label="Back"
           >
             <ChevronLeft className="h-4 w-4 text-[#272635]" />
           </button>
 
-          <div className="flex flex-col">
+          <div className="flex flex-col min-w-0">
             <div className="text-[14px] text-[#272635] leading-[20px] font-medium">
               My Account
             </div>
-            <div className="text-[12px] text-[rgba(39,38,53,0.45)] leading-[16px]">
+            <div className="text-[12px] text-[rgba(39,38,53,0.45)] leading-[16px] break-words">
               {subtitle}
             </div>
           </div>
         </div>
 
         {/* tabs row + Update Profile */}
-        <div className="mt-5 flex items-center justify-between border-b border-[rgba(39,38,53,0.08)]">
-          <div className="flex items-center gap-6">
-            <Tab active={tab === "profile"} label="Profile" onClick={() => setTab("profile")} />
-            <Tab active={tab === "academics"} label="Academics" onClick={() => setTab("academics")} />
-            <Tab
-              active={tab === "notification"}
-              label="Notification"
-              onClick={() => setTab("notification")}
-            />
-            <Tab active={tab === "security"} label="Security" onClick={() => setTab("security")} />
-          </div>
+        <div className="mt-5 border-b border-[rgba(39,38,53,0.08)]">
+          <div className="flex flex-col gap-3 sm:gap-0 sm:flex-row sm:items-center sm:justify-between">
+            <div className="overflow-x-auto [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+              <div className="flex items-center gap-6 min-w-max pr-2">
+                <Tab active={tab === "profile"} label="Profile" onClick={() => setTab("profile")} />
+                <Tab active={tab === "academics"} label="Academics" onClick={() => setTab("academics")} />
+                <Tab
+                  active={tab === "notification"}
+                  label="Notification"
+                  onClick={() => setTab("notification")}
+                />
+                <Tab active={tab === "security"} label="Security" onClick={() => setTab("security")} />
+              </div>
+            </div>
 
-          <button
-            type="button"
-            className="mb-2 text-[12px] text-[rgba(39,38,53,0.6)] inline-flex items-center gap-2"
-          >
-            <span className="opacity-70">✎</span>
-            <span>Update Profile</span>
-          </button>
+            <button
+              type="button"
+              className="mb-2 text-[12px] text-[rgba(39,38,53,0.6)] inline-flex items-center gap-2 self-start sm:self-auto shrink-0"
+            >
+              <span className="opacity-70">✎</span>
+              <span>Update Profile</span>
+            </button>
+          </div>
         </div>
 
         {/* body */}
-        <div className="mt-6">
+        <div className="mt-6 min-w-0">
           {loading ? (
             <div className="text-[#272635] text-[14px]">Loading...</div>
           ) : (
@@ -308,15 +312,15 @@ export default function ProfilePage() {
                   </div>
 
                   {/* Identify Yourself */}
-                  <div className={[cardClass, "flex items-center justify-between"].join(" ")}>
-                    <div>
+                  <div className={[cardClass, "flex items-center justify-between gap-4"].join(" ")}>
+                    <div className="min-w-0">
                       <div className="text-[12px] text-[#272635] font-medium">Identify Yourself</div>
                       <div className="mt-1 text-[11px] text-[rgba(39,38,53,0.45)]">
                         Your profile has been verified
                       </div>
                     </div>
 
-                    <div className="h-5 w-9 rounded-full bg-[#eef0e6] relative">
+                    <div className="h-5 w-9 rounded-full bg-[#eef0e6] relative shrink-0">
                       <div className="absolute right-[2px] top-[2px] h-4 w-4 rounded-full bg-[#198754]" />
                     </div>
                   </div>
@@ -377,7 +381,7 @@ export default function ProfilePage() {
 
                     <div className="mt-4 space-y-4">
                       {/* Donations */}
-                      <div className="flex items-start justify-between gap-6">
+                      <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 sm:gap-6">
                         <div className="min-w-0">
                           <div className="text-[12px] text-[#272635] font-medium">Donations</div>
                           <div className="mt-1 text-[11px] text-[rgba(39,38,53,0.45)] leading-[16px]">
@@ -386,7 +390,7 @@ export default function ProfilePage() {
                           </div>
                         </div>
 
-                        <div className="shrink-0 w-[140px] space-y-2">
+                        <div className="shrink-0 w-full sm:w-[140px] space-y-2">
                           <div className="flex items-center justify-between">
                             <div className="text-[11px] text-[#272635]">In-app</div>
                             <Toggle
@@ -417,7 +421,7 @@ export default function ProfilePage() {
                       <div className="h-[1px] w-full bg-[rgba(39,38,53,0.08)]" />
 
                       {/* Campaigns */}
-                      <div className="flex items-start justify-between gap-6">
+                      <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 sm:gap-6">
                         <div className="min-w-0">
                           <div className="text-[12px] text-[#272635] font-medium">Campaigns</div>
                           <div className="mt-1 text-[11px] text-[rgba(39,38,53,0.45)] leading-[16px]">
@@ -426,7 +430,7 @@ export default function ProfilePage() {
                           </div>
                         </div>
 
-                        <div className="shrink-0 w-[140px] space-y-2">
+                        <div className="shrink-0 w-full sm:w-[140px] space-y-2">
                           <div className="flex items-center justify-between">
                             <div className="text-[11px] text-[#272635]">In-app</div>
                             <Toggle
@@ -457,7 +461,7 @@ export default function ProfilePage() {
                       <div className="h-[1px] w-full bg-[rgba(39,38,53,0.08)]" />
 
                       {/* Fund request */}
-                      <div className="flex items-start justify-between gap-6">
+                      <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 sm:gap-6">
                         <div className="min-w-0">
                           <div className="text-[12px] text-[#272635] font-medium">Fund request</div>
                           <div className="mt-1 text-[11px] text-[rgba(39,38,53,0.45)] leading-[16px]">
@@ -465,7 +469,7 @@ export default function ProfilePage() {
                           </div>
                         </div>
 
-                        <div className="shrink-0 w-[140px] space-y-2">
+                        <div className="shrink-0 w-full sm:w-[140px] space-y-2">
                           <div className="flex items-center justify-between">
                             <div className="text-[11px] text-[#272635]">In-app</div>
                             <Toggle
@@ -510,9 +514,9 @@ export default function ProfilePage() {
                     </div>
 
                     {/* red notice box */}
-                    <div className="mt-4 rounded-[10px] border border-[rgba(220,53,69,0.25)] bg-[rgba(220,53,69,0.06)] px-3 py-3 flex items-center justify-between gap-4">
+                    <div className="mt-4 rounded-[10px] border border-[rgba(220,53,69,0.25)] bg-[rgba(220,53,69,0.06)] px-3 py-3 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                       <div className="flex items-start gap-2 min-w-0">
-                        <div className="mt-[2px] h-4 w-4 rounded-full border border-[rgba(220,53,69,0.45)] text-[10px] text-[#dc3545] grid place-items-center">
+                        <div className="mt-[2px] h-4 w-4 rounded-full border border-[rgba(220,53,69,0.45)] text-[10px] text-[#dc3545] grid place-items-center shrink-0">
                           !
                         </div>
                         <div className="text-[11px] text-[rgba(39,38,53,0.6)] leading-[16px]">
@@ -524,7 +528,7 @@ export default function ProfilePage() {
 
                       <button
                         type="button"
-                        className="shrink-0 text-[11px] text-[#272635] inline-flex items-center gap-2"
+                        className="shrink-0 text-[11px] text-[#272635] inline-flex items-center gap-2 self-start sm:self-auto"
                       >
                         <span>Request Password Change</span>
                         <span className="text-[#dc3545]">↗</span>
@@ -532,8 +536,8 @@ export default function ProfilePage() {
                     </div>
 
                     {/* Two-Factor authentication row */}
-                    <div className="mt-5 flex items-center justify-between">
-                      <div>
+                    <div className="mt-5 flex items-center justify-between gap-4">
+                      <div className="min-w-0">
                         <div className="text-[12px] text-[#272635] font-medium">
                           Two-Factor authentication
                         </div>

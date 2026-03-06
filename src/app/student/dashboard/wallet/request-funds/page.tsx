@@ -49,22 +49,22 @@ function Toast({
         : "bg-[#272635]";
 
   return (
-    <div className="fixed bottom-4 right-4 z-[9999]">
+    <div className="fixed bottom-4 right-4 left-4 sm:left-auto z-[9999]">
       <div
-        className={`w-[360px] max-w-[calc(100vw-32px)] ${bg} text-white rounded-[12px] shadow-lg p-4`}
+        className={`w-full sm:w-[360px] sm:max-w-[calc(100vw-32px)] ${bg} text-white rounded-[12px] shadow-lg p-4`}
       >
         <div className="flex items-start gap-3">
-          <div className="flex-1">
+          <div className="flex-1 min-w-0">
             <div className="font-semibold text-sm">{title}</div>
             {message ? (
-              <div className="text-xs opacity-90 mt-1 leading-[1.4]">
+              <div className="text-xs opacity-90 mt-1 leading-[1.4] break-words">
                 {message}
               </div>
             ) : null}
           </div>
           <button
             onClick={onClose}
-            className="text-white/90 hover:text-white text-sm"
+            className="text-white/90 hover:text-white text-sm shrink-0"
           >
             ✕
           </button>
@@ -146,12 +146,11 @@ export default function RequestFundsPage() {
 
     setIsSubmitting(true);
     try {
-      // backend expects purpose: ["ACCOMMODATION"], etc
       const payload = {
-        amount: amountNum.toFixed(2), // safe for backend that expects strings
+        amount: amountNum.toFixed(2),
         currency: currency.trim() || "USD",
         purpose: [resolvedPurposeEnum],
-        deadline, // YYYY-MM-DD
+        deadline,
         description: note.trim() || "—",
       };
 
@@ -167,9 +166,9 @@ export default function RequestFundsPage() {
   };
 
   return (
-    <div className="min-h-[calc(100vh-64px)]">
-      <div className="max-w-6xl mx-auto">
-        <div className="bg-white rounded-[20px] shadow-[0px_16px_32px_-8px_rgba(39,38,53,0.10)] p-8">
+    <div className="w-full min-w-0">
+      <div className="max-w-6xl mx-auto min-w-0">
+        <div className="bg-white rounded-[16px] sm:rounded-[20px] shadow-[0px_16px_32px_-8px_rgba(39,38,53,0.10)] p-4 sm:p-6 lg:p-8">
           {/* top-right language */}
           <div className="flex items-center justify-end mb-6">
             <button className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full hover:bg-[#f9faf7]">
@@ -179,28 +178,30 @@ export default function RequestFundsPage() {
           </div>
 
           {/* header */}
-          <div className="flex items-start gap-4 pb-5 border-b border-[rgba(39,38,53,0.10)]">
+          <div className="flex items-start gap-3 sm:gap-4 pb-5 border-b border-[rgba(39,38,53,0.10)]">
             <button
               onClick={() => router.push("/student/dashboard/wallet")}
-              className="size-10 rounded-full bg-[#eceee4] grid place-items-center hover:bg-[#dfe2d6] transition"
+              className="size-10 rounded-full bg-[#eceee4] grid place-items-center hover:bg-[#dfe2d6] transition shrink-0"
               aria-label="Back"
             >
               <ArrowLeft className="size-4 text-[#272635]" />
             </button>
 
-            <div className="flex-1">
-              <div className="text-[24px] text-[#272635]">Request for Funds</div>
-              <div className="text-[16px] text-[rgba(39,38,53,0.5)] mt-1">
+            <div className="flex-1 min-w-0">
+              <div className="text-[20px] sm:text-[24px] text-[#272635] break-words">
+                Request for Funds
+              </div>
+              <div className="text-[14px] sm:text-[16px] text-[rgba(39,38,53,0.5)] mt-1">
                 Clearly provide details to help us understand and process your
                 fund request.
               </div>
             </div>
           </div>
 
-          <form onSubmit={handleSubmit} className="mt-8">
-            <div className="max-w-[560px] mx-auto space-y-4">
+          <form onSubmit={handleSubmit} className="mt-6 sm:mt-8">
+            <div className="max-w-[560px] mx-auto space-y-4 min-w-0">
               {/* Purpose */}
-              <div className="bg-[#f9faf7] rounded-[12px] p-5 border border-[rgba(39,38,53,0.08)]">
+              <div className="bg-[#f9faf7] rounded-[12px] p-4 sm:p-5 border border-[rgba(39,38,53,0.08)]">
                 <div className="text-[14px] text-[rgba(39,38,53,0.7)] mb-2">
                   Select the purpose of this request
                 </div>
@@ -228,20 +229,20 @@ export default function RequestFundsPage() {
                     <button
                       type="button"
                       onClick={() => setPurposeMode("custom")}
-                      className="mt-3 inline-flex items-center gap-2 text-[12px] text-[#198754] underline"
+                      className="mt-3 inline-flex items-center gap-2 text-[12px] text-[#198754] underline text-left"
                     >
-                      <Plus className="size-4" />
+                      <Plus className="size-4 shrink-0" />
                       Not in the list? Add miscellaneous
                     </button>
                   </>
                 ) : (
                   <>
-                    <div className="flex items-center gap-3">
+                    <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
                       <input
                         value={customPurpose}
                         onChange={(e) => setCustomPurpose(e.target.value)}
                         placeholder="Purpose for the request"
-                        className="flex-1 h-12 px-4 rounded-[10px] bg-white border border-[rgba(39,38,53,0.10)] outline-none text-[14px] text-[#272635]"
+                        className="flex-1 h-12 px-4 rounded-[10px] bg-white border border-[rgba(39,38,53,0.10)] outline-none text-[14px] text-[#272635] min-w-0"
                       />
 
                       <button
@@ -249,7 +250,7 @@ export default function RequestFundsPage() {
                         onClick={() => {
                           // UI only
                         }}
-                        className="h-12 px-5 rounded-[10px] bg-[#eceee4] hover:bg-[#dfe2d6] transition text-[14px] text-[#272635]"
+                        className="h-12 px-5 rounded-[10px] bg-[#eceee4] hover:bg-[#dfe2d6] transition text-[14px] text-[#272635] w-full sm:w-auto shrink-0"
                       >
                         Add
                       </button>
@@ -258,20 +259,20 @@ export default function RequestFundsPage() {
                     <button
                       type="button"
                       onClick={() => setPurposeMode("list")}
-                      className="mt-3 inline-flex items-center gap-2 text-[12px] text-[#198754] underline"
+                      className="mt-3 inline-flex items-center gap-2 text-[12px] text-[#198754] underline text-left"
                     >
                       Select from a list
                     </button>
 
                     {customPurpose.trim() ? (
-                      <div className="mt-3 inline-flex items-center gap-2 px-3 py-1.5 rounded-[10px] bg-white border border-[rgba(39,38,53,0.10)]">
-                        <span className="text-[12px] text-[#272635]">
+                      <div className="mt-3 inline-flex items-center gap-2 px-3 py-1.5 rounded-[10px] bg-white border border-[rgba(39,38,53,0.10)] max-w-full">
+                        <span className="text-[12px] text-[#272635] break-words">
                           {customPurpose.trim()}
                         </span>
                         <button
                           type="button"
                           onClick={() => setCustomPurpose("")}
-                          className="text-[12px] text-[rgba(39,38,53,0.6)] hover:text-[#272635]"
+                          className="text-[12px] text-[rgba(39,38,53,0.6)] hover:text-[#272635] shrink-0"
                           aria-label="Remove purpose"
                         >
                           ✕
@@ -283,42 +284,42 @@ export default function RequestFundsPage() {
               </div>
 
               {/* Amount */}
-              <div className="bg-[#f9faf7] rounded-[12px] p-5 border border-[rgba(39,38,53,0.08)]">
-                <div className="flex items-center justify-between mb-2">
+              <div className="bg-[#f9faf7] rounded-[12px] p-4 sm:p-5 border border-[rgba(39,38,53,0.08)]">
+                <div className="flex items-center justify-between gap-3 mb-2">
                   <div className="text-[14px] text-[rgba(39,38,53,0.7)]">
                     How much do you need?
                   </div>
                   <button
                     type="button"
-                    onClick={() => setFxToKES((v) => v)} // UI-only
-                    className="inline-flex items-center gap-2 text-[12px] text-[rgba(39,38,53,0.55)]"
+                    onClick={() => setFxToKES((v) => v)}
+                    className="inline-flex items-center gap-2 text-[12px] text-[rgba(39,38,53,0.55)] shrink-0"
                     aria-label="Refresh rate"
                   >
                     <RefreshCcw className="size-4" />
                   </button>
                 </div>
 
-                <div className="flex items-center gap-3">
+                <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
                   <input
                     value={amount}
                     onChange={(e) => setAmount(e.target.value)}
                     inputMode="decimal"
                     placeholder="$ 0.00"
-                    className="flex-1 h-12 px-4 rounded-[10px] bg-white border border-[rgba(39,38,53,0.10)] outline-none text-[14px] text-[#272635]"
+                    className="flex-1 h-12 px-4 rounded-[10px] bg-white border border-[rgba(39,38,53,0.10)] outline-none text-[14px] text-[#272635] min-w-0"
                   />
 
-                  <div className="h-12 px-4 rounded-[999px] bg-white border border-[rgba(39,38,53,0.10)] inline-flex items-center gap-2">
+                  <div className="h-12 px-4 rounded-[999px] bg-white border border-[rgba(39,38,53,0.10)] inline-flex items-center justify-center gap-2 shrink-0 self-start sm:self-auto">
                     <span className="text-[14px] text-[#272635]">{currency}</span>
                     <ChevronDown className="size-4 text-[rgba(39,38,53,0.45)]" />
                   </div>
 
-                  <div className="text-[14px] text-[rgba(39,38,53,0.6)] whitespace-nowrap flex items-center gap-2">
+                  <div className="text-[14px] text-[rgba(39,38,53,0.6)] sm:whitespace-nowrap flex items-center gap-2">
                     <span>KES {kesPreview}</span>
                   </div>
                 </div>
 
                 <div className="mt-3 flex items-start gap-2 text-[12px] text-[rgba(39,38,53,0.55)]">
-                  <Info className="size-4 mt-[1px]" />
+                  <Info className="size-4 mt-[1px] shrink-0" />
                   <span>
                     Conversion preview is informational and will be finalized
                     during processing.
@@ -327,7 +328,7 @@ export default function RequestFundsPage() {
               </div>
 
               {/* Deadline */}
-              <div className="bg-[#f9faf7] rounded-[12px] p-5 border border-[rgba(39,38,53,0.08)]">
+              <div className="bg-[#f9faf7] rounded-[12px] p-4 sm:p-5 border border-[rgba(39,38,53,0.08)]">
                 <div className="text-[14px] text-[rgba(39,38,53,0.7)] mb-2">
                   What’s the deadline for this payment?
                 </div>
@@ -344,7 +345,7 @@ export default function RequestFundsPage() {
               </div>
 
               {/* Note */}
-              <div className="bg-[#f9faf7] rounded-[12px] p-5 border border-[rgba(39,38,53,0.08)]">
+              <div className="bg-[#f9faf7] rounded-[12px] p-4 sm:p-5 border border-[rgba(39,38,53,0.08)]">
                 <div className="text-[14px] text-[rgba(39,38,53,0.7)] mb-2">
                   Provide more information to help us process your request
                 </div>
@@ -358,11 +359,11 @@ export default function RequestFundsPage() {
               </div>
 
               {/* Actions */}
-              <div className="flex items-center justify-end gap-4 pt-2">
+              <div className="flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-end gap-4 pt-2">
                 <button
                   type="button"
                   onClick={() => router.push("/student/dashboard/wallet")}
-                  className="text-[14px] text-[#272635] underline"
+                  className="text-[14px] text-[#272635] underline w-full sm:w-auto"
                   disabled={isSubmitting}
                 >
                   Cancel Request
@@ -371,7 +372,7 @@ export default function RequestFundsPage() {
                 <button
                   type="submit"
                   disabled={!canSubmit || isSubmitting}
-                  className={`h-12 px-5 rounded-[10px] text-[14px] text-white transition ${
+                  className={`h-12 px-5 rounded-[10px] text-[14px] text-white transition w-full sm:w-auto ${
                     canSubmit && !isSubmitting
                       ? "bg-[#273125] hover:bg-[#1a2119]"
                       : "bg-[#6c757d] cursor-not-allowed"
@@ -381,7 +382,7 @@ export default function RequestFundsPage() {
                 </button>
               </div>
 
-              <div className="text-center text-[12px] text-[rgba(39,38,53,0.45)] pt-2">
+              <div className="text-center text-[12px] text-[rgba(39,38,53,0.45)] pt-2 break-words">
                 Purpose: {selectedPurposeLabel}
               </div>
             </div>

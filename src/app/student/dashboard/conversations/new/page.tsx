@@ -1,14 +1,15 @@
-
 "use client";
 
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import {
   createConversation,
   getConversationsWithUser,
+  listConversationReviewers,
   sendConversationMessage,
   type ConversationPurpose,
   type ApiConversation,
+  type ApiUser,
 } from "@/lib/student/conversations";
 
 type Person = { id: string; name: string };
@@ -18,43 +19,82 @@ function mapReasonToPurpose(reason: string): Exclude<ConversationPurpose, "all">
   if (r.includes("campaign")) return "CAMPAIGN";
   if (r.includes("fund")) return "FUND_REQUEST";
   if (r.includes("complaint")) return "COMPLAINT";
-  // choose a default that your backend accepts.
-  // If backend does NOT accept "DONORS", change this to one of the allowed enums or remove "Other" from UI.
   return "DONORS";
 }
 
-// if your backend requires academic_session, set it here (or compute current).
 function defaultAcademicSession() {
   return "2025/2026";
+}
+
+function reviewerName(u: ApiUser) {
+  const first = (u.first_name ?? "").trim();
+  const last = (u.last_name ?? "").trim();
+  const full = `${first} ${last}`.trim();
+  if (full) return full;
+  return (u.email ?? "").trim() || "Reviewer";
+}
+
+function safeErrMessage(err: any) {
+  return (
+    err?.response?.data?.detail ||
+    err?.response?.data?.message ||
+    (typeof err?.response?.data === "string" ? err.response.data : null) ||
+    err?.message ||
+    "Failed to send message."
+  );
 }
 
 export default function StartConversationPage() {
   const router = useRouter();
 
-  // TODO: replace this with real API list (account manager)
-  const people: Person[] = useMemo(
-    () => [
-      { id: "1", name: "Katey Winfred" },
-      { id: "2", name: "Katherine Moss" },
-      { id: "3", name: "Lukmon Williams" },
-    ],
+  const reasons = useMemo(
+    () => ["Campaign", "Fund request", "Complaint", "Other"],
     [],
   );
 
-  const reasons = useMemo(() => ["Campaign", "Fund request", "Complaint", "Other"], []);
+  const [people, setPeople] = useState<Person[]>([]);
+  const [loadingPeople, setLoadingPeople] = useState(true);
 
-  const [to, setTo] = useState<Person | null>(people[0] ?? null);
+  const [to, setTo] = useState<Person | null>(null);
   const [reason, setReason] = useState<string>(reasons[0]);
   const [message, setMessage] = useState<string>("");
 
   const [sending, setSending] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  useEffect(() => {
+    const run = async () => {
+      try {
+        setError(null);
+        setLoadingPeople(true);
+
+        const reviewers = await listConversationReviewers();
+
+        const mapped: Person[] = (reviewers ?? []).map((r) => ({
+          id: String(r.id),
+          name: reviewerName(r),
+        }));
+
+        setPeople(mapped);
+        setTo(mapped[0] ?? null);
+      } catch (e: any) {
+        setError(safeErrMessage(e));
+        setPeople([]);
+        setTo(null);
+      } finally {
+        setLoadingPeople(false);
+      }
+    };
+
+    run();
+  }, []);
+
   const onSend = async () => {
     if (!to?.id) {
-      setError("Please select a recipient.");
+      setError("Please select a reviewer.");
       return;
     }
+
     if (!message.trim()) {
       setError("Message cannot be empty.");
       return;
@@ -66,20 +106,19 @@ export default function StartConversationPage() {
 
       const receiverId = Number(to.id);
       if (!Number.isFinite(receiverId) || receiverId <= 0) {
-        setError("Invalid recipient.");
+        setError("Invalid reviewer.");
         return;
       }
 
       const purpose = mapReasonToPurpose(reason);
 
-      // 1) Try to reuse existing conversation with this user
       const existing = await getConversationsWithUser({ user_id: receiverId });
       const existingItems: ApiConversation[] = Array.isArray(existing) ? existing : [];
-      const activeExisting = existingItems.find((c) => c.is_active) ?? existingItems[0] ?? null;
+      const activeExisting =
+        existingItems.find((c) => c.is_active) ?? existingItems[0] ?? null;
 
       let conversationId: number | null = activeExisting?.id ?? null;
 
-      // 2) If none exists, create
       if (!conversationId) {
         const created = await createConversation({
           receiver_id: receiverId,
@@ -94,14 +133,11 @@ export default function StartConversationPage() {
         return;
       }
 
-      // 3) Send first message
       await sendConversationMessage(conversationId, { text: message.trim() });
 
-      // 4) Navigate back to conversations list
-      // (Your ConversationsPage will auto-pick latest; if you later add a query param, you can open specific thread.)
       router.push("/student/dashboard/conversations");
     } catch (e: any) {
-      setError(e?.message ?? "Failed to send message.");
+      setError(safeErrMessage(e));
     } finally {
       setSending(false);
     }
@@ -120,12 +156,14 @@ export default function StartConversationPage() {
           ‹
         </button>
 
-        <div className="text-[18px] font-medium text-[#272635]">Start a conversation</div>
+        <div className="text-[18px] font-medium text-[#272635]">
+          Start a conversation
+        </div>
       </div>
 
       {/* Error */}
       {error ? (
-        <div className="mt-5 rounded-[12px] border border-red-200 bg-red-50 px-4 py-3 text-[13px] text-red-700">
+        <div className="mt-5 rounded-[12px] border border-red-200 bg-red-50 px-4 py-3 text-[13px] text-red-700 break-words">
           {error}
         </div>
       ) : null}
@@ -137,15 +175,23 @@ export default function StartConversationPage() {
           <div className="mt-2">
             <select
               value={to?.id ?? ""}
-              onChange={(e) => setTo(people.find((p) => p.id === e.target.value) ?? null)}
+              onChange={(e) =>
+                setTo(people.find((p) => p.id === e.target.value) ?? null)
+              }
               className="w-full h-12 px-4 rounded-[12px] border border-[rgba(39,38,53,0.08)] bg-white text-[13px] text-[#272635] outline-none"
-              disabled={sending}
+              disabled={sending || loadingPeople || people.length === 0}
             >
-              {people.map((p) => (
-                <option key={p.id} value={p.id}>
-                  {p.name}
-                </option>
-              ))}
+              {loadingPeople ? (
+                <option value="">Loading reviewers...</option>
+              ) : people.length === 0 ? (
+                <option value="">No reviewers available</option>
+              ) : (
+                people.map((p) => (
+                  <option key={p.id} value={p.id}>
+                    {p.name}
+                  </option>
+                ))
+              )}
             </select>
           </div>
         </div>
@@ -198,7 +244,7 @@ export default function StartConversationPage() {
           <button
             onClick={onSend}
             className="h-10 px-5 rounded-[10px] bg-[#272635] text-white text-[13px] disabled:opacity-60"
-            disabled={sending}
+            disabled={sending || loadingPeople || !to}
           >
             {sending ? "Sending..." : "Send Message"}
           </button>

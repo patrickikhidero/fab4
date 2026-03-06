@@ -1,7 +1,15 @@
 "use client";
 
 import React, { useEffect, useRef, useState } from "react";
-import { Users, Wallet, ChevronDown, User as UserIcon, LogOut } from "lucide-react";
+import {
+  Users,
+  Wallet,
+  ChevronDown,
+  User as UserIcon,
+  LogOut,
+  Menu,
+  X,
+} from "lucide-react";
 
 interface UserData {
   name: string;
@@ -28,7 +36,6 @@ interface SidebarNavigationProps {
 }
 
 export function SidebarNavigation({
-  currentStep,
   userData,
   onNavigationChange,
   activeSection,
@@ -39,6 +46,8 @@ export function SidebarNavigation({
   const avatarSrc = userData.avatar ? userData.avatar : defaultAvatar;
 
   const [menuOpen, setMenuOpen] = useState(false);
+  const [mobileOpen, setMobileOpen] = useState(false);
+
   const menuRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
@@ -65,157 +74,187 @@ export function SidebarNavigation({
   };
 
   return (
-  <aside className="w-[300px] shrink-0 sticky top-0 h-screen">
-    <div className="h-full flex flex-col">
-      {/* TOP AREA (scrolls only if needed) */}
-      <div className="flex-1 overflow-y-auto">
-        <div className="flex flex-col gap-6 pt-16 w-[300px]">
-          <div className="flex flex-col gap-10 items-start justify-center px-10 w-full">
-            <img
-              src="/assets/logo.svg"
-              alt="FabFour Foundation"
-              className="h-6 w-auto opacity-60"
-            />
+    <>
+      {/* MOBILE HEADER */}
+      <div className="lg:hidden fixed top-0 left-0 right-0 h-[60px] bg-white z-50 flex items-center px-4 border-b">
+        <button onClick={() => setMobileOpen(true)}>
+          <Menu className="w-6 h-6 text-[#272635]" />
+        </button>
 
-            <div className="flex flex-col gap-4 items-start justify-start w-full">
-              <div className="text-[#272635] text-[28px] w-full">
-                <p className="leading-[normal]">Welcome back,</p>
-                <p className="text-[rgba(39,38,53,0.5)]">{userData.name}!</p>
-              </div>
-            </div>
-          </div>
-
-          <div className="flex flex-col gap-1 items-start justify-start px-7 w-full mb-4">
-            {!isVerified && (
-              <NavItem
-                active={activeSection === "application"}
-                label="Your Application"
-                onClick={() => onNavigationChange("application")}
-                icon={<Wallet className="h-5 w-5" />}
-              />
-            )}
-
-            {isVerified && (
-              <NavItem
-                active={activeSection === "campaign"}
-                label="Campaign"
-                onClick={() => onNavigationChange("campaign")}
-                icon={<Users className="h-5 w-5" />}
-              />
-            )}
-
-            {isVerified && (
-              <NavItem
-                active={activeSection === "wallet"}
-                label="Funds & Wallet"
-                onClick={() => onNavigationChange("wallet")}
-                icon={<Wallet className="h-5 w-5" />}
-              />
-            )}
-          </div>
-        </div>
+        <img
+          src="/assets/logo.svg"
+          alt="logo"
+          className="h-5 ml-4 opacity-60"
+        />
       </div>
 
-      {/* BOTTOM AREA (always visible, doesn't move) */}
-      <div className="shrink-0 pb-10 px-10">
-        {isVerified && campaignSummary && (
-          <div className="w-[220px] h-[183px] flex flex-col mb-6">
-            <div className="flex items-start justify-between">
-              <div>
-                <div className="text-[#272635] text-[14px] uppercase">
-                  current campaign
-                </div>
-                <div className="text-[#198754] text-[28px]">
-                  ${campaignSummary.currentAmount.toLocaleString()}
+      {/* OVERLAY */}
+      {mobileOpen && (
+        <div
+          className="fixed inset-0 bg-black/40 z-40 lg:hidden"
+          onClick={() => setMobileOpen(false)}
+        />
+      )}
+
+      {/* SIDEBAR */}
+      <aside
+        className={`
+        fixed lg:sticky top-0 left-0 h-screen z-50
+        w-[300px] bg-[#eceee4]
+        transform transition-transform duration-300
+        ${mobileOpen ? "translate-x-0" : "-translate-x-full"}
+        lg:translate-x-0
+      `}
+      >
+        {/* CLOSE BUTTON (mobile) */}
+        <div className="lg:hidden flex justify-end p-4">
+          <button onClick={() => setMobileOpen(false)}>
+            <X className="w-6 h-6 text-[#272635]" />
+          </button>
+        </div>
+
+        <div className="h-full flex flex-col">
+          {/* TOP */}
+          <div className="flex-1 overflow-y-auto">
+            <div className="flex flex-col gap-6 pt-10 lg:pt-16 w-[300px]">
+              <div className="flex flex-col gap-10 items-start justify-center px-10 w-full">
+                <img
+                  src="/assets/logo.svg"
+                  alt="FabFour Foundation"
+                  className="h-6 w-auto opacity-60"
+                />
+
+                <div className="flex flex-col gap-4 w-full">
+                  <div className="text-[#272635] text-[28px]">
+                    <p>Welcome back,</p>
+                    <p className="text-[rgba(39,38,53,0.5)]">
+                      {userData.name}!
+                    </p>
+                  </div>
                 </div>
               </div>
 
-              <div className="h-[41px] w-[41px] grid place-items-center rounded-full border border-[rgba(39,38,53,0.12)]">
-                <span className="text-[12px] text-[#272635]">
-                  {campaignSummary.progress}%
-                </span>
+              {/* NAV */}
+              <div className="flex flex-col gap-1 px-7 mb-4">
+                {!isVerified && (
+                  <NavItem
+                    active={activeSection === "application"}
+                    label="Your Application"
+                    onClick={() => onNavigationChange("application")}
+                    icon={<Wallet className="h-5 w-5" />}
+                  />
+                )}
+
+                {isVerified && (
+                  <NavItem
+                    active={activeSection === "campaign"}
+                    label="Campaign"
+                    onClick={() => onNavigationChange("campaign")}
+                    icon={<Users className="h-5 w-5" />}
+                  />
+                )}
+
+                {isVerified && (
+                  <NavItem
+                    active={activeSection === "wallet"}
+                    label="Funds & Wallet"
+                    onClick={() => onNavigationChange("wallet")}
+                    icon={<Wallet className="h-5 w-5" />}
+                  />
+                )}
               </div>
-            </div>
-
-            <div className="mt-4 h-[1px] w-full bg-[rgba(39,38,53,0.08)]" />
-
-            <div className="mt-4 space-y-2">
-              <Row label="This week" value={`+$${campaignSummary.weekAmount.toLocaleString()}`} />
-              <Row label="This month" value={`+$${campaignSummary.monthAmount.toLocaleString()}`} />
-            </div>
-
-            <button className="mt-4 text-left text-[12px] text-[#272635] underline underline-offset-4">
-              View
-            </button>
-          </div>
-        )}
-
-        <div className="w-[220px] flex flex-col relative" ref={menuRef}>
-          <div className="w-[220px] h-[40px] flex items-center gap-2">
-            <div
-              className="w-[40px] h-[40px] rounded-[20px] bg-center bg-cover bg-no-repeat"
-              style={{ backgroundImage: `url('${avatarSrc}')` }}
-            />
-
-            <div className="flex-1 flex flex-col gap-1 min-w-0">
-              <div className="flex items-center justify-between gap-2">
-                <div className="text-[#272635] text-[14px] truncate">{userData.name}</div>
-
-                <button
-                  type="button"
-                  onClick={() => setMenuOpen((v) => !v)}
-                  className="shrink-0 h-7 w-7 grid place-items-center rounded-[8px] hover:bg-[#eceee4] transition-colors"
-                  aria-label="Open profile menu"
-                >
-                  <ChevronDown className="h-4 w-4 text-[#272635]" />
-                </button>
-              </div>
-
-              <div className="text-[rgba(39,38,53,0.5)] text-[12px] truncate">{userData.email}</div>
             </div>
           </div>
 
-          {menuOpen && (
-            <div
-              className={[
-                "absolute right-0 bottom-full mb-2 w-[220px]",
-                "bg-white rounded-[12px] border border-[rgba(39,38,53,0.08)]",
-                "shadow-[0px_16px_32px_-8px_rgba(39,38,53,0.18)] overflow-hidden",
-                "z-[9999]",
-              ].join(" ")}
-            >
-              <button
-                type="button"
-                onClick={goProfile}
-                className="w-full px-3 py-2 text-left text-[13px] text-[#272635] hover:bg-[#f9faf7] flex items-center gap-2"
-              >
-                <UserIcon className="h-4 w-4" />
-                <span>My Account</span>
-              </button>
+          {/* BOTTOM */}
+          <div className="pb-10 px-10">
+            {isVerified && campaignSummary && (
+              <div className="w-[220px] mb-6">
+                <div className="flex justify-between">
+                  <div>
+                    <div className="text-[14px] uppercase">
+                      current campaign
+                    </div>
+                    <div className="text-[#198754] text-[28px]">
+                      ${campaignSummary.currentAmount.toLocaleString()}
+                    </div>
+                  </div>
 
-              <div className="h-px bg-[rgba(39,38,53,0.08)]" />
+                  <div className="h-[41px] w-[41px] grid place-items-center rounded-full border">
+                    {campaignSummary.progress}%
+                  </div>
+                </div>
 
-              <button
-                type="button"
-                onClick={logout}
-                className="w-full px-3 py-2 text-left text-[13px] text-[#272635] hover:bg-[#f9faf7] flex items-center gap-2"
-              >
-                <LogOut className="h-4 w-4" />
-                <span>Logout</span>
-              </button>
+                <div className="mt-4 h-[1px] bg-[rgba(39,38,53,0.08)]" />
+
+                <div className="mt-4 space-y-2">
+                  <Row
+                    label="This week"
+                    value={`+$${campaignSummary.weekAmount.toLocaleString()}`}
+                  />
+                  <Row
+                    label="This month"
+                    value={`+$${campaignSummary.monthAmount.toLocaleString()}`}
+                  />
+                </div>
+              </div>
+            )}
+
+            {/* PROFILE */}
+            <div className="w-[220px] flex flex-col relative" ref={menuRef}>
+              <div className="flex items-center gap-2">
+                <div
+                  className="w-[40px] h-[40px] rounded-full bg-cover"
+                  style={{ backgroundImage: `url('${avatarSrc}')` }}
+                />
+
+                <div className="flex-1">
+                  <div className="flex justify-between">
+                    <div className="text-[14px] truncate">
+                      {userData.name}
+                    </div>
+
+                    <button
+                      onClick={() => setMenuOpen(!menuOpen)}
+                      className="h-7 w-7 grid place-items-center rounded-[8px]"
+                    >
+                      <ChevronDown className="h-4 w-4" />
+                    </button>
+                  </div>
+
+                  <div className="text-[12px] text-[rgba(39,38,53,0.5)] truncate">
+                    {userData.email}
+                  </div>
+                </div>
+              </div>
+
+              {menuOpen && (
+                <div className="absolute right-0 bottom-full mb-2 w-[220px] bg-white rounded-[12px] border shadow-lg z-50">
+                  <button
+                    onClick={goProfile}
+                    className="w-full px-3 py-2 text-left flex gap-2"
+                  >
+                    <UserIcon className="h-4 w-4" />
+                    My Account
+                  </button>
+
+                  <div className="h-px bg-gray-200" />
+
+                  <button
+                    onClick={logout}
+                    className="w-full px-3 py-2 text-left flex gap-2"
+                  >
+                    <LogOut className="h-4 w-4" />
+                    Logout
+                  </button>
+                </div>
+              )}
             </div>
-          )}
-
-          <div className="w-[220px] h-px mt-5 bg-[rgba(39,38,53,0.08)]" />
-
-          <div className="w-[220px] mt-5 text-[rgba(39,38,53,0.5)] text-[14px]">
-            © 2024 FabFour Foundation. All rights reserved.
           </div>
         </div>
-      </div>
-    </div>
-  </aside>
-)
+      </aside>
+    </>
+  );
 }
 
 function NavItem({
@@ -232,23 +271,17 @@ function NavItem({
   return (
     <div
       onClick={onClick}
-      className={[
-        "relative flex h-10 w-full cursor-pointer items-start justify-start rounded-tr-[12px] rounded-br-[12px] rounded-tl-[4px] rounded-bl-[4px]",
-        active ? "bg-[#f9faf7]" : "bg-transparent",
-      ].join(" ")}
+      className={`relative flex h-10 cursor-pointer rounded-r-[12px] ${
+        active ? "bg-[#f9faf7]" : ""
+      }`}
     >
       {active && (
-        <div
-          aria-hidden="true"
-          className="absolute left-[-1px] top-0 bottom-0 w-[2px] bg-[#198754] rounded-bl-[4px] rounded-tl-[4px]"
-        />
+        <div className="absolute left-0 w-[2px] bg-[#198754] top-0 bottom-0" />
       )}
 
-      <div className="flex h-full w-full items-center gap-3 px-3 py-2">
-        <div className="text-[#2f2b43] opacity-90">{icon}</div>
-        <div className="text-[#2f2b43] text-[16px]">
-          <p className="leading-[24px] whitespace-pre">{label}</p>
-        </div>
+      <div className="flex items-center gap-3 px-3">
+        {icon}
+        <p>{label}</p>
       </div>
     </div>
   );
@@ -256,9 +289,9 @@ function NavItem({
 
 function Row({ label, value }: { label: string; value: string }) {
   return (
-    <div className="flex items-center justify-between">
-      <div className="text-[#272635] text-[12px]">{label}</div>
-      <div className="text-[#198754] text-[14px]">{value}</div>
+    <div className="flex justify-between text-[12px]">
+      <span>{label}</span>
+      <span className="text-[#198754]">{value}</span>
     </div>
   );
 }

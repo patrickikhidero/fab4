@@ -75,7 +75,7 @@ function TopRightHeader({
   onConversations: () => void;
 }) {
   return (
-    <div className="flex items-center justify-end gap-3">
+    <div className="flex flex-wrap items-center justify-end gap-3">
       <button
         onClick={onConversations}
         className="h-9 px-4 rounded-[10px] bg-white border border-[rgba(39,38,53,0.08)] text-[13px] text-[#272635] inline-flex items-center gap-2"
@@ -95,7 +95,7 @@ function TopRightHeader({
 
 function FooterLinks() {
   return (
-    <div className="mt-10 flex justify-end gap-6 text-[12px] text-[rgba(39,38,53,0.5)]">
+    <div className="mt-10 flex flex-wrap justify-center lg:justify-end gap-x-6 gap-y-2 text-[12px] text-[rgba(39,38,53,0.5)]">
       <span>Terms</span>
       <span>Legal</span>
       <span>Privacy policy</span>
@@ -166,14 +166,20 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
           const currentAmount =
             toNum(overview?.current_campaign) ||
-            toNum(overview?.overall_stats.total_amount_raised) ||
+            toNum(overview?.overall_stats?.total_amount_raised) ||
             mapCampaignRaised(current);
 
           const weekAmount =
-            toNum(overview?.this_week) || toNum(overview?.week_raised) || toNum(overview?.weekly_growth) || 0;
+            toNum(overview?.this_week) ||
+            toNum(overview?.week_raised) ||
+            toNum(overview?.weekly_growth) ||
+            0;
 
           const monthAmount =
-            toNum(overview?.this_month) || toNum(overview?.month_raised) || toNum(overview?.monthly_growth) || 0;
+            toNum(overview?.this_month) ||
+            toNum(overview?.month_raised) ||
+            toNum(overview?.monthly_growth) ||
+            0;
 
           const goal = mapCampaignGoal(current);
 
@@ -228,7 +234,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   };
 
   return (
-    <div className="flex min-h-screen bg-[#eceee4]">
+    <div className="min-h-screen bg-[#eceee4] lg:flex">
       <SidebarNavigation
         currentStep={currentStep}
         userData={userData}
@@ -238,16 +244,17 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         campaignSummary={isVerified ? campaignSummary : null}
       />
 
-      {/* Main */}
-      <div className="flex-1 p-8">
-        <div className="bg-white rounded-[24px] shadow-[0px_16px_32px_-8px_rgba(39,38,53,0.12)] min-h-[calc(100vh-64px)] p-8">
-          <TopRightHeader onConversations={() => router.push("/student/dashboard/conversations")} />
+      <div className="flex-1 min-w-0 pt-[80px] lg:pt-0 lg:p-8">
+        <div className="px-4 pb-4 lg:px-0 lg:pb-0">
+          <div className="bg-white rounded-[20px] lg:rounded-[24px] shadow-[0px_16px_32px_-8px_rgba(39,38,53,0.12)] min-h-[calc(100vh-96px)] lg:min-h-[calc(100vh-64px)] p-4 sm:p-6 lg:p-8">
+            <TopRightHeader onConversations={() => router.push("/student/dashboard/conversations")} />
 
-          <div className="mt-8">
-            {isLoadingSidebar ? <div className="text-[#272635]">Loading...</div> : children}
+            <div className="mt-6 lg:mt-8 min-w-0">
+              {isLoadingSidebar ? <div className="text-[#272635]">Loading...</div> : children}
+            </div>
+
+            <FooterLinks />
           </div>
-
-          <FooterLinks />
         </div>
       </div>
     </div>

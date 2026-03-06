@@ -70,7 +70,7 @@ export type SendMessagePayload = {
   uploaded_files?: string[];
 };
 
-const BASE = "/conversation/conversation/";
+const BASE = "conversation/conversation/";
 
 /**
  * List conversations.
@@ -146,4 +146,10 @@ export async function getConversationsWithUser(params: {
   // GET /conversation/conversation/with_user/?user_id=...
   const res = await api.get<Paginated<ApiConversation>>(`${BASE}with_user/`, { params });
   return res.data.results ?? [];
+}
+
+export async function listConversationReviewers() {
+  // GET /conversation/conversation/reviewers/
+  const res = await api.get<ApiUser[]>(`conversation/reviewers/`);
+  return res.data ?? [];
 }
