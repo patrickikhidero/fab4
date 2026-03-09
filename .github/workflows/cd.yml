@@ -66,7 +66,7 @@ jobs:
           AWS_ECR_REGISTRY: ${{ secrets.AWS_ECR_REGISTRY }}
           AWS_ECR_REPOSITORY: ${{ secrets.AWS_ECR_REPOSITORY }}
           AWS_REGION: ${{ secrets.AWS_REGION }}
-          CONTAINER_NAME: Main
+          CONTAINER_NAME: dashboard
         uses: aws-actions/amazon-ecs-render-task-definition@c804dfbdd57f713b6c079302a4c01db7017a36fc
         with:
           task-definition: ./task-def-clean.json
