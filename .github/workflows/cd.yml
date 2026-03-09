@@ -4,8 +4,8 @@ on:
   push:
 
 env:
-  ECS_CLUSTER: waga-dashboard
-  ECS_SERVICE: waga_dashboard-f957
+  ECS_CLUSTER: fabfour-dashboard
+  ECS_SERVICE: fabfour-dashboard-service
 
 jobs:
   build:
