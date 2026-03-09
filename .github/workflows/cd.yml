@@ -4,8 +4,8 @@ on:
   push:
 
 env:
-  ECS_CLUSTER: fabfour-dashboard
-  ECS_SERVICE: fabfour-dashboard-service
+  ECS_CLUSTER: fabfour-api-cluster
+  ECS_SERVICE: fabfour-app-service
 
 jobs:
   build:
