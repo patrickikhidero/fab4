@@ -13,7 +13,7 @@ export type FundsRequest = {
   id: number;
   amount: number | string;
   currency: string;
-  purpose: string[];
+  purpose: string;
   deadline: string;
   requested_date?: string;
   description?: string;

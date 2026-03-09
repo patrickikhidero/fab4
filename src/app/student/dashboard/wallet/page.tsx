@@ -46,6 +46,14 @@ function toNum(v: any) {
   return Number.isFinite(n) ? n : 0;
 }
 
+function formatPurpose(value?: string | null) {
+  const raw = (value ?? "").trim();
+  if (!raw) return "-";
+
+  const cleaned = raw.replace(/_/g, " ").toLowerCase();
+  return cleaned.charAt(0).toUpperCase() + cleaned.slice(1);
+}
+
 function mapStatus(s: FundsRequest["status"]): RequestRow["status"] {
   if (s === "ACCEPTED") return "Accepted";
   if (s === "REJECTED") return "Rejected";
@@ -55,7 +63,7 @@ function mapStatus(s: FundsRequest["status"]): RequestRow["status"] {
 function mapFundsToRow(r: FundsRequest): RequestRow {
   return {
     id: String(r.id),
-    purpose: r.purpose?.[0] ?? "-",
+    purpose: formatPurpose(r.purpose),
     deadline: formatDate(r.deadline),
     fees: `${(r.currency || "").toUpperCase()} ${toNum(
       r.amount
@@ -151,7 +159,6 @@ export default function WalletPage() {
         }
       />
 
-      {/* Equal width + equal height cards */}
       <div className="mt-6 sm:mt-8 grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
         <WalletBalanceCard amount={walletBalance} />
         <BankCard
@@ -371,8 +378,8 @@ function TabButton({
 function TableHeader() {
   return (
     <div className="grid grid-cols-5 gap-4 px-6 py-4 text-[12px] text-[rgba(39,38,53,0.55)] border-b border-[rgba(39,38,53,0.08)]">
-      <div>Purpose</div>
-      <div>Deadline</div>
+      <div className="tracking-[0.02em]">Purpose</div>
+      <div className="tracking-[0.02em]">Deadline</div>
       <div>Fees</div>
       <div>Date</div>
       <div>Status</div>
@@ -401,12 +408,12 @@ function RequestsTable({ rows }: { rows: RequestRow[] }) {
           key={r.id}
           className="grid grid-cols-5 gap-4 px-6 py-4 text-[13px] text-[rgba(39,38,53,0.75)]"
         >
-          <div>
+          <div className="pr-2">
             <span className="inline-flex items-center rounded-full bg-white border border-[rgba(39,38,53,0.08)] px-3 py-1 text-[12px]">
               {r.purpose}
             </span>
           </div>
-          <div>{r.deadline}</div>
+          <div className="pl-1">{r.deadline}</div>
           <div>{r.fees}</div>
           <div>{r.date}</div>
           <div>{r.status}</div>
@@ -432,7 +439,7 @@ function RequestsMobileList({ rows }: { rows: RequestRow[] }) {
             <StatusBadge status={r.status} />
           </div>
 
-          <div className="mt-4 grid grid-cols-2 gap-x-4 gap-y-3 text-[12px]">
+          <div className="mt-5 grid grid-cols-2 gap-x-4 gap-y-4 text-[12px]">
             <InfoPair label="Deadline" value={r.deadline} />
             <InfoPair label="Fees" value={r.fees} />
             <InfoPair label="Date" value={r.date} />
@@ -446,8 +453,8 @@ function RequestsMobileList({ rows }: { rows: RequestRow[] }) {
 function InfoPair({ label, value }: { label: string; value: string }) {
   return (
     <div className="min-w-0">
-      <div className="text-[rgba(39,38,53,0.5)]">{label}</div>
-      <div className="mt-1 text-[rgba(39,38,53,0.8)] break-words">{value}</div>
+      <div className="text-[rgba(39,38,53,0.5)] tracking-[0.02em]">{label}</div>
+      <div className="mt-1.5 text-[rgba(39,38,53,0.8)] break-words">{value}</div>
     </div>
   );
 }

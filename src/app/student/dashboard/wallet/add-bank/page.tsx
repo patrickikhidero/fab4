@@ -268,10 +268,19 @@ export default function AddBankPage() {
                         onChange={(e) => setCurrencyCode(e.target.value)}
                         className="w-full h-12 px-4 pr-10 rounded-[10px] bg-white border border-[rgba(39,38,53,0.10)] outline-none text-[14px] text-[#272635]"
                       >
+                        <option value="USD">USD</option>
+                        <option value="EUR">EUR</option>
+                        <option value="GBP">GBP</option>
+                        <option value="INR">INR</option>
+                        <option value="AUD">AUD</option>
+                        <option value="CAD">CAD</option>
+                        <option value="SGD">SGD</option>
+                        <option value="CHF">CHF</option>
+                        <option value="CNY">CNY</option>
+                        <option value="JPY">JPY</option>
+                        <option value="KRW">KRW</option>
                         <option value="NGN">NGN</option>
-                        <option value="KES">KES</option>
-                        <option value="GHS">GHS</option>
-                        <option value="XOF">XOF</option>
+                        <option value="RWF">RWF</option>
                       </select>
                     </div>
                   </div>

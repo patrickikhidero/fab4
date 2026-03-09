@@ -186,6 +186,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           const progress =
             toNum(overview?.progress_percent) ||
             (goal > 0 ? Math.round((currentAmount / goal) * 100) : 0);
+          
 
           setCampaignSummary({ currentAmount, weekAmount, monthAmount, progress });
         } catch (err) {

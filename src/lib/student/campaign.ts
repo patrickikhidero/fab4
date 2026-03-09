@@ -99,7 +99,6 @@ export async function createCampaignDocuments(
   fd.append("campaign_id", String(campaignId));
 
   files.forEach((f) => {
-    fd.append("documents", f);
     fd.append("document", f); // some backends use singular
   });
 
@@ -160,7 +159,7 @@ export async function updateCampaign(id: number, payload: Partial<CreateCampaign
 export async function createCampaignDocument(campaignId: number, files: File[]) {
   const form = new FormData();
   // adjust key if backend expects "document" instead of "documents"
-  files.forEach((f) => form.append("documents", f));
+  files.forEach((f) => form.append("document", f));
 
   const res = await api.post(`/students/campaign/${campaignId}/create_document/`, form, {
     headers: { "Content-Type": "multipart/form-data" },
