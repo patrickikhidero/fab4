@@ -5,8 +5,8 @@ import { usePathname, useRouter } from "next/navigation";
 
 import { SidebarNavigation } from "@/components/modules/student/SidebarNavigation";
 
-import { getStoredUser, getUserIdFromToken } from "@/lib/auth/storage";
-import { getStudentProfile, type StudentProfileResponse } from "@/lib/student/application";
+import { getStoredUser, setAuthTokens } from "@/lib/auth/storage";
+import { getMe, type MeResponse } from "@/lib/api/users";
 import { getCampaignOverview, listMyCampaigns } from "@/lib/student/campaign";
 
 type DashboardSection = "application" | "campaign" | "wallet" | "conversations";
@@ -112,7 +112,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
   const [isLoadingSidebar, setIsLoadingSidebar] = useState(true);
   const [isVerified, setIsVerified] = useState(false);
-  const [studentProfile, setStudentProfile] = useState<StudentProfileResponse | null>(null);
+  const [me, setMe] = useState<MeResponse | null>(null);
 
   const [userData, setUserData] = useState<UserData>({
     name: "User",
@@ -129,37 +129,37 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       try {
         setIsLoadingSidebar(true);
 
-        const storedUser = getStoredUser();
-        let userId: number | null = storedUser?.id ?? null;
-        if (!userId) userId = getUserIdFromToken();
+        const meRes = await getMe();
+        setMe(meRes);
 
-        if (!userId) {
-          console.warn("No user ID found, using default 224 for demo");
-          userId = 224;
-        }
-
-        const profile = await getStudentProfile(userId);
-        setStudentProfile(profile ?? null);
-
-        const verified = !!profile?.is_verified;
-        setIsVerified(verified);
-
-        const nameFromUser = `${storedUser?.first_name ?? ""} ${storedUser?.last_name ?? ""}`.trim();
-        const nameFromProfile = `${profile?.first_name ?? ""} ${profile?.last_name ?? ""}`.trim();
-
-        setUserData({
-          name: nameFromUser || nameFromProfile || "User",
-          email: storedUser?.email || profile?.email || "",
-          avatar: storedUser?.photo || "",
+        setAuthTokens({
+          user: meRes,
         });
 
-        if (!verified) {
+        const hasStudentProfile = !!meRes?.student_profile;
+        const verified = !!meRes?.student_profile?.is_verified;
+
+        setIsVerified(verified);
+
+        const fullName = `${meRes?.first_name ?? ""} ${meRes?.last_name ?? ""}`.trim();
+        const profileName = `${meRes?.student_profile?.first_name ?? ""} ${meRes?.student_profile?.last_name ?? ""}`.trim();
+
+        setUserData({
+          name: fullName || profileName || meRes?.email || "User",
+          email: meRes?.email || "",
+          avatar: meRes?.photo || "",
+        });
+
+        if (!hasStudentProfile || !verified) {
           setCampaignSummary(null);
           return;
         }
 
         try {
-          const [overview, myCampaigns] = await Promise.all([getCampaignOverview(), listMyCampaigns()]);
+          const [overview, myCampaigns] = await Promise.all([
+            getCampaignOverview(),
+            listMyCampaigns(),
+          ]);
 
           const results: CampaignListItem[] = myCampaigns?.results ?? [];
           const current = pickCurrentCampaign(results);
@@ -186,9 +186,13 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           const progress =
             toNum(overview?.progress_percent) ||
             (goal > 0 ? Math.round((currentAmount / goal) * 100) : 0);
-          
 
-          setCampaignSummary({ currentAmount, weekAmount, monthAmount, progress });
+          setCampaignSummary({
+            currentAmount,
+            weekAmount,
+            monthAmount,
+            progress,
+          });
         } catch (err) {
           console.error("Failed to fetch campaign summary", err);
           setCampaignSummary(null);
@@ -196,24 +200,29 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       } catch (err) {
         console.error("Sidebar bootstrap failed", err);
 
-        const storedUser = getStoredUser();
+        const storedUser = getStoredUser() as any;
         const nameFromUser = `${storedUser?.first_name ?? ""} ${storedUser?.last_name ?? ""}`.trim();
+        const nameFromProfile = `${storedUser?.student_profile?.first_name ?? ""} ${storedUser?.student_profile?.last_name ?? ""}`.trim();
 
         setUserData({
-          name: nameFromUser || storedUser?.email || "User",
+          name: nameFromUser || nameFromProfile || storedUser?.email || "User",
           email: storedUser?.email || "",
           avatar: storedUser?.photo || "",
         });
 
-        setIsVerified(false);
+        setIsVerified(!!storedUser?.student_profile?.is_verified);
         setCampaignSummary(null);
+
+        if (!storedUser) {
+          router.replace("/login");
+        }
       } finally {
         setIsLoadingSidebar(false);
       }
     };
 
     run();
-  }, []);
+  }, [router]);
 
   const onNavigationChange = (section: DashboardSection) => {
     switch (section) {
@@ -248,7 +257,9 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       <div className="flex-1 min-w-0 pt-[80px] lg:pt-0 lg:p-8">
         <div className="px-4 pb-4 lg:px-0 lg:pb-0">
           <div className="bg-white rounded-[20px] lg:rounded-[24px] shadow-[0px_16px_32px_-8px_rgba(39,38,53,0.12)] min-h-[calc(100vh-96px)] lg:min-h-[calc(100vh-64px)] p-4 sm:p-6 lg:p-8">
-            <TopRightHeader onConversations={() => router.push("/student/dashboard/conversations")} />
+            <TopRightHeader
+              onConversations={() => router.push("/student/dashboard/conversations")}
+            />
 
             <div className="mt-6 lg:mt-8 min-w-0">
               {isLoadingSidebar ? <div className="text-[#272635]">Loading...</div> : children}
