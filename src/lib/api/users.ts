@@ -49,7 +49,29 @@ export type MeResponse = {
   wallet?: WalletInfo | null;
 };
 
+export type UpdateUserPayload = {
+  first_name?: string | null;
+  last_name?: string | null;
+  email?: string | null;
+  student_profile?: {
+    phone_number?: string | null;
+    country?: string | null;
+    state?: string | null;
+    residential_address?: string | null;
+    institution?: string | null;
+    course?: string | null;
+    course_country?: string | null;
+    course_state?: string | null;
+  };
+};
+
 export async function getMe() {
-  const res = await api.get<MeResponse>("/api/users/me");
+  const res = await api.get<MeResponse>("/api/users/me/");
+  console.log(res)
+  return res.data;
+}
+
+export async function updateUser(userId: number, payload: UpdateUserPayload) {
+  const res = await api.put<MeResponse>(`/api/users/${userId}/`, payload);
   return res.data;
 }
