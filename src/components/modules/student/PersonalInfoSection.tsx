@@ -8,6 +8,8 @@ interface PersonalInfoSectionProps {
     lastName: string
     email: string
     phone: string
+    course: string
+    courseDuration: string
     dateOfBirth: string
   }
   onFormChange: (field: string, value: string | File | null) => void
@@ -41,6 +43,22 @@ export function PersonalInfoSection({ formData, onFormChange }: PersonalInfoSect
             placeholder="Koffi"
             value={formData.lastName}
             onChange={(value) => onFormChange('lastName', value)}
+            required
+          />
+        </div>
+        <div className="content-stretch flex gap-5 items-start justify-start relative shrink-0 w-full" data-node-id="466:2636">
+          <FormInput
+            label="Course of Study"
+            placeholder="Computer Science"
+            value={formData.course}
+            onChange={(value) => onFormChange('course', value)}
+            required
+          />
+          <FormInput
+            label="Course Duration"
+            placeholder="2019 - 2023"
+            value={formData.courseDuration}
+            onChange={(value) => onFormChange('courseDuration', value)}
             required
           />
         </div>

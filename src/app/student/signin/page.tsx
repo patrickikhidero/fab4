@@ -1,32 +1,29 @@
-'use client'
+"use client";
 
-import { useState } from 'react'
-import { LoginForm } from '@/components/modules/student/LoginForm'
+import { useState } from "react";
+import { LoginForm } from "@/components/modules/student/LoginForm";
+import { login } from "@/lib/api/auth";
 
 export default function StudentSignInPage() {
-  const [isLoading, setIsLoading] = useState(false)
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleLogin = async (email: string) => {
-    if (!email) return
-    
-    setIsLoading(true)
-    
-    try {
-      // TODO: Implement actual email token sending logic
-      console.log('Sending login token to:', email)
-      
-      // Simulate API call delay
-      await new Promise(resolve => setTimeout(resolve, 2000))
-      
-      // await sendLoginToken(email)
-      alert(`Login token sent to ${email}. Please check your email.`)
-    } catch (error) {
-      console.error('Failed to send login token:', error)
-      alert('Failed to send login token. Please try again.')
-    } finally {
-      setIsLoading(false)
-    }
-  }
+    if (!email) return;
 
-  return <LoginForm onSubmit={handleLogin} isLoading={isLoading} />
+    setIsLoading(true);
+
+    try {
+      console.log("Requesting login link for:", email);
+      await login({ email });
+      alert(`If your email exists, a login link has been sent to ${email}. Please check your email.`);
+
+    } catch (error) {
+      console.error("Failed to send login link:", error);
+      alert("Failed to send login link. Please try again.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  return <LoginForm onSubmit={handleLogin} isLoading={isLoading} />;
 }
