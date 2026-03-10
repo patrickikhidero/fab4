@@ -1,70 +1,46 @@
 @import "tailwindcss";
 
 :root {
-  /* Figma Design System Colors */
-  --color-primary: #273125;
-  --color-primary-text: #272635;
-  --color-background: #f9faf7;
-  --color-surface: #ffffff;
-  --color-border: rgba(39, 38, 53, 0.1);
-  --color-border-dark: #2c2c2c;
-  --color-accent: #d1ef7c;
-  --color-placeholder: #93939a;
-  --color-muted: rgba(39, 38, 53, 0.5);
-
-  /* Typography */
-  --font-family: "Neue Montreal", "Inter", -apple-system, BlinkMacSystemFont,
-    "Segoe UI", Roboto, sans-serif;
+  --background: #ffffff;
+  --foreground: #171717;
 }
 
-html,
-body {
-  height: 100%;
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #0a0a0a;
+    --foreground: #ededed;
+  }
 }
 
 body {
-  background: var(--color-background);
-  color: var(--color-primary-text);
-  font-family: var(--font-family);
+  background: var(--background);
+  color: var(--foreground);
+  font-family: Arial, Helvetica, sans-serif;
 }
 
-/* Components from Figma */
-.btn-primary {
-  background: var(--color-primary);
-  color: white;
-  height: 56px;
-  padding: 12px 20px;
-  border-radius: 12px;
-  font-size: 16px;
-  font-weight: 400;
+/* Animation classes for notifications */
+@keyframes slideInFromBottom {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
-.btn-secondary {
-  background: white;
-  color: var(--color-primary-text);
-  height: 56px;
-  padding: 12px 16px;
-  border-radius: 12px;
-  font-size: 16px;
-  font-weight: 400;
-  border: 1px solid var(--color-border);
+.animate-in {
+  animation: slideInFromBottom 0.3s ease-out;
 }
 
-.input-field {
-  background: var(--color-background);
-  height: 56px;
-  padding: 12px 16px;
-  border-radius: 12px;
-  border: 1px solid var(--color-border);
-  color: var(--color-primary-text);
-}
-
-.input-field::placeholder {
-  color: var(--color-placeholder);
-}
-
-.glass {
-  background: rgba(255, 255, 255, 0.65);
-  backdrop-filter: blur(18px);
-  border: 1px solid rgba(39, 38, 53, 0.08);
+.slide-in-from-bottom-2 {
+  animation: slideInFromBottom 0.3s ease-out;
 }
