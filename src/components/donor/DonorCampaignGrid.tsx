@@ -1,7 +1,14 @@
 "use client";
 
 import React, { useMemo, useState } from "react";
-import { ChevronLeft, ChevronRight, MapPin, Search, ChevronDown } from "lucide-react";
+import Link from "next/link";
+import {
+  ChevronLeft,
+  ChevronRight,
+  MapPin,
+  Search,
+  ChevronDown,
+} from "lucide-react";
 
 export interface DonorCampaignItem {
   id: number;
@@ -25,6 +32,7 @@ export function DonorCampaignGrid({ items }: DonorCampaignGridProps) {
   const filteredItems = useMemo(() => {
     const q = search.trim().toLowerCase();
     if (!q) return items;
+
     return items.filter(
       (item) =>
         item.name.toLowerCase().includes(q) ||
@@ -32,18 +40,24 @@ export function DonorCampaignGrid({ items }: DonorCampaignGridProps) {
     );
   }, [items, search]);
 
-  const totalPages = Math.max(1, Math.ceil(filteredItems.length / itemsPerPage));
+  const totalPages = Math.max(
+    1,
+    Math.ceil(filteredItems.length / itemsPerPage)
+  );
   const safePage = Math.min(page, totalPages);
   const startIndex = (safePage - 1) * itemsPerPage;
-  const paginatedItems = filteredItems.slice(startIndex, startIndex + itemsPerPage);
+  const paginatedItems = filteredItems.slice(
+    startIndex,
+    startIndex + itemsPerPage
+  );
 
   const goPrev = () => setPage((prev) => Math.max(1, prev - 1));
   const goNext = () => setPage((prev) => Math.min(totalPages, prev + 1));
 
   return (
-    <div className="w-full bg-white rounded-[24px] border border-[rgba(39,38,53,0.06)] shadow-[0_10px_40px_rgba(0,0,0,0.03)] overflow-hidden">
+    <div className="w-full overflow-hidden rounded-[24px] border border-[rgba(39,38,53,0.06)] bg-white shadow-[0_10px_40px_rgba(0,0,0,0.03)]">
       {/* TOP BAR */}
-      <div className="flex flex-col gap-4 px-4 py-4 sm:px-6 lg:px-10 lg:py-6 border-b border-[rgba(39,38,53,0.06)]">
+      <div className="flex flex-col gap-4 border-b border-[rgba(39,38,53,0.06)] px-4 py-4 sm:px-6 lg:px-10 lg:py-6">
         <div className="flex items-center justify-end">
           <button
             type="button"
@@ -54,9 +68,9 @@ export function DonorCampaignGrid({ items }: DonorCampaignGridProps) {
           </button>
         </div>
 
-        <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3">
+        <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
           <div className="relative w-full lg:max-w-[360px]">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[rgba(39,38,53,0.3)]" />
+            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[rgba(39,38,53,0.3)]" />
             <input
               value={search}
               onChange={(e) => {
@@ -68,7 +82,7 @@ export function DonorCampaignGrid({ items }: DonorCampaignGridProps) {
             />
           </div>
 
-          <div className="flex flex-col sm:flex-row gap-3 lg:gap-6">
+          <div className="flex flex-col gap-3 sm:flex-row lg:gap-6">
             <button
               type="button"
               className="flex h-11 items-center gap-2 rounded-full border border-[rgba(39,38,53,0.08)] px-4 text-[13px] text-[rgba(39,38,53,0.75)]"
@@ -92,8 +106,10 @@ export function DonorCampaignGrid({ items }: DonorCampaignGridProps) {
       {/* CONTENT */}
       <div className="px-4 py-6 sm:px-6 lg:px-10 lg:py-8">
         <div className="mb-8">
-          <h1 className="text-[24px] md:text-[32px] leading-tight text-[#272635] font-medium">
-            Discover <span className="text-[rgba(39,38,53,0.45)]">smart minds</span> in need of your support
+          <h1 className="text-[24px] font-medium leading-tight text-[#272635] md:text-[32px]">
+            Discover{" "}
+            <span className="text-[rgba(39,38,53,0.45)]">smart minds</span> in
+            need of your support
           </h1>
           <p className="mt-2 text-[14px] text-[rgba(39,38,53,0.7)]">
             Be part of the story. We rise by lifting others
@@ -105,7 +121,7 @@ export function DonorCampaignGrid({ items }: DonorCampaignGridProps) {
             No campaigns found.
           </div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 xl:grid-cols-3">
             {paginatedItems.map((item) => (
               <CampaignCard key={item.id} item={item} />
             ))}
@@ -123,36 +139,38 @@ export function DonorCampaignGrid({ items }: DonorCampaignGridProps) {
               type="button"
               onClick={goPrev}
               disabled={safePage === 1}
-              className="h-9 w-9 grid place-items-center rounded-[10px] border border-[rgba(39,38,53,0.12)] disabled:opacity-40"
+              className="grid h-9 w-9 place-items-center rounded-[10px] border border-[rgba(39,38,53,0.12)] disabled:opacity-40"
             >
               <ChevronLeft className="h-4 w-4" />
             </button>
 
-            {Array.from({ length: totalPages }).slice(0, 5).map((_, index) => {
-              const pageNumber = index + 1;
-              const active = pageNumber === safePage;
+            {Array.from({ length: totalPages })
+              .slice(0, 5)
+              .map((_, index) => {
+                const pageNumber = index + 1;
+                const active = pageNumber === safePage;
 
-              return (
-                <button
-                  key={pageNumber}
-                  type="button"
-                  onClick={() => setPage(pageNumber)}
-                  className={`h-9 min-w-9 px-3 rounded-[10px] text-[13px] ${
-                    active
-                      ? "bg-[#eceee4] text-[#272635]"
-                      : "text-[rgba(39,38,53,0.75)]"
-                  }`}
-                >
-                  {pageNumber}
-                </button>
-              );
-            })}
+                return (
+                  <button
+                    key={pageNumber}
+                    type="button"
+                    onClick={() => setPage(pageNumber)}
+                    className={`h-9 min-w-9 rounded-[10px] px-3 text-[13px] ${
+                      active
+                        ? "bg-[#eceee4] text-[#272635]"
+                        : "text-[rgba(39,38,53,0.75)]"
+                    }`}
+                  >
+                    {pageNumber}
+                  </button>
+                );
+              })}
 
             <button
               type="button"
               onClick={goNext}
               disabled={safePage === totalPages}
-              className="h-9 w-9 grid place-items-center rounded-[10px] border border-[rgba(39,38,53,0.12)] disabled:opacity-40"
+              className="grid h-9 w-9 place-items-center rounded-[10px] border border-[rgba(39,38,53,0.12)] disabled:opacity-40"
             >
               <ChevronRight className="h-4 w-4" />
             </button>
@@ -160,7 +178,7 @@ export function DonorCampaignGrid({ items }: DonorCampaignGridProps) {
         </div>
 
         {/* FOOTER LINKS */}
-        <div className="mt-12 flex flex-wrap items-center justify-center lg:justify-end gap-x-6 gap-y-2 text-[12px] text-[rgba(39,38,53,0.5)]">
+        <div className="mt-12 flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-[12px] text-[rgba(39,38,53,0.5)] lg:justify-end">
           <button type="button">Terms</button>
           <button type="button">Legal</button>
           <button type="button">Privacy policy</button>
@@ -173,7 +191,7 @@ export function DonorCampaignGrid({ items }: DonorCampaignGridProps) {
 
 function CampaignCard({ item }: { item: DonorCampaignItem }) {
   return (
-    <div className="group">
+    <Link href={`/donor/campaigns/${item.id}`} className="group block">
       <div className="overflow-hidden rounded-[24px] bg-[#f4f4f1]">
         <img
           src={item.image}
@@ -184,13 +202,15 @@ function CampaignCard({ item }: { item: DonorCampaignItem }) {
 
       <div className="mt-3 flex items-start justify-between gap-3">
         <div>
-          <h3 className="text-[28px] leading-none font-normal text-[#272635] tracking-[-0.02em] md:text-[20px]">
+          <h3 className="text-[20px] font-normal tracking-[-0.02em] text-[#272635]">
             {item.name}
           </h3>
           <p className="mt-2 text-[11px] uppercase tracking-wide text-[rgba(39,38,53,0.45)]">
             Raising
           </p>
-          <p className="text-[16px] text-[#272635]">${item.amountRaised.toFixed(2)}</p>
+          <p className="text-[16px] text-[#272635]">
+            ${item.amountRaised.toFixed(2)}
+          </p>
         </div>
 
         <ProgressRing value={item.progress} />
@@ -206,7 +226,7 @@ function CampaignCard({ item }: { item: DonorCampaignItem }) {
           </span>
         ))}
       </div>
-    </div>
+    </Link>
   );
 }
 

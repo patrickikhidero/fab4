@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
 import {
   ChevronDown,
   LogOut,
@@ -30,6 +31,8 @@ export function DonorSidebar({
   activeSection,
   onNavigationChange,
 }: DonorSidebarProps) {
+  const router = useRouter();
+
   const defaultAvatar = "/images/avatars/default-avatar.png";
   const avatarSrc = userData.avatar || defaultAvatar;
 
@@ -42,6 +45,7 @@ export function DonorSidebar({
     function onDocClick(e: MouseEvent) {
       if (!menuOpen) return;
       const target = e.target as Node;
+
       if (menuRef.current && !menuRef.current.contains(target)) {
         setMenuOpen(false);
       }
@@ -53,7 +57,7 @@ export function DonorSidebar({
 
   const goProfile = () => {
     setMenuOpen(false);
-    window.location.assign("/donor/profile");
+    router.push("/donor/profile");
   };
 
   const logout = () => {
@@ -61,13 +65,26 @@ export function DonorSidebar({
     localStorage.removeItem("fab4_access");
     localStorage.removeItem("fab4_refresh");
     localStorage.removeItem("fab4_user");
-    window.location.assign("/login");
+    router.push("/login");
+  };
+
+  const goToSection = (section: DonorSection) => {
+    onNavigationChange(section);
+    setMobileOpen(false);
+
+    if (section === "campaigns") {
+      router.push("/donor");
+      return;
+    }
+
+    if (section === "students") {
+      router.push("/donor?tab=students");
+    }
   };
 
   return (
     <>
-      {/* MOBILE HEADER */}
-      <div className="lg:hidden fixed top-0 left-0 right-0 h-[60px] bg-white z-50 flex items-center justify-between px-4 border-b border-[rgba(39,38,53,0.08)]">
+      <div className="fixed left-0 right-0 top-0 z-50 flex h-[60px] items-center justify-between border-b border-[rgba(39,38,53,0.08)] bg-white px-4 lg:hidden">
         <img
           src="/assets/logo.svg"
           alt="FabFour Foundation"
@@ -77,125 +94,111 @@ export function DonorSidebar({
         <button
           type="button"
           onClick={() => setMobileOpen(true)}
-          className="h-10 w-10 grid place-items-center rounded-xl"
+          className="grid h-10 w-10 place-items-center rounded-xl"
         >
-          <Menu className="w-6 h-6 text-[#272635]" />
+          <Menu className="h-6 w-6 text-[#272635]" />
         </button>
       </div>
 
-      {/* MOBILE OVERLAY */}
       {mobileOpen && (
         <div
-          className="fixed inset-0 bg-black/40 z-40 lg:hidden"
+          className="fixed inset-0 z-40 bg-black/40 lg:hidden"
           onClick={() => setMobileOpen(false)}
         />
       )}
 
-      {/* SIDEBAR */}
       <aside
         className={`
-          fixed lg:sticky top-0 left-0 h-screen z-50
-          w-[300px] bg-[#eceee4]
-          transform transition-transform duration-300
+          fixed left-0 top-0 z-50 h-screen w-[300px] transform bg-[#eceee4] transition-transform duration-300
           ${mobileOpen ? "translate-x-0" : "-translate-x-full"}
-          lg:translate-x-0
+          lg:sticky lg:translate-x-0
         `}
       >
-        {/* MOBILE CLOSE */}
-        <div className="lg:hidden flex justify-end p-4">
+        <div className="flex justify-end p-4 lg:hidden">
           <button
             type="button"
             onClick={() => setMobileOpen(false)}
-            className="h-10 w-10 grid place-items-center rounded-xl"
+            className="grid h-10 w-10 place-items-center rounded-xl"
           >
-            <X className="w-6 h-6 text-[#272635]" />
+            <X className="h-6 w-6 text-[#272635]" />
           </button>
         </div>
 
-        <div className="h-full flex flex-col">
-          {/* TOP */}
+        <div className="flex h-full flex-col">
           <div className="flex-1 overflow-y-auto">
-            <div className="flex flex-col gap-6 pt-10 lg:pt-16 w-[300px]">
-              <div className="flex flex-col gap-10 items-start justify-center px-10 w-full">
+            <div className="flex w-[300px] flex-col gap-6 pt-10 lg:pt-16">
+              <div className="flex w-full flex-col items-start justify-center gap-10 px-10">
                 <img
                   src="/assets/logo.svg"
                   alt="FabFour Foundation"
                   className="h-6 w-auto opacity-60"
                 />
 
-                <div className="flex flex-col gap-4 w-full">
-                  <div className="text-[#272635] text-[28px] leading-[1.15]">
+                <div className="flex w-full flex-col gap-4">
+                  <div className="text-[28px] leading-[1.15] text-[#272635]">
                     <p>Welcome back,</p>
-                    <p className="text-[rgba(39,38,53,0.5)] break-words">
+                    <p className="break-words text-[rgba(39,38,53,0.5)]">
                       {userData.name}!
                     </p>
                   </div>
 
-                  <p className="text-[14px] text-[#272635] leading-6">
+                  <p className="text-[14px] leading-6 text-[#272635]">
                     FabFour Foundation scholarship recipient
                   </p>
                 </div>
               </div>
 
-              {/* NAV */}
-              <div className="flex flex-col gap-1 px-7 mb-4">
+              <div className="mb-4 flex flex-col gap-1 px-7">
                 <NavItem
                   active={activeSection === "campaigns"}
                   label="Campaign"
-                  onClick={() => {
-                    onNavigationChange("campaigns");
-                    setMobileOpen(false);
-                  }}
+                  onClick={() => goToSection("campaigns")}
                   icon={<Megaphone className="h-4 w-4" />}
                 />
 
                 <NavItem
                   active={activeSection === "students"}
                   label="Students"
-                  onClick={() => {
-                    onNavigationChange("students");
-                    setMobileOpen(false);
-                  }}
+                  onClick={() => goToSection("students")}
                   icon={<Users className="h-4 w-4" />}
                 />
               </div>
             </div>
           </div>
 
-          {/* BOTTOM */}
-          <div className="pb-10 px-10">
-            <div className="w-[220px] flex flex-col relative" ref={menuRef}>
+          <div className="px-10 pb-10">
+            <div className="relative flex w-[220px] flex-col" ref={menuRef}>
               <div className="flex items-center gap-2">
                 <div
-                  className="w-[40px] h-[40px] rounded-full bg-cover bg-center bg-no-repeat bg-[#d9d9d9]"
+                  className="h-[40px] w-[40px] rounded-full bg-[#d9d9d9] bg-cover bg-center bg-no-repeat"
                   style={{ backgroundImage: `url('${avatarSrc}')` }}
                 />
 
-                <div className="flex-1 min-w-0">
-                  <div className="flex justify-between items-start gap-2">
-                    <div className="text-[14px] truncate">{userData.name}</div>
+                <div className="min-w-0 flex-1">
+                  <div className="flex items-start justify-between gap-2">
+                    <div className="truncate text-[14px]">{userData.name}</div>
 
                     <button
                       type="button"
                       onClick={() => setMenuOpen((prev) => !prev)}
-                      className="h-7 w-7 shrink-0 grid place-items-center rounded-[8px]"
+                      className="grid h-7 w-7 shrink-0 place-items-center rounded-[8px]"
                     >
                       <ChevronDown className="h-4 w-4" />
                     </button>
                   </div>
 
-                  <div className="text-[12px] text-[rgba(39,38,53,0.5)] truncate">
+                  <div className="truncate text-[12px] text-[rgba(39,38,53,0.5)]">
                     {userData.email}
                   </div>
                 </div>
               </div>
 
               {menuOpen && (
-                <div className="absolute right-0 bottom-full mb-2 w-[220px] bg-white rounded-[12px] border border-[rgba(39,38,53,0.08)] shadow-lg z-50 overflow-hidden">
+                <div className="absolute bottom-full right-0 z-50 mb-2 w-[220px] overflow-hidden rounded-[12px] border border-[rgba(39,38,53,0.08)] bg-white shadow-lg">
                   <button
                     type="button"
                     onClick={goProfile}
-                    className="w-full px-3 py-3 text-left flex items-center gap-2 hover:bg-[#f7f7f4]"
+                    className="flex w-full items-center gap-2 px-3 py-3 text-left hover:bg-[#f7f7f4]"
                   >
                     <UserIcon className="h-4 w-4" />
                     <span>My Account</span>
@@ -206,7 +209,7 @@ export function DonorSidebar({
                   <button
                     type="button"
                     onClick={logout}
-                    className="w-full px-3 py-3 text-left flex items-center gap-2 hover:bg-[#f7f7f4]"
+                    className="flex w-full items-center gap-2 px-3 py-3 text-left hover:bg-[#f7f7f4]"
                   >
                     <LogOut className="h-4 w-4" />
                     <span>Logout</span>
@@ -217,7 +220,7 @@ export function DonorSidebar({
 
             <div className="mt-6 h-px w-[220px] bg-[rgba(39,38,53,0.08)]" />
 
-            <p className="mt-5 text-[11px] leading-4 text-[rgba(39,38,53,0.45)] w-[220px]">
+            <p className="mt-5 w-[220px] text-[11px] leading-4 text-[rgba(39,38,53,0.45)]">
               © 2024 FabFour Foundation. All rights reserved.
             </p>
           </div>
@@ -247,7 +250,7 @@ function NavItem({
       }`}
     >
       {active && (
-        <div className="absolute left-0 top-0 bottom-0 w-[2px] bg-[#198754]" />
+        <div className="absolute bottom-0 left-0 top-0 w-[2px] bg-[#198754]" />
       )}
 
       <div className="flex items-center gap-3 px-3 text-[#272635]">
