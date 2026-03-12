@@ -3,16 +3,19 @@
 import Image from "next/image";
 import { useState } from "react";
 import { login } from "@/lib/api/auth";
+import { useToast } from "@/components/ui/toast/ToastProvider";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
 
+  const { showToast} = useToast();
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
 
     if (!email.trim()) {
-      alert("Enter your email");
+      showToast("warning", "Please enter your email address.", "Missing email");
       return;
     }
 
@@ -23,8 +26,10 @@ export default function LoginPage() {
         email: email.trim(),
       });
 
-      alert(
-        `If your email exists, a login link has been sent to ${email.trim()}. Please check your email.`
+      showToast(
+        "success",
+        `If your email exists, a login link has been sent to ${email.trim()}. Please check your email.`,
+        "Login link sent"
       );
     } catch (err: any) {
       const msg =
@@ -32,7 +37,7 @@ export default function LoginPage() {
         err?.response?.data?.message ||
         "Failed to send login link";
 
-      alert(msg);
+      showToast("error", msg, "Unable to continue");
     } finally {
       setLoading(false);
     }
