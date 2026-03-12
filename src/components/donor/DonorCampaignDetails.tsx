@@ -241,12 +241,12 @@ export function DonorCampaignDetails({
                 </div>
               </div>
 
-              <button
-                type="button"
-                className="mt-6 h-11 w-full rounded-[10px] bg-[#198754] text-[14px] text-white transition hover:opacity-95"
+              <Link
+                href={`/donor/campaigns/${campaign.id}/donate`}
+                className="mt-6 flex h-11 w-full items-center justify-center rounded-[10px] bg-[#198754] text-[14px] text-white transition hover:opacity-95"
               >
                 Donate Now
-              </button>
+              </Link>
 
               <div className="mt-6">
                 <p className="text-[12px] uppercase tracking-wide text-[rgba(39,38,53,0.45)]">
