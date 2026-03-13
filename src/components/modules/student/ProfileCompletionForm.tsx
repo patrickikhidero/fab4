@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
+import { useToast } from "@/components/ui/toast/ToastProvider";
 import { MainFormArea } from "./MainFormArea";
 import { ApplicationStatusSection } from "./ApplicationStatusSection";
 import { ApprovedApplicationStatus } from "./ApprovedApplicationStatus";
@@ -37,6 +38,7 @@ type StoredMe = {
     institution?: string | null;
     course?: string | null;
     course_duration?: string | null;
+    level?: string | null;
     course_state?: string | null;
     course_country?: string | null;
     user?: number;
@@ -44,8 +46,96 @@ type StoredMe = {
   wallet?: unknown;
 };
 
+type GuarantorForm = {
+  id: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  phone: string;
+  country: string;
+  state: string;
+  attestationLetter: File | null;
+};
+
+type ApplicationFormData = {
+  firstName: string;
+  lastName: string;
+  email: string;
+  phone: string;
+  dateOfBirth: string;
+  country: string;
+  state: string;
+  address: string;
+  identification: string;
+
+  applicationType: string;
+  school: string;
+  course: string;
+  courseDuration: string;
+  level: string;
+  institutionCountry: string;
+  institutionState: string;
+
+  admissionLetter: File | null;
+  personalStatement: File | null;
+
+  previousSchool: string;
+  previousCourse: string;
+  previousGPA: string;
+  previousYear: string;
+  reasonForLeaving: string;
+  academicTranscript: File | null;
+  withdrawalLetter: File | null;
+  reenrollmentLetter: File | null;
+  characterReference: File | null;
+
+  guarantors: GuarantorForm[];
+};
+
+function mapStudentEntry(value: string) {
+  switch (value) {
+    case "returning-student":
+      return "RETURNING_STUDENT";
+    case "newly-admitted":
+    default:
+      return "NEWLY_ADMITTED";
+  }
+}
+
+// Keep raw value for now until backend valid choices are confirmed.
+function mapIdentification(value: string) {
+  return value;
+}
+
+// Keep stored value as-is for now.
+function mapStoredIdentification(value?: string | null) {
+  return value ?? "";
+}
+
+function buildStudentProfilePayload(formData: ApplicationFormData) {
+  return {
+    first_name: formData.firstName.trim(),
+    last_name: formData.lastName.trim(),
+    email: formData.email.trim(),
+    phone_number: formData.phone.trim(),
+    date_of_birth: formData.dateOfBirth,
+    country: formData.country.trim(),
+    state: formData.state.trim(),
+    residential_address: formData.address.trim(),
+    verification_means: mapIdentification(formData.identification),
+    student_entry: mapStudentEntry(formData.applicationType),
+    institution: formData.school.trim(),
+    course: formData.course.trim(),
+    course_duration: formData.courseDuration.trim(),
+    level: formData.level.trim(),
+    course_state: formData.institutionState.trim(),
+    course_country: formData.institutionCountry.trim(),
+  };
+}
+
 export function ProfileCompletionForm() {
   const router = useRouter();
+  const { showToast } = useToast();
 
   const storedUser = (getStoredUser() as StoredMe | null) ?? null;
   const storedProfile = storedUser?.student_profile ?? null;
@@ -57,7 +147,6 @@ export function ProfileCompletionForm() {
     useState<DashboardSection>("application");
 
   const [currentStep, setCurrentStep] = useState(1);
-
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -67,7 +156,7 @@ export function ProfileCompletionForm() {
 
   const [uploadedDocuments, setUploadedDocuments] = useState<string[]>([]);
 
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<ApplicationFormData>({
     firstName: storedProfile?.first_name ?? storedUser?.first_name ?? "",
     lastName: storedProfile?.last_name ?? storedUser?.last_name ?? "",
     email: storedProfile?.email ?? storedUser?.email ?? "",
@@ -76,7 +165,7 @@ export function ProfileCompletionForm() {
     country: storedProfile?.country ?? "",
     state: storedProfile?.state ?? "",
     address: storedProfile?.residential_address ?? "",
-    identification: storedProfile?.verification_means ?? "",
+    identification: mapStoredIdentification(storedProfile?.verification_means),
 
     applicationType:
       storedProfile?.student_entry === "RETURNING_STUDENT"
@@ -86,20 +175,22 @@ export function ProfileCompletionForm() {
     school: storedProfile?.institution ?? "",
     course: storedProfile?.course ?? "",
     courseDuration: storedProfile?.course_duration ?? "",
+    level: storedProfile?.level ?? "",
     institutionCountry: storedProfile?.course_country ?? "",
     institutionState: storedProfile?.course_state ?? "",
-    admissionLetter: null as File | null,
-    personalStatement: null as File | null,
+
+    admissionLetter: null,
+    personalStatement: null,
 
     previousSchool: "",
     previousCourse: "",
     previousGPA: "",
     previousYear: "",
     reasonForLeaving: "",
-    academicTranscript: null as File | null,
-    withdrawalLetter: null as File | null,
-    reenrollmentLetter: null as File | null,
-    characterReference: null as File | null,
+    academicTranscript: null,
+    withdrawalLetter: null,
+    reenrollmentLetter: null,
+    characterReference: null,
 
     guarantors: [
       {
@@ -110,23 +201,16 @@ export function ProfileCompletionForm() {
         phone: "",
         country: "",
         state: "",
-        attestationLetter: null as File | null,
+        attestationLetter: null,
       },
-    ] as Array<{
-      id: string;
-      firstName: string;
-      lastName: string;
-      email: string;
-      phone: string;
-      country: string;
-      state: string;
-      attestationLetter: File | null;
-    }>,
+    ],
   });
 
   const userData = useMemo(() => {
-    const nameFromUser = `${storedUser?.first_name ?? ""} ${storedUser?.last_name ?? ""}`.trim();
-    const nameFromProfile = `${storedProfile?.first_name ?? ""} ${storedProfile?.last_name ?? ""}`.trim();
+    const nameFromUser =
+      `${storedUser?.first_name ?? ""} ${storedUser?.last_name ?? ""}`.trim();
+    const nameFromProfile =
+      `${storedProfile?.first_name ?? ""} ${storedProfile?.last_name ?? ""}`.trim();
 
     return {
       name: nameFromUser || nameFromProfile || storedUser?.email || "User",
@@ -142,41 +226,37 @@ export function ProfileCompletionForm() {
     }));
   };
 
-  const handleGuarantorsChange = (
-    guarantors: Array<{
-      id: string;
-      firstName: string;
-      lastName: string;
-      email: string;
-      phone: string;
-      country: string;
-      state: string;
-      attestationLetter: File | null;
-    }>
-  ) => {
+  const handleGuarantorsChange = (guarantors: GuarantorForm[]) => {
     setFormData((prev) => ({
       ...prev,
       guarantors,
     }));
   };
 
-  const persistProfileToLocalStorage = (incomingProfile: Record<string, any>) => {
-    const latestUser = ((getStoredUser() as StoredMe | null) ?? storedUser ?? {}) as StoredMe;
+  const persistProfileToLocalStorage = (
+    incomingProfile: Record<string, unknown>
+  ) => {
+    const latestUser = ((getStoredUser() as StoredMe | null) ??
+      storedUser ??
+      {}) as StoredMe;
 
     setAuthTokens({
       user: {
         ...latestUser,
         first_name:
           latestUser.first_name ??
-          incomingProfile.first_name ??
+          (incomingProfile.first_name as string | null | undefined) ??
           latestUser.student_profile?.first_name ??
           null,
         last_name:
           latestUser.last_name ??
-          incomingProfile.last_name ??
+          (incomingProfile.last_name as string | null | undefined) ??
           latestUser.student_profile?.last_name ??
           null,
-        email: latestUser.email ?? incomingProfile.email ?? "",
+        email:
+          latestUser.email ??
+          (incomingProfile.email as string | undefined) ??
+          "",
         student_profile: {
           ...(latestUser.student_profile ?? {}),
           ...incomingProfile,
@@ -185,83 +265,61 @@ export function ProfileCompletionForm() {
     });
   };
 
+  const getApiErrorMessage = (err: any, fallback: string) => {
+    const firstValidationError = err?.response?.data?.errors?.[0]?.detail;
+    return (
+      firstValidationError ||
+      err?.response?.data?.message ||
+      err?.response?.data?.detail ||
+      fallback
+    );
+  };
+
+  const saveOrCreateProfile = async () => {
+    const payload: any = buildStudentProfilePayload(formData);
+    const response = await submitStudentProfile(payload);
+    const nextProfileId = String(response.id);
+
+    setProfileId(nextProfileId);
+
+    persistProfileToLocalStorage({
+      id: response.id,
+      is_verified: false,
+      first_name: payload.first_name,
+      last_name: payload.last_name,
+      email: payload.email,
+      phone_number: payload.phone_number,
+      date_of_birth: payload.date_of_birth,
+      country: payload.country,
+      state: payload.state,
+      residential_address: payload.residential_address,
+      verification_means: payload.verification_means,
+      student_entry: payload.student_entry,
+      institution: payload.institution,
+      course: payload.course,
+      course_duration: payload.course_duration,
+      level: payload.level,
+      course_country: payload.course_country,
+      course_state: payload.course_state,
+    });
+
+    return nextProfileId;
+  };
+
   const handleContinue = async () => {
     setError(null);
 
     if (currentStep === 1) {
-      setIsLoading(true);
-      try {
-        const profileData = {
-          first_name: formData.firstName,
-          last_name: formData.lastName,
-          email: formData.email,
-          phone: formData.phone,
-          date_of_birth: formData.dateOfBirth,
-          country: formData.country,
-          state: formData.state,
-          address: formData.address,
-          identification: formData.identification,
-
-          application_type: formData.applicationType as
-            | "newly-admitted"
-            | "returning-student",
-          school: formData.school,
-          course: formData.course,
-          course_duration: formData.courseDuration,
-          institution_country: formData.institutionCountry,
-          institution_state: formData.institutionState,
-
-          previous_school: formData.previousSchool,
-          previous_course: formData.previousCourse,
-          previous_gpa: formData.previousGPA,
-          previous_year: formData.previousYear,
-          reason_for_leaving: formData.reasonForLeaving,
-        };
-
-        const response = await submitStudentProfile(profileData);
-
-        const nextProfileId = String(response.id);
-        setProfileId(nextProfileId);
-
-        persistProfileToLocalStorage({
-          id: response.id,
-          is_verified: false,
-          first_name: formData.firstName,
-          last_name: formData.lastName,
-          email: formData.email,
-          phone_number: formData.phone,
-          date_of_birth: formData.dateOfBirth,
-          country: formData.country,
-          state: formData.state,
-          residential_address: formData.address,
-          verification_means: formData.identification,
-          institution: formData.school,
-          course: formData.course,
-          course_duration: formData.courseDuration,
-          course_country: formData.institutionCountry,
-          course_state: formData.institutionState,
-          student_entry:
-            formData.applicationType === "returning-student"
-              ? "RETURNING_STUDENT"
-              : "NEWLY_ADMITTED",
-        });
-
-        setCurrentStep(2);
-      } catch (err: any) {
-        setError(
-          err?.response?.data?.message ||
-            err?.response?.data?.detail ||
-            "Failed to submit profile. Please try again."
-        );
-      } finally {
-        setIsLoading(false);
-      }
+      setCurrentStep(2);
       return;
     }
 
     if (currentStep === 2) {
       setIsLoading(true);
+
       try {
+        const nextProfileId = await saveOrCreateProfile();
+
         const documents: Array<{ file: File | null; docType: string }> = [];
 
         if (formData.applicationType === "newly-admitted") {
@@ -271,6 +329,7 @@ export function ProfileCompletionForm() {
               docType: "admission_letter",
             });
           }
+
           if (formData.personalStatement) {
             documents.push({
               file: formData.personalStatement,
@@ -284,18 +343,21 @@ export function ProfileCompletionForm() {
               docType: "academic_transcript",
             });
           }
+
           if (formData.withdrawalLetter) {
             documents.push({
               file: formData.withdrawalLetter,
               docType: "withdrawal_letter",
             });
           }
+
           if (formData.reenrollmentLetter) {
             documents.push({
               file: formData.reenrollmentLetter,
               docType: "reenrollment_letter",
             });
           }
+
           if (formData.characterReference) {
             documents.push({
               file: formData.characterReference,
@@ -305,11 +367,11 @@ export function ProfileCompletionForm() {
         }
 
         const uploadPromises = documents.map(async (doc) => {
-          if (doc.file && profileId) {
+          if (doc.file && nextProfileId) {
             const res = await uploadStudentDocument(
               doc.file,
               doc.docType,
-              profileId
+              nextProfileId
             );
             return String(res.id);
           }
@@ -319,16 +381,24 @@ export function ProfileCompletionForm() {
         const uploadedIds = await Promise.all(uploadPromises);
         setUploadedDocuments(uploadedIds.filter(Boolean) as string[]);
 
+        showToast(
+          "success",
+          "Your profile details were saved successfully.",
+          "Profile saved"
+        );
+
         setCurrentStep(3);
       } catch (err: any) {
-        setError(
-          err?.response?.data?.message ||
-            err?.response?.data?.detail ||
-            "Failed to upload documents. Please try again."
+        const apiError = getApiErrorMessage(
+          err,
+          "Failed to save profile and upload documents."
         );
+        setError(apiError);
+        showToast("error", apiError, "Unable to continue");
       } finally {
         setIsLoading(false);
       }
+
       return;
     }
 
@@ -339,69 +409,33 @@ export function ProfileCompletionForm() {
 
   const handleSave = async () => {
     setError(null);
+
+    if (currentStep === 1) {
+      showToast(
+        "info",
+        "Please complete the academic information in step 2 before saving.",
+        "More information required"
+      );
+      return;
+    }
+
     setIsLoading(true);
 
     try {
-      if (!profileId && currentStep === 1) {
-        const profileData = {
-          first_name: formData.firstName,
-          last_name: formData.lastName,
-          email: formData.email,
-          phone: formData.phone,
-          date_of_birth: formData.dateOfBirth,
-          country: formData.country,
-          state: formData.state,
-          address: formData.address,
-          identification: formData.identification,
-          application_type: formData.applicationType as
-            | "newly-admitted"
-            | "returning-student",
-          school: formData.school,
-          course: formData.course,
-          course_duration: formData.courseDuration,
-          institution_country: formData.institutionCountry,
-          institution_state: formData.institutionState,
-          previous_school: formData.previousSchool,
-          previous_course: formData.previousCourse,
-          previous_gpa: formData.previousGPA,
-          previous_year: formData.previousYear,
-          reason_for_leaving: formData.reasonForLeaving,
-        };
+      await saveOrCreateProfile();
 
-        const response = await submitStudentProfile(profileData);
-
-        const nextProfileId = String(response.id);
-        setProfileId(nextProfileId);
-
-        persistProfileToLocalStorage({
-          id: response.id,
-          is_verified: false,
-          first_name: formData.firstName,
-          last_name: formData.lastName,
-          email: formData.email,
-          phone_number: formData.phone,
-          date_of_birth: formData.dateOfBirth,
-          country: formData.country,
-          state: formData.state,
-          residential_address: formData.address,
-          verification_means: formData.identification,
-          institution: formData.school,
-          course: formData.course,
-          course_duration: formData.courseDuration,
-          course_country: formData.institutionCountry,
-          course_state: formData.institutionState,
-          student_entry:
-            formData.applicationType === "returning-student"
-              ? "RETURNING_STUDENT"
-              : "NEWLY_ADMITTED",
-        });
-      }
-    } catch (err: any) {
-      setError(
-        err?.response?.data?.message ||
-          err?.response?.data?.detail ||
-          "Failed to save. Please try again."
+      showToast(
+        "success",
+        "Your application progress has been saved.",
+        "Saved successfully"
       );
+    } catch (err: any) {
+      const apiError = getApiErrorMessage(
+        err,
+        "Failed to save. Please try again."
+      );
+      setError(apiError);
+      showToast("error", apiError, "Save failed");
     } finally {
       setIsLoading(false);
     }
@@ -409,7 +443,9 @@ export function ProfileCompletionForm() {
 
   const handleSubmit = async () => {
     if (!profileId) {
-      setError("Please complete previous steps first.");
+      const msg = "Please complete the previous steps first.";
+      setError(msg);
+      showToast("warning", msg, "Incomplete application");
       return;
     }
 
@@ -419,12 +455,12 @@ export function ProfileCompletionForm() {
     try {
       for (const guarantor of formData.guarantors) {
         const guarantorData = {
-          first_name: guarantor.firstName,
-          last_name: guarantor.lastName,
-          email: guarantor.email,
-          phone: guarantor.phone,
-          country: guarantor.country,
-          state: guarantor.state,
+          first_name: guarantor.firstName.trim(),
+          last_name: guarantor.lastName.trim(),
+          email: guarantor.email.trim(),
+          phone: guarantor.phone.trim(),
+          country: guarantor.country.trim(),
+          state: guarantor.state.trim(),
           student_profile: profileId,
         };
 
@@ -439,7 +475,9 @@ export function ProfileCompletionForm() {
         }
       }
 
-      const latestUser = ((getStoredUser() as StoredMe | null) ?? storedUser ?? {}) as StoredMe;
+      const latestUser = ((getStoredUser() as StoredMe | null) ??
+        storedUser ??
+        {}) as StoredMe;
 
       setAuthTokens({
         user: {
@@ -452,13 +490,20 @@ export function ProfileCompletionForm() {
         },
       });
 
+      showToast(
+        "success",
+        "Your application has been submitted successfully.",
+        "Application submitted"
+      );
+
       router.refresh();
     } catch (err: any) {
-      setError(
-        err?.response?.data?.message ||
-          err?.response?.data?.detail ||
-          "Failed to submit application. Please try again."
+      const apiError = getApiErrorMessage(
+        err,
+        "Failed to submit application. Please try again."
       );
+      setError(apiError);
+      showToast("error", apiError, "Submission failed");
     } finally {
       setIsLoading(false);
     }
@@ -516,7 +561,7 @@ export function ProfileCompletionForm() {
         {activeSection === "application" ? (
           renderApplicationPage()
         ) : (
-          <div className="p-4 sm:p-6 lg:p-8 text-[#272635]">
+          <div className="p-4 text-[#272635] sm:p-6 lg:p-8">
             <div className="text-[15px] sm:text-[16px]">Select a section.</div>
           </div>
         )}
@@ -524,7 +569,7 @@ export function ProfileCompletionForm() {
 
       {error && (
         <div className="px-4 pb-4 sm:px-6 sm:pb-6 lg:px-8 lg:pb-8">
-          <div className="rounded-lg border border-red-200 bg-white px-4 py-3 text-sm text-red-700 break-words">
+          <div className="break-words rounded-lg border border-red-200 bg-white px-4 py-3 text-sm text-red-700">
             {error}
           </div>
         </div>

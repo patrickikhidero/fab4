@@ -1,50 +1,52 @@
-import React from 'react'
-import { FormSelect } from './FormSelect'
+import React from "react";
+import { FormSelect } from "./FormSelect";
 
 interface IdentificationSectionProps {
   formData: {
-    identification: string
-  }
-  onFormChange: (field: string, value: string | File | null) => void
+    identification: string;
+  };
+  onFormChange: (field: string, value: string | File | null) => void;
 }
 
 export const IdentificationSection: React.FC<IdentificationSectionProps> = ({
   formData,
-  onFormChange
+  onFormChange,
 }) => {
   const identificationTypes = [
-    { value: 'national-id', label: 'National ID Card' },
-    { value: 'passport', label: 'International Passport' },
-    { value: 'drivers-license', label: 'Driver\'s License' },
-    { value: 'voters-card', label: 'Voter\'s Card' },
-    { value: 'birth-certificate', label: 'Birth Certificate' }
-  ]
+    { value: "NATIONAL_IDENTITY", label: "National ID Card" },
+    { value: "PASSPORT", label: "International Passport" },
+    { value: "DRIVERS_LICENCE", label: "Driver's License" },
+    { value: "VOTERS_CARD", label: "Voter's Card" },
+    { value: "BIRTH_CERTIFICATE", label: "Birth Certificate" },
+  ];
 
   return (
-    <div className="content-stretch flex flex-col gap-5 items-start justify-start relative shrink-0 w-full mt-8" data-node-id="466:2455">
-      {/* Section Header */}
-      <div className="bg-[#f9faf7] box-border content-stretch flex flex-col gap-5 items-start justify-start p-[20px] relative rounded-xl shrink-0 w-full" data-node-id="466:2456">
-        <div className="content-stretch flex flex-col gap-2 items-start justify-start relative shrink-0 w-full" data-node-id="466:2457">
-          <div className="text-[#1f2937] font-semibold text-lg leading-6 relative shrink-0 w-full" data-node-id="466:2458">
+    <div className="mt-8 flex w-full flex-col gap-5">
+      <div className="flex w-full flex-col gap-5 rounded-xl bg-[#f9faf7] p-4 sm:p-5">
+        <div className="flex w-full flex-col gap-2">
+          <div className="w-full text-[17px] font-semibold leading-6 text-[#1f2937] sm:text-lg">
             Identify Yourself
           </div>
-          <div className="text-[#6b7280] font-normal text-sm leading-5 relative shrink-0 w-full" data-node-id="466:2459">
+
+          <div className="w-full text-[13px] font-normal leading-5 text-[#6b7280] sm:text-sm">
             Select your primary identification document
           </div>
         </div>
       </div>
 
-      {/* Form Fields */}
-      <div className="content-stretch flex flex-col gap-5 items-start justify-start relative shrink-0 w-full" data-node-id="466:2460">
-        <FormSelect
-          label="Identification Type"
-          value={formData.identification}
-          onChange={(value) => onFormChange('identification', value)}
-          options={identificationTypes}
-          placeholder="Select identification type"
-          required
-        />
+      <div className="flex w-full flex-col gap-5">
+        <div className="w-full">
+          <FormSelect
+            label="Identification Type"
+            value={formData.identification}
+            onChange={(value) => onFormChange("identification", value)}
+            options={identificationTypes}
+            placeholder="Select identification type"
+            required
+          />
+        </div>
       </div>
     </div>
-  )
-}
+  );
+};
+

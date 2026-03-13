@@ -1,79 +1,79 @@
-import React from 'react'
-import { FormSelect } from './FormSelect'
-import { FormInput } from './FormInput'
+import React from "react";
+import { FormSelect } from "./FormSelect";
+import { FormInput } from "./FormInput";
 
 interface LocationSectionProps {
   formData: {
-    country: string
-    state: string
-    address: string
-  }
-  onFormChange: (field: string, value: string | File | null) => void
+    country: string;
+    state: string;
+    address: string;
+  };
+  onFormChange: (field: string, value: string | File | null) => void;
 }
 
 export const LocationSection: React.FC<LocationSectionProps> = ({
   formData,
-  onFormChange
+  onFormChange,
 }) => {
   const countries = [
-    { value: 'nigeria', label: 'Nigeria' },
-    { value: 'ghana', label: 'Ghana' },
-    { value: 'kenya', label: 'Kenya' },
-    { value: 'south-africa', label: 'South Africa' }
-  ]
+    { value: "nigeria", label: "Nigeria" },
+    { value: "ghana", label: "Ghana" },
+    { value: "kenya", label: "Kenya" },
+    { value: "south-africa", label: "South Africa" },
+  ];
 
   const states = [
-    { value: 'lagos', label: 'Lagos' },
-    { value: 'accra', label: 'Accra' },
-    { value: 'nairobi', label: 'Nairobi' },
-    { value: 'johannesburg', label: 'Johannesburg' }
-  ]
+    { value: "lagos", label: "Lagos" },
+    { value: "accra", label: "Accra" },
+    { value: "nairobi", label: "Nairobi" },
+    { value: "johannesburg", label: "Johannesburg" },
+  ];
 
   return (
-    <div className="content-stretch flex flex-col gap-5 items-start justify-start relative shrink-0 w-full mb-8" data-node-id="466:2449">
-      {/* Section Header */}
-      <div className="bg-[#f9faf7] box-border content-stretch flex flex-col gap-5 items-start justify-start p-[20px] relative rounded-xl shrink-0 w-full" data-node-id="466:2450">
-        <div className="content-stretch flex flex-col gap-2 items-start justify-start relative shrink-0 w-full" data-node-id="466:2451">
-          <div className="text-[#1f2937] font-semibold text-lg leading-6 relative shrink-0 w-full" data-node-id="466:2452">
+    <div className="mb-8 flex w-full flex-col gap-5">
+      <div className="flex w-full flex-col gap-5 rounded-xl bg-[#f9faf7] p-4 sm:p-5">
+        <div className="flex w-full flex-col gap-2">
+          <div className="w-full text-[17px] font-semibold leading-6 text-[#1f2937] sm:text-lg">
             Where to find you
           </div>
-          <div className="text-[#6b7280] font-normal text-sm leading-5 relative shrink-0 w-full" data-node-id="466:2453">
+
+          <div className="w-full text-[13px] font-normal leading-5 text-[#6b7280] sm:text-sm">
             Provide your location information
           </div>
         </div>
       </div>
 
-      {/* Form Fields */}
-      <div className="content-stretch flex flex-col gap-5 items-start justify-start relative w-full">
-        <div className="grid grid-cols-2 gap-5 w-full">
+      <div className="flex w-full flex-col gap-5">
+        <div className="grid w-full grid-cols-1 gap-4 sm:gap-5 md:grid-cols-2">
           <FormSelect
             label="Country"
             placeholder="Select Country"
             value={formData.country}
-            onChange={(value) => onFormChange('country', value)}
+            onChange={(value) => onFormChange("country", value)}
             options={countries}
-            
             required
           />
+
           <FormSelect
             label="State/Province"
             placeholder="Select State"
             value={formData.state}
-            onChange={(value) => onFormChange('state', value)}
+            onChange={(value) => onFormChange("state", value)}
             options={states}
-            
             required
           />
         </div>
 
-        <FormInput
-          label="Address"
-          placeholder="Enter your full address"
-          value={formData.address}
-          onChange={(value) => onFormChange('address', value)}
-          required
-        />
+        <div className="w-full">
+          <FormInput
+            label="Address"
+            placeholder="Enter your full address"
+            value={formData.address}
+            onChange={(value) => onFormChange("address", value)}
+            required
+          />
+        </div>
       </div>
     </div>
-  )
-}
+  );
+};
