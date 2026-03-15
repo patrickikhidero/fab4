@@ -857,22 +857,6 @@ export function MainFormArea({
           </div>
         </div>
 
-        <div className="flex w-full items-end justify-end px-4 pt-8 sm:px-5">
-          <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-[12px] text-[rgba(39,38,53,0.5)] sm:justify-end sm:gap-5 sm:text-[14px]">
-            <div>
-              <p className="whitespace-pre">Terms</p>
-            </div>
-            <div>
-              <p className="whitespace-pre">Legal</p>
-            </div>
-            <div>
-              <p className="whitespace-pre">Privacy policy</p>
-            </div>
-            <div>
-              <p className="whitespace-pre">Cookie policy</p>
-            </div>
-          </div>
-        </div>
       </div>
 
       <SuccessNotification

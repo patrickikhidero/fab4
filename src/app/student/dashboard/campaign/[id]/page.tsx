@@ -381,12 +381,6 @@ export default function CampaignDetailsPage() {
         </div>
       </div>
 
-      <div className="mt-10 text-center text-[10px] text-[rgba(39,38,53,0.45)]">
-        <span className="mx-2">Terms</span>
-        <span className="mx-2">Legal</span>
-        <span className="mx-2">Privacy policy</span>
-        <span className="mx-2">Cookie policy</span>
-      </div>
     </div>
   );
 }

@@ -2,6 +2,7 @@
 
 import React from "react";
 import Link from "next/link";
+import { FooterLinks } from "@/components/shared/FooterLinks";
 import {
   ArrowLeft,
   Check,
@@ -289,13 +290,7 @@ export function DonorCampaignDetails({
           </div>
         </div>
 
-        {/* FOOTER LINKS */}
-        <div className="mt-10 flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-[12px] text-[rgba(39,38,53,0.5)] lg:justify-end">
-          <button type="button">Terms</button>
-          <button type="button">Legal</button>
-          <button type="button">Privacy policy</button>
-          <button type="button">Cookie policy</button>
-        </div>
+        <FooterLinks />
       </div>
     </div>
   );

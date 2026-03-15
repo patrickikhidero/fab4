@@ -2,6 +2,7 @@
 
 import React, { useMemo, useState } from "react";
 import Link from "next/link";
+import { FooterLinks } from "@/components/shared/FooterLinks";
 import {
   ChevronLeft,
   ChevronRight,
@@ -177,13 +178,7 @@ export function DonorCampaignGrid({ items }: DonorCampaignGridProps) {
           </div>
         </div>
 
-        {/* FOOTER LINKS */}
-        <div className="mt-12 flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-[12px] text-[rgba(39,38,53,0.5)] lg:justify-end">
-          <button type="button">Terms</button>
-          <button type="button">Legal</button>
-          <button type="button">Privacy policy</button>
-          <button type="button">Cookie policy</button>
-        </div>
+        <FooterLinks className="mt-12 flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-[12px] text-[rgba(39,38,53,0.5)] lg:justify-end" />
       </div>
     </div>
   );

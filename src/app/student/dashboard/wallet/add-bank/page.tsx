@@ -357,13 +357,6 @@ export default function AddBankPage() {
             </div>
           </form>
 
-          {/* footer links */}
-          <div className="mt-10 flex flex-wrap items-center justify-center sm:justify-end gap-x-5 gap-y-2 text-[12px] text-[rgba(39,38,53,0.45)]">
-            <span>Terms</span>
-            <span>Legal</span>
-            <span>Privacy policy</span>
-            <span>Cookie policy</span>
-          </div>
         </div>
       </div>
     </div>

@@ -505,29 +505,6 @@ export function ApplicationStatusSection({
         </div>
       </div>
 
-      {/* Footer */}
-      <div
-        className="flex w-full flex-1 items-end justify-end px-4 pt-8 sm:px-5"
-        data-node-id="474:5429"
-      >
-        <div
-          className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2 font-['Neue_Montreal:Regular',_sans-serif] text-[12px] text-[rgba(39,38,53,0.5)] sm:justify-end sm:gap-5 sm:text-[14px]"
-          data-node-id="474:5430"
-        >
-          <div className="relative shrink-0" data-node-id="474:5431">
-            <p className="whitespace-pre leading-[normal]">Terms</p>
-          </div>
-          <div className="relative shrink-0" data-node-id="474:5432">
-            <p className="whitespace-pre leading-[normal]">Legal</p>
-          </div>
-          <div className="relative shrink-0" data-node-id="474:5433">
-            <p className="whitespace-pre leading-[normal]">Privacy policy</p>
-          </div>
-          <div className="relative shrink-0" data-node-id="474:5434">
-            <p className="whitespace-pre leading-[normal]">Cookie policy</p>
-          </div>
-        </div>
-      </div>
     </div>
   );
 }
