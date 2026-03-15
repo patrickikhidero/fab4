@@ -74,9 +74,6 @@ export const AcademicHistorySection: React.FC<AcademicHistorySectionProps> = ({
             value={formData.previousGPA}
             onChange={(value) => onFormChange('previousGPA', value)}
             type="number"
-            step="0.01"
-            min="0"
-            max="4"
             required
           />
           <FormSelect
