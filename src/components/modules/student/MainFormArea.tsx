@@ -1,10 +1,12 @@
+"use client";
+
 import React from "react";
 import { PersonalInfoSection } from "./PersonalInfoSection";
 import { LocationSection } from "./LocationSection";
 import { IdentificationSection } from "./IdentificationSection";
-import { ProvideEvidenceForm } from "./ProvideEvidenceForm";
 import { GuarantorsSection } from "./GuarantorsSection";
 import { SuccessNotification } from "./SuccessNotification";
+import { FormInput } from "./FormInput";
 
 interface FormData {
   firstName: string;
@@ -21,6 +23,7 @@ interface FormData {
   school: string;
   course: string;
   courseDuration: string;
+  level: string;
   institutionCountry: string;
   institutionState: string;
   admissionLetter: File | null;
@@ -66,7 +69,7 @@ interface MainFormAreaProps {
   ) => void;
   onContinue: () => void;
   onSave: () => void;
-  onSubmit?: () => void;
+  onSubmit?: () => void | Promise<void>;
 }
 
 export function MainFormArea({
@@ -93,30 +96,6 @@ export function MainFormArea({
   const [statusType, setStatusType] = React.useState<"error" | "success" | null>(
     null
   );
-
-  const imgVector = "/svg/ui/globe.svg";
-  const imgGroup = "/svg/ui/group.svg";
-  const imgVector1 = "/svg/ui/vector1.svg";
-  const imgVector2 = "/svg/ui/vector2.svg";
-  const img = "/svg/ui/language.svg";
-  const img1 = "/svg/ui/language1.svg";
-  const img2 = "/svg/ui/language2.svg";
-  const img3 = "/svg/ui/language3.svg";
-  const img4 = "/svg/ui/language4.svg";
-  const img5 = "/svg/ui/language5.svg";
-  const img6 = "/svg/ui/language6.svg";
-
-  const img7 = "/svg/icons/dropdown-arrow.svg";
-  const img8 = "/svg/icons/double-caret.svg";
-  const img9 = "/svg/icons/caret-active.svg";
-  const img10 = "/svg/icons/caret-inactive.svg";
-  const img11 = "/svg/icons/checkmark.svg";
-  const img12 = "/svg/icons/plus.svg";
-  const img13 = "/svg/icons/plus-detail1.svg";
-  const img14 = "/svg/icons/plus-detail2.svg";
-
-  const imgLine1 = "/svg/decoration/divider-line1.svg";
-  const imgLine2 = "/svg/decoration/divider-line2.svg";
 
   const areGuarantorsValid = () => {
     return formData.guarantors.every(
@@ -153,19 +132,17 @@ export function MainFormArea({
     setIsSubmitting(true);
 
     try {
-      await new Promise((resolve) => setTimeout(resolve, 1500));
+      if (onSubmit) {
+        await onSubmit();
+      }
 
       setShowSuccessNotification(true);
       setStatusType("success");
       setStatusMessage("Your application has been submitted successfully.");
 
-      setTimeout(() => {
+      window.setTimeout(() => {
         setShowSuccessNotification(false);
       }, 5000);
-
-      if (onSubmit) {
-        await onSubmit();
-      }
     } catch (error) {
       console.error("Submission failed:", error);
       setStatusType("error");
@@ -198,56 +175,24 @@ export function MainFormArea({
 
     return (
       <div
-        className={`min-w-[220px] flex-1 rounded-tl-[12px] rounded-tr-[12px] p-4 sm:p-5 ${
+        className={`relative min-w-[220px] flex-1 rounded-tl-[12px] rounded-tr-[12px] p-4 sm:p-5 ${
           active ? "bg-[#f9faf7]" : ""
-        } relative`}
+        }`}
       >
         <div
           aria-hidden="true"
-          className={`pointer-events-none absolute inset-0 rounded-tl-[12px] rounded-tr-[12px] border-solid ${
-            active
-              ? "border-[#198754] border-[0px_0px_1px]"
-              : "border-[rgba(39,38,53,0.1)] border-[0px_0px_1px]"
+          className={`pointer-events-none absolute inset-0 rounded-tl-[12px] rounded-tr-[12px] border-b ${
+            active ? "border-[#198754]" : "border-[rgba(39,38,53,0.1)]"
           }`}
         />
 
         <div className="relative flex w-full items-center justify-center gap-2">
-          <div className="relative h-5 w-5 shrink-0 overflow-clip">
-            <div className="absolute inset-0">
-              <img alt="Step Icon" className="block size-full max-w-none" src={img8} />
-            </div>
-            <div className="absolute inset-[18.75%_46.88%_18.75%_21.88%]">
-              <div
-                className="absolute inset-[-4%_-8%]"
-                style={{
-                  ["--stroke-0" as any]: active
-                    ? "rgba(25, 135, 84, 1)"
-                    : "rgba(39, 38, 53, 1)",
-                }}
-              >
-                <img
-                  alt="Step Icon Detail"
-                  className="block size-full max-w-none"
-                  src={active ? img9 : img10}
-                />
-              </div>
-            </div>
-            <div className="absolute inset-[18.75%_15.63%_18.75%_53.13%]">
-              <div
-                className="absolute inset-[-4%_-8%]"
-                style={{
-                  ["--stroke-0" as any]: active
-                    ? "rgba(25, 135, 84, 1)"
-                    : "rgba(39, 38, 53, 1)",
-                }}
-              >
-                <img
-                  alt="Step Icon Detail 2"
-                  className="block size-full max-w-none"
-                  src={active ? img9 : img10}
-                />
-              </div>
-            </div>
+          <div
+            className={`text-[14px] font-medium sm:text-[16px] ${
+              active ? "text-[#198754]" : "text-[rgba(39,38,53,0.5)]"
+            }`}
+          >
+            &gt;&gt;
           </div>
 
           <div
@@ -255,7 +200,7 @@ export function MainFormArea({
               active ? "text-[#272635]" : "text-[rgba(39,38,53,0.5)]"
             }`}
           >
-            <p className="leading-[22px] sm:leading-[24px] whitespace-nowrap">
+            <p className="whitespace-nowrap leading-[22px] sm:leading-[24px]">
               {label}
             </p>
           </div>
@@ -264,180 +209,188 @@ export function MainFormArea({
     );
   };
 
-  const UploadButton = ({ label }: { label: string }) => (
-    <button
-      type="button"
-      className="flex items-center justify-center gap-2 rounded-[8px] text-left"
-    >
-      <div className="relative h-[25px] w-[25px] shrink-0 overflow-clip">
-        <div className="absolute inset-0">
-          <img alt="Plus Icon" className="block size-full max-w-none" src={img12} />
+  const SelectField = ({
+    label,
+    field,
+    value,
+    options,
+    placeholder,
+  }: {
+    label: string;
+    field: string;
+    value: string;
+    options: Array<{ value: string; label: string }>;
+    placeholder: string;
+  }) => {
+    return (
+      <div className="basis-0 flex min-h-px min-w-px grow shrink-0 flex-col items-start justify-start gap-2">
+        <div
+          className="relative min-w-full shrink-0 text-[16px] text-[#272635]"
+          style={{ width: "min-content" }}
+        >
+          <p className="leading-[1.4]">{label}</p>
         </div>
-        <div className="absolute bottom-1/2 left-[15.63%] right-[15.63%] top-1/2">
-          <div className="absolute inset-[-0.5px_-4.55%]">
-            <img
-              alt="Plus Icon Detail"
-              className="block size-full max-w-none"
-              src={img13}
-            />
-          </div>
-        </div>
-        <div className="absolute bottom-[15.63%] left-1/2 right-1/2 top-[15.63%]">
-          <div className="absolute inset-[-4.55%_-0.5px]">
-            <img
-              alt="Plus Icon Detail 2"
-              className="block size-full max-w-none"
-              src={img14}
-            />
-          </div>
+
+        <div className="relative flex h-12 w-full min-w-60 items-center justify-start gap-2 rounded-lg bg-[#ffffff] pl-4 pr-3 py-3">
+          <div
+            aria-hidden="true"
+            className="pointer-events-none absolute inset-[-0.5px] rounded-[8.5px] border border-[rgba(39,38,53,0.1)] shadow-[0px_1px_4px_0px_rgba(12,12,13,0.05)]"
+          />
+          <select
+            value={value}
+            onChange={(e) => onFormChange(field, e.target.value)}
+            className="relative w-full grow border-none bg-transparent text-[14px] text-[#272635] outline-none"
+          >
+            <option value="">{placeholder}</option>
+            {options.map((option) => (
+              <option key={option.value} value={option.value}>
+                {option.label}
+              </option>
+            ))}
+          </select>
         </div>
       </div>
-      <div className="text-[#272635] text-[13px] sm:text-[14px]">
-        <p className="underline leading-none">{label}</p>
+    );
+  };
+
+  const TextAreaField = ({
+    label,
+    field,
+    value,
+    placeholder,
+  }: {
+    label: string;
+    field: string;
+    value: string;
+    placeholder: string;
+  }) => {
+    return (
+      <div className="flex w-full flex-col gap-2">
+        <div className="text-[16px] text-[#272635]">
+          <p className="leading-[1.4]">{label}</p>
+        </div>
+
+        <div className="relative w-full">
+          <div
+            aria-hidden="true"
+            className="pointer-events-none absolute inset-0 rounded-[8.5px] border border-[rgba(39,38,53,0.1)] shadow-[0px_1px_4px_0px_rgba(12,12,13,0.05)]"
+          />
+          <textarea
+            value={value}
+            onChange={(e) => onFormChange(field, e.target.value)}
+            placeholder={placeholder}
+            rows={4}
+            className="relative w-full resize-none rounded-lg bg-white px-4 py-3 text-[14px] text-[#272635] outline-none placeholder:text-[#93939a]"
+          />
+        </div>
       </div>
-    </button>
-  );
+    );
+  };
+
+  const FileUploadField = ({
+    label,
+    description,
+    field,
+    accept,
+    buttonLabel,
+  }: {
+    label: string;
+    description?: string;
+    field: string;
+    accept?: string;
+    buttonLabel?: string;
+  }) => {
+    const file = formData[field as keyof FormData] as File | null;
+
+    return (
+      <div className="flex w-full flex-col gap-2">
+        <div className="text-[15px] text-[#272635] sm:text-[16px]">
+          <p className="leading-[1.4]">{label}</p>
+        </div>
+
+        {description && (
+          <div className="text-[13px] text-[rgba(39,38,53,0.5)] sm:text-[14px]">
+            <p className="leading-[20px]">{description}</p>
+          </div>
+        )}
+
+        <label className="inline-flex w-fit cursor-pointer items-center gap-2 rounded-[8px] text-left">
+          <span className="grid h-[25px] w-[25px] place-items-center rounded-full border border-[rgba(39,38,53,0.15)] text-[#272635]">
+            +
+          </span>
+          <span className="text-[13px] text-[#272635] underline sm:text-[14px]">
+            {file ? "Replace file" : buttonLabel || "Attach file"}
+          </span>
+          <input
+            type="file"
+            accept={accept}
+            className="hidden"
+            onChange={(e) => onFormChange(field, e.target.files?.[0] ?? null)}
+          />
+        </label>
+
+        {file && (
+          <div className="rounded-[8px] border border-[rgba(39,38,53,0.08)] bg-white px-3 py-2 text-[13px] text-[#272635]">
+            {file.name}
+          </div>
+        )}
+      </div>
+    );
+  };
+
+  const levelOptions = [
+    { value: "100L", label: "100L" },
+    { value: "200L", label: "200L" },
+    { value: "300L", label: "300L" },
+    { value: "400L", label: "400L" },
+    { value: "500L", label: "500L" },
+    { value: "600L", label: "600L" },
+  ];
+
+  const countryOptions = [
+    { value: "Nigeria", label: "Nigeria" },
+    { value: "Ghana", label: "Ghana" },
+    { value: "Kenya", label: "Kenya" },
+    { value: "South Africa", label: "South Africa" },
+  ];
+
+  const stateOptions = [
+    { value: "Lagos", label: "Lagos" },
+    { value: "Abuja", label: "Abuja" },
+    { value: "Ogun", label: "Ogun" },
+    { value: "Rivers", label: "Rivers" },
+    { value: "Accra", label: "Accra" },
+    { value: "Nairobi", label: "Nairobi" },
+    { value: "Johannesburg", label: "Johannesburg" },
+  ];
 
   return (
-    <div className="flex flex-1 basis-0 flex-col items-start gap-[10px] p-4 sm:p-6 lg:p-[40px] min-w-0">
-      <div className="relative w-full shrink-0 overflow-hidden rounded-[16px] sm:rounded-[20px] bg-[#ffffff] px-0 py-5 shadow-[0px_16px_32px_-8px_rgba(39,38,53,0.1)]">
-        {/* Top Language Selector */}
+    <div className="flex min-w-0 flex-1 basis-0 flex-col items-start gap-[10px] p-4 sm:p-6 lg:p-[40px]">
+      <div className="relative w-full overflow-hidden rounded-[16px] bg-[#ffffff] px-0 py-5 shadow-[0px_16px_32px_-8px_rgba(39,38,53,0.1)] sm:rounded-[20px]">
         <div className="flex w-full items-end justify-end px-4 sm:px-5">
           <div className="flex items-center justify-center gap-2 rounded-[999px] px-2">
-            <div className="relative h-4 w-4 shrink-0 overflow-clip">
-              <div className="absolute inset-0">
-                <img
-                  alt="Globe Icon"
-                  className="block size-full max-w-none"
-                  src={imgVector2}
-                />
-              </div>
-              <div className="absolute left-0.5 top-0.5 h-[11.5px] w-[13px]">
-                <div className="absolute bottom-0 left-[46.15%] right-0 top-[39.13%]">
-                  <div
-                    className="absolute inset-[-7.14%]"
-                    style={{ ["--stroke-0" as any]: "rgba(39, 38, 53, 1)" }}
-                  >
-                    <img
-                      alt="Language Icon"
-                      className="block size-full max-w-none"
-                      src={img}
-                    />
-                  </div>
-                </div>
-                <div className="absolute inset-[82.61%_7.69%_17.39%_53.85%]">
-                  <div
-                    className="absolute inset-[-0.5px_-10%]"
-                    style={{ ["--stroke-0" as any]: "rgba(39, 38, 53, 1)" }}
-                  >
-                    <img
-                      alt="Language Icon 2"
-                      className="block size-full max-w-none"
-                      src={img1}
-                    />
-                  </div>
-                </div>
-                <div className="absolute bottom-[86.96%] left-[30.77%] right-[69.23%] top-0">
-                  <div
-                    className="absolute inset-[-33.33%_-0.5px]"
-                    style={{ ["--stroke-0" as any]: "rgba(39, 38, 53, 1)" }}
-                  >
-                    <img
-                      alt="Language Icon 3"
-                      className="block size-full max-w-none"
-                      src={img2}
-                    />
-                  </div>
-                </div>
-                <div className="absolute bottom-[86.96%] left-0 right-[38.46%] top-[13.04%]">
-                  <div
-                    className="absolute inset-[-0.5px_-6.25%]"
-                    style={{ ["--stroke-0" as any]: "rgba(39, 38, 53, 1)" }}
-                  >
-                    <img
-                      alt="Language Icon 4"
-                      className="block size-full max-w-none"
-                      src={img3}
-                    />
-                  </div>
-                </div>
-                <div className="absolute bottom-[34.78%] left-0 right-[53.85%] top-[13.04%]">
-                  <div
-                    className="absolute inset-[-8.333%]"
-                    style={{ ["--stroke-0" as any]: "rgba(39, 38, 53, 1)" }}
-                  >
-                    <img
-                      alt="Language Icon 5"
-                      className="block size-full max-w-none"
-                      src={img4}
-                    />
-                  </div>
-                </div>
-                <div className="absolute inset-[30.43%_38.46%_34.78%_18.02%]">
-                  <div
-                    className="absolute inset-[-12.5%_-8.84%]"
-                    style={{ ["--stroke-0" as any]: "rgba(39, 38, 53, 1)" }}
-                  >
-                    <img
-                      alt="Language Icon 6"
-                      className="block size-full max-w-none"
-                      src={img5}
-                    />
-                  </div>
-                </div>
-              </div>
+            <div className="text-[#272635] text-[13px] sm:text-[14px]">
+              <p className="whitespace-pre leading-[20px]">English</p>
             </div>
-
-            <div className="shrink-0 text-[#272635] text-[13px] sm:text-[14px]">
-              <p className="leading-[20px] whitespace-pre">English</p>
-            </div>
-
-            <div className="relative h-4 w-4 shrink-0 overflow-clip">
-              <div className="absolute inset-0">
-                <img
-                  alt="Dropdown Arrow"
-                  className="block size-full max-w-none"
-                  src={img6}
-                />
-              </div>
-              <div className="absolute inset-[34.38%_15.63%_28.12%_15.62%]">
-                <img
-                  alt="Dropdown Arrow Detail"
-                  className="block size-full max-w-none"
-                  src={img7}
-                />
-              </div>
-            </div>
+            <div className="text-[#272635] text-[12px]">▾</div>
           </div>
         </div>
 
-        {/* Main Content */}
         <div className="flex w-full flex-col items-center gap-5 px-4 py-0 sm:px-6 lg:px-10 xl:px-[120px] 2xl:px-[200px]">
-          {/* Page Title */}
           <div className="w-full text-[#272635]">
             <div className="text-[24px] sm:text-[28px] lg:text-[32px]">
               <p className="leading-[1.15]">Apply to become a FabFour</p>
             </div>
             <div className="mt-2 text-[15px] sm:text-[16px] lg:text-[18px]">
               <p className="leading-[24px] sm:leading-[26px] lg:leading-[28px]">
-                Africa&apos;s trusted social fundraising platform to support smart
-                minds through tertiary education.
+                Africa&apos;s trusted social fundraising platform to support
+                smart minds through tertiary education.
               </p>
             </div>
           </div>
 
-          {/* Divider */}
-          <div className="relative h-0 w-full">
-            <div className="absolute bottom-0 left-0 right-0 top-[-1px]">
-              <img
-                alt="Divider Line"
-                className="block size-full max-w-none"
-                src={imgLine1}
-              />
-            </div>
-          </div>
+          <div className="h-px w-full bg-[rgba(39,38,53,0.08)]" />
 
-          {/* Status Banner */}
           {statusMessage && (
             <div
               className={`w-full rounded-[12px] border px-4 py-3 text-sm ${
@@ -450,7 +403,6 @@ export function MainFormArea({
             </div>
           )}
 
-          {/* Progress Steps */}
           <div className="w-full">
             <div className="overflow-x-auto [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
               <div className="flex min-w-max items-start justify-start">
@@ -461,20 +413,33 @@ export function MainFormArea({
             </div>
           </div>
 
-          {/* Form Content */}
           <div className="flex w-full flex-col gap-8 sm:gap-10 lg:gap-12">
             {currentStep === 1 && (
               <>
                 <PersonalInfoSection
-                  formData={formData}
+                  formData={{
+                    firstName: formData.firstName,
+                    lastName: formData.lastName,
+                    email: formData.email,
+                    phone: formData.phone,
+                    dateOfBirth: formData.dateOfBirth,
+                  }}
                   onFormChange={onFormChange}
                 />
+
                 <LocationSection
-                  formData={formData}
+                  formData={{
+                    country: formData.country,
+                    state: formData.state,
+                    address: formData.address,
+                  }}
                   onFormChange={onFormChange}
                 />
+
                 <IdentificationSection
-                  formData={formData}
+                  formData={{
+                    identification: formData.identification,
+                  }}
                   onFormChange={onFormChange}
                 />
               </>
@@ -482,7 +447,6 @@ export function MainFormArea({
 
             {currentStep === 2 && (
               <div className="flex w-full flex-col gap-8 sm:gap-10">
-                {/* Application Type */}
                 <div className="w-full rounded-[12px] bg-[#f9faf7] p-4 sm:p-5">
                   <div className="text-[#272635] text-[15px] sm:text-[16px]">
                     <p className="leading-[1.4]">
@@ -494,271 +458,136 @@ export function MainFormArea({
                     <button
                       type="button"
                       onClick={() => selectApplicationType("newly-admitted")}
-                      className={`relative flex w-full items-start justify-between gap-3 rounded-[12px] bg-[#ffffff] p-3 text-left shadow-[0px_1px_4px_0px_rgba(12,12,13,0.05)] ${
+                      className={`flex w-full items-start justify-between gap-3 rounded-[12px] bg-white p-3 text-left shadow-[0px_1px_4px_0px_rgba(12,12,13,0.05)] ${
                         applicationType === "newly-admitted"
                           ? "border border-[#272635]"
                           : "border border-[rgba(39,38,53,0.1)]"
                       }`}
                     >
-                      <div className="min-w-0 flex-1 text-[15px] sm:text-[16px]">
-                        <p
-                          className={`leading-[1.4] ${
-                            applicationType === "newly-admitted"
-                              ? "text-[#272635]"
-                              : "text-[rgba(39,38,53,0.5)]"
-                          }`}
-                        >
-                          Newly Admitted
-                        </p>
-                      </div>
-
-                      <div
-                        className={`relative h-4 w-4 shrink-0 rounded-[4px] ${
+                      <span
+                        className={`text-[15px] sm:text-[16px] ${
                           applicationType === "newly-admitted"
-                            ? "bg-[#2c2c2c]"
-                            : ""
+                            ? "text-[#272635]"
+                            : "text-[rgba(39,38,53,0.5)]"
                         }`}
                       >
-                        {applicationType === "newly-admitted" ? (
-                          <div className="flex h-4 w-4 items-center justify-center rounded-[4px] bg-[#2c2c2c] overflow-hidden">
-                            <div className="relative h-4 w-4 overflow-clip">
-                              <div
-                                className="absolute bottom-[29.17%] left-[16.67%] right-[16.67%] top-1/4"
-                                style={{
-                                  ["--stroke-0" as any]:
-                                    "rgba(245, 245, 245, 1)",
-                                }}
-                              >
-                                <img
-                                  alt="Check Icon"
-                                  className="block size-full max-w-none"
-                                  src={img11}
-                                />
-                              </div>
-                            </div>
-                          </div>
-                        ) : (
-                          <div
-                            aria-hidden="true"
-                            className="absolute inset-0 rounded-[4px] border border-[rgba(39,38,53,0.1)]"
-                          />
-                        )}
-                      </div>
+                        Newly Admitted
+                      </span>
+
+                      <span
+                        className={`grid h-4 w-4 place-items-center rounded-[4px] text-[10px] ${
+                          applicationType === "newly-admitted"
+                            ? "bg-[#2c2c2c] text-white"
+                            : "border border-[rgba(39,38,53,0.1)]"
+                        }`}
+                      >
+                        {applicationType === "newly-admitted" ? "✓" : ""}
+                      </span>
                     </button>
 
                     <button
                       type="button"
                       onClick={() => selectApplicationType("returning-student")}
-                      className={`relative flex w-full items-start justify-between gap-3 rounded-[12px] bg-[#ffffff] p-3 text-left shadow-[0px_1px_4px_0px_rgba(12,12,13,0.05)] ${
+                      className={`flex w-full items-start justify-between gap-3 rounded-[12px] bg-white p-3 text-left shadow-[0px_1px_4px_0px_rgba(12,12,13,0.05)] ${
                         applicationType === "returning-student"
                           ? "border border-[#272635]"
                           : "border border-[rgba(39,38,53,0.1)]"
                       }`}
                     >
-                      <div className="min-w-0 flex-1 text-[15px] sm:text-[16px]">
-                        <p
-                          className={`leading-[1.4] ${
-                            applicationType === "returning-student"
-                              ? "text-[#272635]"
-                              : "text-[rgba(39,38,53,0.5)]"
-                          }`}
-                        >
-                          Returning Student
-                        </p>
-                      </div>
-
-                      <div
-                        className={`relative h-4 w-4 shrink-0 rounded-[4px] ${
+                      <span
+                        className={`text-[15px] sm:text-[16px] ${
                           applicationType === "returning-student"
-                            ? "bg-[#2c2c2c]"
-                            : ""
+                            ? "text-[#272635]"
+                            : "text-[rgba(39,38,53,0.5)]"
                         }`}
                       >
-                        {applicationType === "returning-student" ? (
-                          <div className="flex h-4 w-4 items-center justify-center rounded-[4px] bg-[#2c2c2c] overflow-hidden">
-                            <div className="relative h-4 w-4 overflow-clip">
-                              <div
-                                className="absolute bottom-[29.17%] left-[16.67%] right-[16.67%] top-1/4"
-                                style={{
-                                  ["--stroke-0" as any]:
-                                    "rgba(245, 245, 245, 1)",
-                                }}
-                              >
-                                <img
-                                  alt="Check Icon"
-                                  className="block size-full max-w-none"
-                                  src={img11}
-                                />
-                              </div>
-                            </div>
-                          </div>
-                        ) : (
-                          <div
-                            aria-hidden="true"
-                            className="absolute inset-0 rounded-[4px] border border-[rgba(39,38,53,0.1)]"
-                          />
-                        )}
-                      </div>
+                        Returning Student
+                      </span>
+
+                      <span
+                        className={`grid h-4 w-4 place-items-center rounded-[4px] text-[10px] ${
+                          applicationType === "returning-student"
+                            ? "bg-[#2c2c2c] text-white"
+                            : "border border-[rgba(39,38,53,0.1)]"
+                        }`}
+                      >
+                        {applicationType === "returning-student" ? "✓" : ""}
+                      </span>
                     </button>
                   </div>
                 </div>
 
                 {applicationType === "newly-admitted" && (
                   <>
-                    {/* Newly admitted */}
                     <div className="w-full rounded-[12px] bg-[#f9faf7] p-4 sm:p-5">
                       <div className="mb-5">
                         <div className="text-[#272635] text-[18px] sm:text-[20px]">
-                          <p className="leading-[28px]">High Institution</p>
+                          <p className="leading-[28px]">Higher Institution</p>
                         </div>
-                        <div className="mt-2 text-[13px] sm:text-[14px] text-[rgba(39,38,53,0.5)]">
+                        <div className="mt-2 text-[13px] text-[rgba(39,38,53,0.5)] sm:text-[14px]">
                           <p className="leading-[20px]">
-                            Provide complete information about your admission
+                            Provide complete information about your admission.
                           </p>
                         </div>
                       </div>
 
                       <div className="grid grid-cols-1 gap-5">
-                        <div>
-                          <div className="mb-2 text-[15px] sm:text-[16px] text-[#272635]">
-                            <p className="leading-[1.4]">
-                              Which school are you attending?
-                            </p>
-                          </div>
-                          <div className="relative flex h-12 w-full items-center rounded-[8px] bg-[#ffffff] pl-4 pr-3 py-3">
-                            <div
-                              aria-hidden="true"
-                              className="absolute inset-[-0.5px] rounded-[8.5px] border border-[rgba(39,38,53,0.1)] shadow-[0px_1px_4px_0px_rgba(12,12,13,0.05)]"
-                            />
-                            <div className="relative min-w-0 flex-1 text-[#93939a] text-[14px]">
-                              <p className="leading-none">
-                                Select High Institution
-                              </p>
-                            </div>
-                          </div>
+                        <FormInput
+                          label="Which school are you attending?"
+                          placeholder="Enter institution name"
+                          value={formData.school}
+                          onChange={(value) => onFormChange("school", value)}
+                          required
+                        />
+
+                        <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
+                          <FormInput
+                            label="What course were you offered?"
+                            placeholder="Ex. Computer Science"
+                            value={formData.course}
+                            onChange={(value) => onFormChange("course", value)}
+                            required
+                          />
+
+                          <SelectField
+                            label="What's your current course level?"
+                            field="level"
+                            value={formData.level}
+                            placeholder="Select level"
+                            options={levelOptions}
+                          />
                         </div>
 
-                        <div className="grid grid-cols-1 gap-5 lg:grid-cols-[minmax(0,1fr)_300px]">
-                          <div>
-                            <div className="mb-2 text-[15px] sm:text-[16px] text-[#272635]">
-                              <p className="leading-[1.4]">
-                                What course were you offered?
-                              </p>
-                            </div>
-                            <div className="relative flex h-12 w-full items-center rounded-[8px] bg-[#ffffff] pl-4 pr-3 py-3">
-                              <div
-                                aria-hidden="true"
-                                className="absolute inset-[-0.5px] rounded-[8.5px] border border-[rgba(39,38,53,0.1)] shadow-[0px_1px_4px_0px_rgba(12,12,13,0.05)]"
-                              />
-                              <div className="relative min-w-0 flex-1 text-[#93939a] text-[14px]">
-                                <p className="leading-none">
-                                  Ex. Bio Chemical Engineering
-                                </p>
-                              </div>
-                            </div>
-                          </div>
-
-                          <div>
-                            <div className="mb-2 text-[15px] sm:text-[16px] text-[#272635]">
-                              <p className="leading-[1.4]">
-                                What&apos;s your current course level?
-                              </p>
-                            </div>
-                            <div className="relative flex h-12 w-full items-center rounded-[8px] bg-[#ffffff] pl-4 pr-3 py-3">
-                              <div
-                                aria-hidden="true"
-                                className="absolute inset-[-0.5px] rounded-[8.5px] border border-[rgba(39,38,53,0.1)] shadow-[0px_1px_4px_0px_rgba(12,12,13,0.05)]"
-                              />
-                              <div className="relative min-w-0 flex-1 text-[#93939a] text-[14px]">
-                                <p className="leading-none">Select level</p>
-                              </div>
-                              <div className="relative h-4 w-4 shrink-0 overflow-clip">
-                                <div className="absolute inset-0">
-                                  <img
-                                    alt="Dropdown Arrow"
-                                    className="block size-full max-w-none"
-                                    src={img6}
-                                  />
-                                </div>
-                                <div className="absolute inset-[34.38%_15.63%_28.12%_15.62%]">
-                                  <img
-                                    alt="Dropdown Arrow Detail"
-                                    className="block size-full max-w-none"
-                                    src={img7}
-                                  />
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
+                        <FormInput
+                          label="Course Duration"
+                          placeholder="Ex. 2024 - 2028"
+                          value={formData.courseDuration}
+                          onChange={(value) =>
+                            onFormChange("courseDuration", value)
+                          }
+                          required
+                        />
 
                         <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
-                          <div>
-                            <div className="mb-2 text-[15px] sm:text-[16px] text-[#272635]">
-                              <p className="leading-[1.4]">Country</p>
-                            </div>
-                            <div className="relative flex h-12 w-full items-center rounded-[8px] bg-[#ffffff] pl-4 pr-3 py-3">
-                              <div
-                                aria-hidden="true"
-                                className="absolute inset-[-0.5px] rounded-[8.5px] border border-[rgba(39,38,53,0.1)] shadow-[0px_1px_4px_0px_rgba(12,12,13,0.05)]"
-                              />
-                              <div className="relative min-w-0 flex-1 text-[#93939a] text-[14px]">
-                                <p className="leading-none">Select Country</p>
-                              </div>
-                              <div className="relative h-4 w-4 shrink-0 overflow-clip">
-                                <div className="absolute inset-0">
-                                  <img
-                                    alt="Dropdown Arrow"
-                                    className="block size-full max-w-none"
-                                    src={img6}
-                                  />
-                                </div>
-                                <div className="absolute inset-[34.38%_15.63%_28.12%_15.62%]">
-                                  <img
-                                    alt="Dropdown Arrow Detail"
-                                    className="block size-full max-w-none"
-                                    src={img7}
-                                  />
-                                </div>
-                              </div>
-                            </div>
-                          </div>
+                          <SelectField
+                            label="Country"
+                            field="institutionCountry"
+                            value={formData.institutionCountry}
+                            placeholder="Select Country"
+                            options={countryOptions}
+                          />
 
-                          <div>
-                            <div className="mb-2 text-[15px] sm:text-[16px] text-[#272635]">
-                              <p className="leading-[1.4]">State</p>
-                            </div>
-                            <div className="relative flex h-12 w-full items-center rounded-[8px] bg-[#ffffff] pl-4 pr-3 py-3">
-                              <div
-                                aria-hidden="true"
-                                className="absolute inset-[-0.5px] rounded-[8.5px] border border-[rgba(39,38,53,0.1)] shadow-[0px_1px_4px_0px_rgba(12,12,13,0.05)]"
-                              />
-                              <div className="relative min-w-0 flex-1 text-[#93939a] text-[14px]">
-                                <p className="leading-none">Select State</p>
-                              </div>
-                              <div className="relative h-4 w-4 shrink-0 overflow-clip">
-                                <div className="absolute inset-0">
-                                  <img
-                                    alt="Dropdown Arrow"
-                                    className="block size-full max-w-none"
-                                    src={img6}
-                                  />
-                                </div>
-                                <div className="absolute inset-[34.38%_15.63%_28.12%_15.62%]">
-                                  <img
-                                    alt="Dropdown Arrow Detail"
-                                    className="block size-full max-w-none"
-                                    src={img7}
-                                  />
-                                </div>
-                              </div>
-                            </div>
-                          </div>
+                          <SelectField
+                            label="State"
+                            field="institutionState"
+                            value={formData.institutionState}
+                            placeholder="Select State"
+                            options={stateOptions}
+                          />
                         </div>
                       </div>
                     </div>
 
-                    {/* Supporting documents */}
                     <div className="w-full rounded-[12px] bg-[#f9faf7] p-4 sm:p-5">
                       <div className="mb-5">
                         <div className="text-[#272635] text-[18px] sm:text-[20px]">
@@ -766,58 +595,31 @@ export function MainFormArea({
                             Attach Supporting Documents
                           </p>
                         </div>
-                        <div className="mt-2 text-[13px] sm:text-[14px] text-[rgba(39,38,53,0.5)]">
+                        <div className="mt-2 text-[13px] text-[rgba(39,38,53,0.5)] sm:text-[14px]">
                           <p className="leading-[20px]">
-                            Provide complete information about your admission
+                            Upload the required supporting documents.
                           </p>
                         </div>
                       </div>
 
-                      <div className="flex flex-col gap-2">
-                        <div className="text-[15px] sm:text-[16px] text-[#272635]">
-                          <p className="leading-[1.4]">
-                            Upload a original copy of your admission offer letter
-                          </p>
-                        </div>
-                        <div className="text-[13px] sm:text-[14px] text-[rgba(39,38,53,0.5)]">
-                          <p className="leading-[20px]">
-                            <span>
-                              We recommend a minimum of 1000 word document
-                              showcasing why we should consider. See example{" "}
-                            </span>
-                            <span className="text-[#198754] underline">here</span>
-                          </p>
-                        </div>
-                        <UploadButton label="Attach Personal Statement" />
-                      </div>
+                      <div className="flex flex-col gap-5">
+                        <FileUploadField
+                          label="Upload an original copy of your admission offer letter"
+                          description="Accepted formats: PDF, DOC, DOCX, JPG, PNG."
+                          field="admissionLetter"
+                          accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
+                          buttonLabel="Attach Admission Letter"
+                        />
 
-                      <div className="relative mt-5 h-0 w-full">
-                        <div className="absolute bottom-0 left-0 right-0 top-[-1px]">
-                          <img
-                            alt="Divider Line"
-                            className="block size-full max-w-none"
-                            src={imgLine2}
-                          />
-                        </div>
-                      </div>
+                        <div className="h-px w-full bg-[rgba(39,38,53,0.08)]" />
 
-                      <div className="mt-5 flex flex-col gap-2">
-                        <div className="text-[15px] sm:text-[16px] text-[#272635]">
-                          <p className="leading-[24px]">
-                            Provide a personal statement describing why
-                            you&apos;re fit for the FabFour Academic Scholarship
-                          </p>
-                        </div>
-                        <div className="text-[13px] sm:text-[14px] text-[rgba(39,38,53,0.5)]">
-                          <p className="leading-[20px]">
-                            <span>
-                              We recommend a minimum of 1000 word document
-                              showcasing why we should consider. See example{" "}
-                            </span>
-                            <span className="text-[#198754] underline">here</span>
-                          </p>
-                        </div>
-                        <UploadButton label="Attach Personal Statement" />
+                        <FileUploadField
+                          label="Provide a personal statement describing why you're fit for the FabFour Academic Scholarship"
+                          description="We recommend a minimum of 1000 words."
+                          field="personalStatement"
+                          accept=".pdf,.doc,.docx"
+                          buttonLabel="Attach Personal Statement"
+                        />
                       </div>
                     </div>
                   </>
@@ -832,142 +634,174 @@ export function MainFormArea({
                             Returning Student Information
                           </p>
                         </div>
-                        <div className="mt-2 text-[13px] sm:text-[14px] text-[rgba(39,38,53,0.5)]">
+                        <div className="mt-2 text-[13px] text-[rgba(39,38,53,0.5)] sm:text-[14px]">
                           <p className="leading-[20px]">
-                            Provide information about your current academic status
+                            Provide information about your current academic
+                            status.
                           </p>
                         </div>
                       </div>
 
                       <div className="grid grid-cols-1 gap-5">
-                        <div>
-                          <div className="mb-2 text-[15px] sm:text-[16px] text-[#272635]">
-                            <p className="leading-[1.4]">Current Institution</p>
-                          </div>
-                          <div className="relative flex h-12 w-full items-center rounded-[8px] bg-[#ffffff] pl-4 pr-3 py-3">
-                            <div
-                              aria-hidden="true"
-                              className="absolute inset-[-0.5px] rounded-[8.5px] border border-[rgba(39,38,53,0.1)] shadow-[0px_1px_4px_0px_rgba(12,12,13,0.05)]"
-                            />
-                            <div className="relative min-w-0 flex-1 text-[#93939a] text-[14px]">
-                              <p className="leading-none">
-                                Select Current Institution
-                              </p>
-                            </div>
-                          </div>
+                        <FormInput
+                          label="Current Institution"
+                          placeholder="Enter current institution"
+                          value={formData.school}
+                          onChange={(value) => onFormChange("school", value)}
+                          required
+                        />
+
+                        <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
+                          <FormInput
+                            label="Current Course"
+                            placeholder="Ex. Computer Science"
+                            value={formData.course}
+                            onChange={(value) => onFormChange("course", value)}
+                            required
+                          />
+
+                          <SelectField
+                            label="Current Level"
+                            field="level"
+                            value={formData.level}
+                            placeholder="Select level"
+                            options={levelOptions}
+                          />
                         </div>
 
-                        <div className="grid grid-cols-1 gap-5 lg:grid-cols-[minmax(0,1fr)_300px]">
-                          <div>
-                            <div className="mb-2 text-[15px] sm:text-[16px] text-[#272635]">
-                              <p className="leading-[1.4]">Current Course</p>
-                            </div>
-                            <div className="relative flex h-12 w-full items-center rounded-[8px] bg-[#ffffff] pl-4 pr-3 py-3">
-                              <div
-                                aria-hidden="true"
-                                className="absolute inset-[-0.5px] rounded-[8.5px] border border-[rgba(39,38,53,0.1)] shadow-[0px_1px_4px_0px_rgba(12,12,13,0.05)]"
-                              />
-                              <div className="relative min-w-0 flex-1 text-[#93939a] text-[14px]">
-                                <p className="leading-none">
-                                  Ex. Bio Chemical Engineering
-                                </p>
-                              </div>
-                            </div>
-                          </div>
+                        <FormInput
+                          label="Course Duration"
+                          placeholder="Ex. 2021 - 2025"
+                          value={formData.courseDuration}
+                          onChange={(value) =>
+                            onFormChange("courseDuration", value)
+                          }
+                          required
+                        />
 
-                          <div>
-                            <div className="mb-2 text-[15px] sm:text-[16px] text-[#272635]">
-                              <p className="leading-[1.4]">Current Level</p>
-                            </div>
-                            <div className="relative flex h-12 w-full items-center rounded-[8px] bg-[#ffffff] pl-4 pr-3 py-3">
-                              <div
-                                aria-hidden="true"
-                                className="absolute inset-[-0.5px] rounded-[8.5px] border border-[rgba(39,38,53,0.1)] shadow-[0px_1px_4px_0px_rgba(12,12,13,0.05)]"
-                              />
-                              <div className="relative min-w-0 flex-1 text-[#93939a] text-[14px]">
-                                <p className="leading-none">Select level</p>
-                              </div>
-                              <div className="relative h-4 w-4 shrink-0 overflow-clip">
-                                <div className="absolute inset-0">
-                                  <img
-                                    alt="Dropdown Arrow"
-                                    className="block size-full max-w-none"
-                                    src={img6}
-                                  />
-                                </div>
-                                <div className="absolute inset-[34.38%_15.63%_28.12%_15.62%]">
-                                  <img
-                                    alt="Dropdown Arrow Detail"
-                                    className="block size-full max-w-none"
-                                    src={img7}
-                                  />
-                                </div>
-                              </div>
-                            </div>
-                          </div>
+                        <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
+                          <SelectField
+                            label="Country"
+                            field="institutionCountry"
+                            value={formData.institutionCountry}
+                            placeholder="Select Country"
+                            options={countryOptions}
+                          />
+
+                          <SelectField
+                            label="State"
+                            field="institutionState"
+                            value={formData.institutionState}
+                            placeholder="Select State"
+                            options={stateOptions}
+                          />
+                        </div>
+
+                        <FormInput
+                          label="Previous School"
+                          placeholder="Enter previous school"
+                          value={formData.previousSchool}
+                          onChange={(value) =>
+                            onFormChange("previousSchool", value)
+                          }
+                        />
+
+                        <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
+                          <FormInput
+                            label="Previous Course"
+                            placeholder="Enter previous course"
+                            value={formData.previousCourse}
+                            onChange={(value) =>
+                              onFormChange("previousCourse", value)
+                            }
+                          />
+
+                          <FormInput
+                            label="Previous GPA"
+                            placeholder="Ex. 4.20"
+                            value={formData.previousGPA}
+                            onChange={(value) =>
+                              onFormChange("previousGPA", value)
+                            }
+                            type="number"
+                          />
+                        </div>
+
+                        <FormInput
+                          label="Previous Academic Year"
+                          placeholder="Ex. 2023/2024"
+                          value={formData.previousYear}
+                          onChange={(value) =>
+                            onFormChange("previousYear", value)
+                          }
+                        />
+
+                        <TextAreaField
+                          label="Reason for Leaving / Interruption"
+                          field="reasonForLeaving"
+                          value={formData.reasonForLeaving}
+                          placeholder="Explain the reason clearly"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="w-full rounded-[12px] bg-[#f9faf7] p-4 sm:p-5">
+                      <div className="mb-5">
+                        <div className="text-[#272635] text-[18px] sm:text-[20px]">
+                          <p className="leading-[28px]">
+                            Previous Academic Results
+                          </p>
+                        </div>
+                        <div className="mt-2 text-[13px] text-[rgba(39,38,53,0.5)] sm:text-[14px]">
+                          <p className="leading-[20px]">
+                            Upload your academic and supporting documents.
+                          </p>
                         </div>
                       </div>
 
-                      <div className="mt-6 rounded-[12px] bg-[#f9faf7] p-0">
-                        <div className="mb-5">
-                          <div className="text-[#272635] text-[18px] sm:text-[20px]">
-                            <p className="leading-[28px]">
-                              Previous Academic Results
-                            </p>
-                          </div>
-                          <div className="mt-2 text-[13px] sm:text-[14px] text-[rgba(39,38,53,0.5)]">
-                            <p className="leading-[20px]">
-                              Upload your previous academic year results
-                            </p>
-                          </div>
-                        </div>
+                      <div className="flex flex-col gap-5">
+                        <FileUploadField
+                          label="Upload previous academic year result"
+                          field="academicTranscript"
+                          accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
+                          buttonLabel="Attach Previous Result"
+                        />
 
-                        <div className="flex flex-col gap-2">
-                          <div className="text-[15px] sm:text-[16px] text-[#272635]">
-                            <p className="leading-[1.4]">
-                              Upload previous academic year result
-                            </p>
-                          </div>
-                          <div className="text-[13px] sm:text-[14px] text-[rgba(39,38,53,0.5)]">
-                            <p className="leading-[20px]">
-                              <span>
-                                We recommend a minimum of 1000 word document
-                                showcasing why we should consider. See example{" "}
-                              </span>
-                              <span className="text-[#198754] underline">here</span>
-                            </p>
-                          </div>
-                          <UploadButton label="Attach Previous Result" />
-                        </div>
+                        <div className="h-px w-full bg-[rgba(39,38,53,0.08)]" />
 
-                        <div className="relative mt-5 h-0 w-full">
-                          <div className="absolute bottom-0 left-0 right-0 top-[-1px]">
-                            <img
-                              alt="Divider Line"
-                              className="block size-full max-w-none"
-                              src={imgLine2}
-                            />
-                          </div>
-                        </div>
+                        <FileUploadField
+                          label="Upload withdrawal letter"
+                          field="withdrawalLetter"
+                          accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
+                          buttonLabel="Attach Withdrawal Letter"
+                        />
 
-                        <div className="mt-5 flex flex-col gap-2">
-                          <div className="text-[15px] sm:text-[16px] text-[#272635]">
-                            <p className="leading-[24px]">
-                              Provide a personal statement describing why
-                              you&apos;re fit for the FabFour Academic Scholarship
-                            </p>
-                          </div>
-                          <div className="text-[13px] sm:text-[14px] text-[rgba(39,38,53,0.5)]">
-                            <p className="leading-[20px]">
-                              <span>
-                                We recommend a minimum of 1000 word document
-                                showcasing why we should consider. See example{" "}
-                              </span>
-                              <span className="text-[#198754] underline">here</span>
-                            </p>
-                          </div>
-                          <UploadButton label="Attach Personal Statement" />
-                        </div>
+                        <div className="h-px w-full bg-[rgba(39,38,53,0.08)]" />
+
+                        <FileUploadField
+                          label="Upload re-enrollment letter"
+                          field="reenrollmentLetter"
+                          accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
+                          buttonLabel="Attach Re-enrollment Letter"
+                        />
+
+                        <div className="h-px w-full bg-[rgba(39,38,53,0.08)]" />
+
+                        <FileUploadField
+                          label="Upload character reference"
+                          field="characterReference"
+                          accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
+                          buttonLabel="Attach Character Reference"
+                        />
+
+                        <div className="h-px w-full bg-[rgba(39,38,53,0.08)]" />
+
+                        <FileUploadField
+                          label="Attach personal statement"
+                          field="personalStatement"
+                          accept=".pdf,.doc,.docx"
+                          buttonLabel="Attach Personal Statement"
+                        />
                       </div>
                     </div>
                   </>
@@ -983,12 +817,11 @@ export function MainFormArea({
             )}
           </div>
 
-          {/* Actions */}
           <div className="flex w-full flex-col-reverse gap-3 sm:flex-row sm:items-center sm:justify-end sm:gap-4">
             <button
               type="button"
               onClick={handleSaveClick}
-              className="flex items-center justify-center rounded-lg px-2 py-2 text-[#272635] text-[14px] sm:text-[16px] w-full sm:w-auto"
+              className="w-full rounded-lg px-2 py-2 text-[14px] text-[#272635] sm:w-auto sm:text-[16px]"
             >
               <span className="underline leading-none">
                 Save To Continue Later
@@ -999,11 +832,15 @@ export function MainFormArea({
               <button
                 type="button"
                 disabled={!areGuarantorsValid() || isSubmitting}
-                onClick={areGuarantorsValid() && !isSubmitting ? handleSubmit : undefined}
-                className={`h-12 sm:h-14 rounded-lg border border-[#2c2c2c] px-5 py-3 text-[15px] sm:text-[16px] text-white w-full sm:w-auto ${
+                onClick={
+                  areGuarantorsValid() && !isSubmitting
+                    ? handleSubmit
+                    : undefined
+                }
+                className={`h-12 w-full rounded-lg border border-[#2c2c2c] px-5 py-3 text-[15px] text-white sm:h-14 sm:w-auto sm:text-[16px] ${
                   areGuarantorsValid() && !isSubmitting
                     ? "bg-[#273125]"
-                    : "bg-[#6b7280] cursor-not-allowed"
+                    : "cursor-not-allowed bg-[#6b7280]"
                 }`}
               >
                 {isSubmitting ? "Submitting..." : "Submit Request"}
@@ -1012,7 +849,7 @@ export function MainFormArea({
               <button
                 type="button"
                 onClick={handleContinueClick}
-                className="h-12 sm:h-14 rounded-lg border border-[#2c2c2c] bg-[#273125] px-5 py-3 text-[15px] sm:text-[16px] text-white w-full sm:w-auto"
+                className="h-12 w-full rounded-lg border border-[#2c2c2c] bg-[#273125] px-5 py-3 text-[15px] text-white sm:h-14 sm:w-auto sm:text-[16px]"
               >
                 Continue
               </button>
@@ -1020,23 +857,6 @@ export function MainFormArea({
           </div>
         </div>
 
-        {/* Footer */}
-        <div className="flex w-full items-end justify-end px-4 pt-8 sm:px-5">
-          <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-[12px] sm:text-[14px] text-[rgba(39,38,53,0.5)] sm:justify-end sm:gap-5">
-            <div>
-              <p className="whitespace-pre">Terms</p>
-            </div>
-            <div>
-              <p className="whitespace-pre">Legal</p>
-            </div>
-            <div>
-              <p className="whitespace-pre">Privacy policy</p>
-            </div>
-            <div>
-              <p className="whitespace-pre">Cookie policy</p>
-            </div>
-          </div>
-        </div>
       </div>
 
       <SuccessNotification

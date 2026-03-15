@@ -205,7 +205,6 @@ export default function WalletPage() {
         <PaginationArrows />
       </div>
 
-      <FooterLinks />
     </div>
   );
 }
@@ -483,17 +482,6 @@ function PaginationArrows() {
       <button className="h-9 w-9 rounded-[10px] border border-[rgba(39,38,53,0.08)] bg-white/60 grid place-items-center">
         ›
       </button>
-    </div>
-  );
-}
-
-function FooterLinks() {
-  return (
-    <div className="mt-10 flex flex-wrap justify-center lg:justify-end gap-x-6 gap-y-2 text-[12px] text-[rgba(39,38,53,0.5)]">
-      <span>Terms</span>
-      <span>Legal</span>
-      <span>Privacy policy</span>
-      <span>Cookie policy</span>
     </div>
   );
 }

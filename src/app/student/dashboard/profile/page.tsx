@@ -1,13 +1,30 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { ChevronLeft } from "lucide-react";
 import { useRouter } from "next/navigation";
 
-import { getStoredUser, getUserIdFromToken } from "@/lib/auth/storage";
-import { getStudentProfile, type StudentProfileResponse } from "@/lib/student/application";
+import { getStoredUser, setAuthTokens } from "@/lib/auth/storage";
+import { getMe, updateUser, type MeResponse } from "@/lib/api/users";
 
 type TabKey = "profile" | "academics" | "notification" | "security";
+
+const NOT_AVAILABLE = "Not available";
+
+function safeText(v?: string | null) {
+  const s = (v ?? "").trim();
+  return s || NOT_AVAILABLE;
+}
+
+function cleanForInput(v: string) {
+  return v === NOT_AVAILABLE ? "" : v;
+}
+
+function cleanForPayload(v: string) {
+  const s = v.trim();
+  if (!s || s === NOT_AVAILABLE) return null;
+  return s;
+}
 
 function Tab({
   active,
@@ -53,7 +70,7 @@ function Input({
         value={value}
         onChange={(e) => onChange(e.target.value)}
         placeholder={placeholder}
-        className="h-10 px-3 rounded-[8px] bg-[#eef0e6] border border-[rgba(39,38,53,0.06)] outline-none text-[13px] text-[#272635] min-w-0"
+        className="h-10 px-3 rounded-[8px] bg-[#eef0e6] border border-[rgba(39,38,53,0.06)] outline-none text-[13px] text-[#272635] min-w-0 placeholder:text-[rgba(39,38,53,0.38)]"
       />
     </div>
   );
@@ -78,7 +95,7 @@ function Select({
         onChange={(e) => onChange(e.target.value)}
         className="h-10 px-3 rounded-[8px] bg-[#eef0e6] border border-[rgba(39,38,53,0.06)] outline-none text-[13px] text-[#272635] min-w-0"
       >
-        <option value="">Select</option>
+        <option value="">{NOT_AVAILABLE}</option>
         {options.map((o) => (
           <option key={o} value={o}>
             {o}
@@ -125,8 +142,10 @@ export default function ProfilePage() {
 
   const [tab, setTab] = useState<TabKey>("profile");
   const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [me, setMe] = useState<MeResponse | null>(null);
+  const [status, setStatus] = useState<{ type: "success" | "error"; message: string } | null>(null);
 
-  // Profile tab fields
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
@@ -135,13 +154,11 @@ export default function ProfilePage() {
   const [state, setState] = useState("");
   const [address, setAddress] = useState("");
 
-  // Academics tab fields
-  const [institutionName, setInstitutionName] = useState("University of Lagos");
-  const [courseOfStudy, setCourseOfStudy] = useState("Bio Chemical Engineering");
-  const [academicCountry, setAcademicCountry] = useState("Nigeria");
-  const [academicState, setAcademicState] = useState("Lagos");
+  const [institutionName, setInstitutionName] = useState("");
+  const [courseOfStudy, setCourseOfStudy] = useState("");
+  const [academicCountry, setAcademicCountry] = useState("");
+  const [academicState, setAcademicState] = useState("");
 
-  // Notification tab toggles
   const [donationsInApp, setDonationsInApp] = useState(true);
   const [donationsEmail, setDonationsEmail] = useState(true);
   const [donationsSms, setDonationsSms] = useState(false);
@@ -154,33 +171,55 @@ export default function ProfilePage() {
   const [fundReqEmail, setFundReqEmail] = useState(false);
   const [fundReqSms, setFundReqSms] = useState(false);
 
-  // Security tab toggles
   const [twoFaEnabled, setTwoFaEnabled] = useState(false);
 
   useEffect(() => {
     const run = async () => {
       try {
         setLoading(true);
+        setStatus(null);
 
-        const stored = getStoredUser();
-        let userId: number | null = stored?.id ?? null;
-        if (!userId) userId = getUserIdFromToken();
-        if (!userId) userId = 224;
+        const meRes = await getMe();
+        setMe(meRes);
 
-        const p: StudentProfileResponse | null = await getStudentProfile(userId);
+        setAuthTokens({ user: meRes });
 
-        setFirstName((p as any)?.first_name ?? stored?.first_name ?? "");
-        setLastName((p as any)?.last_name ?? stored?.last_name ?? "");
-        setEmail((p as any)?.email ?? stored?.email ?? "");
-        setPhone((p as any)?.phone_number ?? "");
-        setCountry((p as any)?.country ?? "");
-        setState((p as any)?.state ?? "");
-        setAddress((p as any)?.residential_address ?? "");
-      } catch {
-        const stored = getStoredUser();
-        setFirstName(stored?.first_name ?? "");
-        setLastName(stored?.last_name ?? "");
-        setEmail(stored?.email ?? "");
+        setFirstName(safeText(meRes.first_name));
+        setLastName(safeText(meRes.last_name));
+        setEmail(safeText(meRes.email));
+        setPhone(safeText(meRes.student_profile?.phone_number));
+        setCountry(safeText(meRes.student_profile?.country));
+        setState(safeText(meRes.student_profile?.state));
+        setAddress(safeText(meRes.student_profile?.residential_address));
+
+        setInstitutionName(safeText(meRes.student_profile?.institution));
+        setCourseOfStudy(safeText(meRes.student_profile?.course));
+        setAcademicCountry(safeText(meRes.student_profile?.course_country));
+        setAcademicState(safeText(meRes.student_profile?.course_state));
+
+        setTwoFaEnabled(!!meRes.mfa_enabled);
+      } catch (err: any) {
+        const stored = getStoredUser() as any;
+
+        setFirstName(safeText(stored?.first_name));
+        setLastName(safeText(stored?.last_name));
+        setEmail(safeText(stored?.email));
+        setPhone(safeText(stored?.student_profile?.phone_number));
+        setCountry(safeText(stored?.student_profile?.country));
+        setState(safeText(stored?.student_profile?.state));
+        setAddress(safeText(stored?.student_profile?.residential_address));
+
+        setInstitutionName(safeText(stored?.student_profile?.institution));
+        setCourseOfStudy(safeText(stored?.student_profile?.course));
+        setAcademicCountry(safeText(stored?.student_profile?.course_country));
+        setAcademicState(safeText(stored?.student_profile?.course_state));
+
+        setTwoFaEnabled(!!stored?.mfa_enabled);
+
+        setStatus({
+          type: "error",
+          message: "We could not refresh your account details. Showing saved data instead.",
+        });
       } finally {
         setLoading(false);
       }
@@ -195,10 +234,81 @@ export default function ProfilePage() {
   const cardClass =
     "bg-[#f9faf7] rounded-[12px] p-4 border border-[rgba(39,38,53,0.06)]";
 
+  const userId = useMemo(() => {
+    return Number(me?.id || (getStoredUser() as any)?.id || 0);
+  }, [me]);
+
+  const handleUpdateProfile = async () => {
+    if (!userId) {
+      setStatus({
+        type: "error",
+        message: "User ID is not available for update.",
+      });
+      return;
+    }
+
+    try {
+      setSaving(true);
+      setStatus(null);
+
+      await updateUser(userId, {
+        first_name: cleanForPayload(firstName),
+        last_name: cleanForPayload(lastName),
+        email: cleanForPayload(email),
+        student_profile: {
+          phone_number: cleanForPayload(phone),
+          country: cleanForPayload(country),
+          state: cleanForPayload(state),
+          residential_address: cleanForPayload(address),
+          institution: cleanForPayload(institutionName),
+          course: cleanForPayload(courseOfStudy),
+          course_country: cleanForPayload(academicCountry),
+          course_state: cleanForPayload(academicState),
+        },
+      });
+
+      const refreshed = await getMe();
+      setMe(refreshed);
+      setAuthTokens({ user: refreshed });
+
+      setFirstName(safeText(refreshed.first_name));
+      setLastName(safeText(refreshed.last_name));
+      setEmail(safeText(refreshed.email));
+      setPhone(safeText(refreshed.student_profile?.phone_number));
+      setCountry(safeText(refreshed.student_profile?.country));
+      setState(safeText(refreshed.student_profile?.state));
+      setAddress(safeText(refreshed.student_profile?.residential_address));
+      setInstitutionName(safeText(refreshed.student_profile?.institution));
+      setCourseOfStudy(safeText(refreshed.student_profile?.course));
+      setAcademicCountry(safeText(refreshed.student_profile?.course_country));
+      setAcademicState(safeText(refreshed.student_profile?.course_state));
+
+      setStatus({
+        type: "success",
+        message: "Profile updated successfully.",
+      });
+    } catch (err: any) {
+      setStatus({
+        type: "error",
+        message:
+          err?.response?.data?.detail ||
+          err?.response?.data?.message ||
+          "Failed to update profile.",
+      });
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const identifyText = me?.student_profile
+    ? me?.student_profile?.is_verified
+      ? "Your profile has been verified"
+      : "Your profile is under review"
+    : NOT_AVAILABLE;
+
   return (
     <div className="w-full flex justify-center min-w-0">
       <div className="w-full max-w-[860px] min-w-0">
-        {/* header row */}
         <div className="mt-4 sm:mt-6 flex items-start gap-3">
           <button
             type="button"
@@ -219,42 +329,49 @@ export default function ProfilePage() {
           </div>
         </div>
 
-        {/* tabs row + Update Profile */}
         <div className="mt-5 border-b border-[rgba(39,38,53,0.08)]">
           <div className="flex flex-col gap-3 sm:gap-0 sm:flex-row sm:items-center sm:justify-between">
             <div className="overflow-x-auto [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
               <div className="flex items-center gap-6 min-w-max pr-2">
                 <Tab active={tab === "profile"} label="Profile" onClick={() => setTab("profile")} />
                 <Tab active={tab === "academics"} label="Academics" onClick={() => setTab("academics")} />
-                <Tab
-                  active={tab === "notification"}
-                  label="Notification"
-                  onClick={() => setTab("notification")}
-                />
+                <Tab active={tab === "notification"} label="Notification" onClick={() => setTab("notification")} />
                 <Tab active={tab === "security"} label="Security" onClick={() => setTab("security")} />
               </div>
             </div>
 
             <button
               type="button"
-              className="mb-2 text-[12px] text-[rgba(39,38,53,0.6)] inline-flex items-center gap-2 self-start sm:self-auto shrink-0"
+              onClick={handleUpdateProfile}
+              disabled={saving || loading || tab === "notification" || tab === "security"}
+              className="mb-2 text-[12px] text-[rgba(39,38,53,0.6)] inline-flex items-center gap-2 self-start sm:self-auto shrink-0 disabled:opacity-50"
             >
               <span className="opacity-70">✎</span>
-              <span>Update Profile</span>
+              <span>{saving ? "Updating..." : "Update Profile"}</span>
             </button>
           </div>
         </div>
 
-        {/* body */}
+        {status && (
+          <div
+            className={[
+              "mt-4 rounded-[10px] px-3 py-3 text-[12px] leading-[18px]",
+              status.type === "success"
+                ? "bg-[rgba(25,135,84,0.08)] border border-[rgba(25,135,84,0.2)] text-[#198754]"
+                : "bg-[rgba(220,53,69,0.06)] border border-[rgba(220,53,69,0.2)] text-[#dc3545]",
+            ].join(" ")}
+          >
+            {status.message}
+          </div>
+        )}
+
         <div className="mt-6 min-w-0">
           {loading ? (
             <div className="text-[#272635] text-[14px]">Loading...</div>
           ) : (
             <>
-              {/* PROFILE */}
               {tab === "profile" && (
                 <div className="flex flex-col gap-6">
-                  {/* Personal Information */}
                   <div className={cardClass}>
                     <div className="text-[12px] text-[#272635] font-medium">
                       Personal Information
@@ -265,8 +382,18 @@ export default function ProfilePage() {
                     </div>
 
                     <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-4">
-                      <Input label="First Name" value={firstName} onChange={setFirstName} />
-                      <Input label="Last Name" value={lastName} onChange={setLastName} />
+                      <Input
+                        label="First Name"
+                        value={cleanForInput(firstName)}
+                        placeholder={NOT_AVAILABLE}
+                        onChange={setFirstName}
+                      />
+                      <Input
+                        label="Last Name"
+                        value={cleanForInput(lastName)}
+                        placeholder={NOT_AVAILABLE}
+                        onChange={setLastName}
+                      />
                     </div>
 
                     <div className="mt-3 text-[11px] text-[rgba(39,38,53,0.45)]">
@@ -274,12 +401,21 @@ export default function ProfilePage() {
                     </div>
 
                     <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-4">
-                      <Input label="Email Address" value={email} onChange={setEmail} />
-                      <Input label="Phone Number" value={phone} onChange={setPhone} />
+                      <Input
+                        label="Email Address"
+                        value={cleanForInput(email)}
+                        placeholder={NOT_AVAILABLE}
+                        onChange={setEmail}
+                      />
+                      <Input
+                        label="Phone Number"
+                        value={cleanForInput(phone)}
+                        placeholder={NOT_AVAILABLE}
+                        onChange={setPhone}
+                      />
                     </div>
                   </div>
 
-                  {/* Where to find you */}
                   <div className={cardClass}>
                     <div className="text-[12px] text-[#272635] font-medium">Where to find you</div>
                     <div className="mt-1 text-[11px] text-[rgba(39,38,53,0.45)] leading-[16px]">
@@ -289,13 +425,13 @@ export default function ProfilePage() {
                     <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <Select
                         label="Country of Origin"
-                        value={country}
+                        value={cleanForInput(country)}
                         onChange={setCountry}
                         options={["Nigeria", "Kenya", "Ghana"]}
                       />
                       <Select
                         label="State"
-                        value={state}
+                        value={cleanForInput(state)}
                         onChange={setState}
                         options={["Lagos", "Abuja", "Kaduna"]}
                       />
@@ -304,30 +440,40 @@ export default function ProfilePage() {
                     <div className="mt-4">
                       <Input
                         label="Residential Address"
-                        value={address}
+                        value={cleanForInput(address)}
+                        placeholder={NOT_AVAILABLE}
                         onChange={setAddress}
-                        placeholder="example@email.com"
                       />
                     </div>
                   </div>
 
-                  {/* Identify Yourself */}
                   <div className={[cardClass, "flex items-center justify-between gap-4"].join(" ")}>
                     <div className="min-w-0">
                       <div className="text-[12px] text-[#272635] font-medium">Identify Yourself</div>
                       <div className="mt-1 text-[11px] text-[rgba(39,38,53,0.45)]">
-                        Your profile has been verified
+                        {identifyText}
                       </div>
                     </div>
 
-                    <div className="h-5 w-9 rounded-full bg-[#eef0e6] relative shrink-0">
-                      <div className="absolute right-[2px] top-[2px] h-4 w-4 rounded-full bg-[#198754]" />
+                    <div
+                      className={[
+                        "h-5 w-9 rounded-full relative shrink-0",
+                        me?.student_profile?.is_verified ? "bg-[#eef0e6]" : "bg-[#eef0e6]",
+                      ].join(" ")}
+                    >
+                      <div
+                        className={[
+                          "absolute top-[2px] h-4 w-4 rounded-full",
+                          me?.student_profile?.is_verified
+                            ? "right-[2px] bg-[#198754]"
+                            : "left-[2px] bg-[rgba(39,38,53,0.25)]",
+                        ].join(" ")}
+                      />
                     </div>
                   </div>
                 </div>
               )}
 
-              {/* ACADEMICS */}
               {tab === "academics" && (
                 <div className="flex flex-col gap-6">
                   <div className={cardClass}>
@@ -339,12 +485,14 @@ export default function ProfilePage() {
                     <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <Input
                         label="Name of high institution"
-                        value={institutionName}
+                        value={cleanForInput(institutionName)}
+                        placeholder={NOT_AVAILABLE}
                         onChange={setInstitutionName}
                       />
                       <Input
                         label="Course of study"
-                        value={courseOfStudy}
+                        value={cleanForInput(courseOfStudy)}
+                        placeholder={NOT_AVAILABLE}
                         onChange={setCourseOfStudy}
                       />
                     </div>
@@ -352,13 +500,13 @@ export default function ProfilePage() {
                     <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <Select
                         label="Country"
-                        value={academicCountry}
+                        value={cleanForInput(academicCountry)}
                         onChange={setAcademicCountry}
                         options={["Nigeria", "Kenya", "Ghana"]}
                       />
                       <Select
                         label="State"
-                        value={academicState}
+                        value={cleanForInput(academicState)}
                         onChange={setAcademicState}
                         options={["Lagos", "Abuja", "Kaduna"]}
                       />
@@ -367,7 +515,6 @@ export default function ProfilePage() {
                 </div>
               )}
 
-              {/* NOTIFICATION */}
               {tab === "notification" && (
                 <div className="flex flex-col gap-6">
                   <div className={cardClass}>
@@ -380,7 +527,6 @@ export default function ProfilePage() {
                     </div>
 
                     <div className="mt-4 space-y-4">
-                      {/* Donations */}
                       <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 sm:gap-6">
                         <div className="min-w-0">
                           <div className="text-[12px] text-[#272635] font-medium">Donations</div>
@@ -393,34 +539,21 @@ export default function ProfilePage() {
                         <div className="shrink-0 w-full sm:w-[140px] space-y-2">
                           <div className="flex items-center justify-between">
                             <div className="text-[11px] text-[#272635]">In-app</div>
-                            <Toggle
-                              checked={donationsInApp}
-                              onChange={setDonationsInApp}
-                              ariaLabel="Toggle donations in-app"
-                            />
+                            <Toggle checked={donationsInApp} onChange={setDonationsInApp} ariaLabel="Toggle donations in-app" />
                           </div>
                           <div className="flex items-center justify-between">
                             <div className="text-[11px] text-[#272635]">Email</div>
-                            <Toggle
-                              checked={donationsEmail}
-                              onChange={setDonationsEmail}
-                              ariaLabel="Toggle donations email"
-                            />
+                            <Toggle checked={donationsEmail} onChange={setDonationsEmail} ariaLabel="Toggle donations email" />
                           </div>
                           <div className="flex items-center justify-between">
                             <div className="text-[11px] text-[#272635]">SMS</div>
-                            <Toggle
-                              checked={donationsSms}
-                              onChange={setDonationsSms}
-                              ariaLabel="Toggle donations sms"
-                            />
+                            <Toggle checked={donationsSms} onChange={setDonationsSms} ariaLabel="Toggle donations sms" />
                           </div>
                         </div>
                       </div>
 
                       <div className="h-[1px] w-full bg-[rgba(39,38,53,0.08)]" />
 
-                      {/* Campaigns */}
                       <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 sm:gap-6">
                         <div className="min-w-0">
                           <div className="text-[12px] text-[#272635] font-medium">Campaigns</div>
@@ -433,34 +566,21 @@ export default function ProfilePage() {
                         <div className="shrink-0 w-full sm:w-[140px] space-y-2">
                           <div className="flex items-center justify-between">
                             <div className="text-[11px] text-[#272635]">In-app</div>
-                            <Toggle
-                              checked={campaignsInApp}
-                              onChange={setCampaignsInApp}
-                              ariaLabel="Toggle campaigns in-app"
-                            />
+                            <Toggle checked={campaignsInApp} onChange={setCampaignsInApp} ariaLabel="Toggle campaigns in-app" />
                           </div>
                           <div className="flex items-center justify-between">
                             <div className="text-[11px] text-[#272635]">Email</div>
-                            <Toggle
-                              checked={campaignsEmail}
-                              onChange={setCampaignsEmail}
-                              ariaLabel="Toggle campaigns email"
-                            />
+                            <Toggle checked={campaignsEmail} onChange={setCampaignsEmail} ariaLabel="Toggle campaigns email" />
                           </div>
                           <div className="flex items-center justify-between">
                             <div className="text-[11px] text-[#272635]">SMS</div>
-                            <Toggle
-                              checked={campaignsSms}
-                              onChange={setCampaignsSms}
-                              ariaLabel="Toggle campaigns sms"
-                            />
+                            <Toggle checked={campaignsSms} onChange={setCampaignsSms} ariaLabel="Toggle campaigns sms" />
                           </div>
                         </div>
                       </div>
 
                       <div className="h-[1px] w-full bg-[rgba(39,38,53,0.08)]" />
 
-                      {/* Fund request */}
                       <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 sm:gap-6">
                         <div className="min-w-0">
                           <div className="text-[12px] text-[#272635] font-medium">Fund request</div>
@@ -472,27 +592,15 @@ export default function ProfilePage() {
                         <div className="shrink-0 w-full sm:w-[140px] space-y-2">
                           <div className="flex items-center justify-between">
                             <div className="text-[11px] text-[#272635]">In-app</div>
-                            <Toggle
-                              checked={fundReqInApp}
-                              onChange={setFundReqInApp}
-                              ariaLabel="Toggle fund request in-app"
-                            />
+                            <Toggle checked={fundReqInApp} onChange={setFundReqInApp} ariaLabel="Toggle fund request in-app" />
                           </div>
                           <div className="flex items-center justify-between">
                             <div className="text-[11px] text-[#272635]">Email</div>
-                            <Toggle
-                              checked={fundReqEmail}
-                              onChange={setFundReqEmail}
-                              ariaLabel="Toggle fund request email"
-                            />
+                            <Toggle checked={fundReqEmail} onChange={setFundReqEmail} ariaLabel="Toggle fund request email" />
                           </div>
                           <div className="flex items-center justify-between">
                             <div className="text-[11px] text-[#272635]">SMS</div>
-                            <Toggle
-                              checked={fundReqSms}
-                              onChange={setFundReqSms}
-                              ariaLabel="Toggle fund request sms"
-                            />
+                            <Toggle checked={fundReqSms} onChange={setFundReqSms} ariaLabel="Toggle fund request sms" />
                           </div>
                         </div>
                       </div>
@@ -501,7 +609,6 @@ export default function ProfilePage() {
                 </div>
               )}
 
-              {/* SECURITY */}
               {tab === "security" && (
                 <div className="flex flex-col gap-6">
                   <div className={cardClass}>
@@ -513,7 +620,6 @@ export default function ProfilePage() {
                       notification settings.
                     </div>
 
-                    {/* red notice box */}
                     <div className="mt-4 rounded-[10px] border border-[rgba(220,53,69,0.25)] bg-[rgba(220,53,69,0.06)] px-3 py-3 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                       <div className="flex items-start gap-2 min-w-0">
                         <div className="mt-[2px] h-4 w-4 rounded-full border border-[rgba(220,53,69,0.45)] text-[10px] text-[#dc3545] grid place-items-center shrink-0">
@@ -535,7 +641,6 @@ export default function ProfilePage() {
                       </button>
                     </div>
 
-                    {/* Two-Factor authentication row */}
                     <div className="mt-5 flex items-center justify-between gap-4">
                       <div className="min-w-0">
                         <div className="text-[12px] text-[#272635] font-medium">

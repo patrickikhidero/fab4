@@ -4,6 +4,7 @@ import React, { useEffect, useMemo, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 
 import { SidebarNavigation } from "@/components/modules/student/SidebarNavigation";
+import { FooterLinks } from "@/components/shared/FooterLinks";
 
 import { getStoredUser, setAuthTokens } from "@/lib/auth/storage";
 import { getMe, type MeResponse } from "@/lib/api/users";
@@ -89,17 +90,6 @@ function TopRightHeader({
         <span>English</span>
         <span className="opacity-60">▾</span>
       </button>
-    </div>
-  );
-}
-
-function FooterLinks() {
-  return (
-    <div className="mt-10 flex flex-wrap justify-center lg:justify-end gap-x-6 gap-y-2 text-[12px] text-[rgba(39,38,53,0.5)]">
-      <span>Terms</span>
-      <span>Legal</span>
-      <span>Privacy policy</span>
-      <span>Cookie policy</span>
     </div>
   );
 }
