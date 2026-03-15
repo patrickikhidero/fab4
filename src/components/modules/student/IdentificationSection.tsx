@@ -13,11 +13,14 @@ export const IdentificationSection: React.FC<IdentificationSectionProps> = ({
   onFormChange,
 }) => {
   const identificationTypes = [
-    { value: "NATIONAL_IDENTITY", label: "National ID Card" },
-    { value: "PASSPORT", label: "International Passport" },
-    { value: "DRIVERS_LICENCE", label: "Driver's License" },
+    { value: "GOVERNMENT_ISSUED_ID", label: "Government Issued ID" },
+    { value: "PASSPORT", label: "Passport" },
+    { value: "DRIVERS_LICENCE", label: "Driver's Licence" },
     { value: "VOTERS_CARD", label: "Voter's Card" },
-    { value: "BIRTH_CERTIFICATE", label: "Birth Certificate" },
+    { value: "STUDENT_IDENTITY", label: "Student Identity" },
+    { value: "UTILITY_BILL", label: "Utility Bill" },
+    { value: "EMPLOYMENT_LETTER", label: "Employment Letter" },
+    { value: "PROOF_OF_ADDRESS", label: "Proof of Address" },
   ];
 
   return (
