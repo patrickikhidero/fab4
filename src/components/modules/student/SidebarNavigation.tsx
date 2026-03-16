@@ -215,7 +215,7 @@ export function SidebarNavigation({
 
                     <button
                       onClick={() => setMenuOpen(!menuOpen)}
-                      className="h-7 w-7 grid place-items-center rounded-[8px]"
+                      className="h-7 w-7 grid place-items-center cursor-pointer rounded-[8px]"
                     >
                       <ChevronDown className="h-4 w-4" />
                     </button>
