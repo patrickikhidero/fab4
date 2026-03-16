@@ -213,37 +213,39 @@ function Header({ onRequestFunds, walletBalance, bankInfo, onAddOrChangeBank }: 
   return (
     <>
 
-      <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 sm:gap-6 w-full">
+      <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-4 lg:gap-6 w-full">
         <div className="min-w-0 w-full">
-          <div className="flex flex-row justify-between items-center w-full">
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-0 w-full">
             <div className="text-[22px] sm:text-[24px] font-medium text-[var(--color-primary-text)]">
               Funds Request
             </div>
             <button
               onClick={onRequestFunds}
-              className="flex items-center justify-center gap-2 h-10 px-4 rounded-[12px] bg-white hover:bg-[rgba(39,38,53,0.03)] transition w-full sm:w-auto shrink-0 mb-3 cursor-pointer"
+              className="flex items-center justify-center gap-2 h-10 px-4 rounded-[12px] bg-white hover:bg-[rgba(39,38,53,0.03)] transition w-full sm:w-auto shrink-0 cursor-pointer"
             >
               <span className="text-[13px]">Request for Funds</span>
               <ArrowUpRight className="size-4 text-green-500" />
             </button>
           </div>
-          <div className="flex flex-row gap-4 w-full justify-between">
-            <div className="max-w-[50%]">
+          <div className="flex flex-col md:flex-row gap-4 w-full md:justify-between mt-4">
+            <div className="w-full md:max-w-[50%]">
               <div className="mt-2 text-[11px] sm:text-[12px] uppercase tracking-wide text-[rgba(39,38,53,0.6)]">
                 Wallet & Bank
               </div>
 
               <p className="mt-2 max-w-[420px] text-[13px] text-[rgba(39,38,53,0.55)] leading-5">
-                This is the total of the funds raised which can <br/> be accessed in order to pay for your fees.
+                This is the total of the funds raised which can <br className="hidden md:block"/> be accessed in order to pay for your fees.
               </p>
             </div>
-            <WalletBalanceCard amount={walletBalance} />
-            <BankCard
-              bankInfo={bankInfo}
-              onAddOrChange={() =>
-                onAddOrChangeBank
-              }
-            />
+            <div className="flex flex-col sm:flex-row gap-4 w-full md:w-auto md:flex-col lg:flex-row">
+              <WalletBalanceCard amount={walletBalance} />
+              <BankCard
+                bankInfo={bankInfo}
+                onAddOrChange={() =>
+                  onAddOrChangeBank
+                }
+              />
+            </div>
           </div>
         </div>
       </div>

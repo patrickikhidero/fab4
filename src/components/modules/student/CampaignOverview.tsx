@@ -7,6 +7,7 @@ import { getStoredUser, getUserIdFromToken } from "@/lib/auth/storage";
 import { getStudentProfile } from "@/lib/student/application";
 import { getCampaignOverview, listMyCampaigns } from "@/lib/student/campaign";
 import { listDonationsByCampaign } from "@/lib/student/donations";
+import {ArrowUpRight, Users, Calendar} from "lucide-react";
 
 const imgArrow = "/29a615b320e09cd458090219f8e83fd794a5404f.svg";
 const imgArrow1 = "/1763841bb245d3b7f2dc8db8079ee0686b7664af.svg";
@@ -281,17 +282,19 @@ export function CampaignOverview() {
             <div className="mt-2 text-[#272635] text-[24px] sm:text-[28px] break-words">
               ${metrics.goal.toLocaleString()}
             </div>
-
-            <button className="mt-3 flex items-center gap-2 text-[#198754] text-[12px]">
+<hr className="my-2 border-t border-[rgba(39,38,53,0.1)]"/>
+            <button className="mt-3 flex items-center gap-2 text-[#198754] text-[12px] cursor-pointer">
               <span>View Status</span>
-              <img alt="Arrow" className="size-4" src={imgArrow} />
+              <ArrowUpRight className="size-4 text-green-500" />
             </button>
           </div>
 
           {/* Overall Card */}
           <div className="relative rounded-[12px] p-4 border border-[rgba(39,38,53,0.1)] shadow-[0px_1px_4px_0px_rgba(12,12,13,0.05)] min-w-0">
             <div className="flex items-center gap-2">
-              <img alt="Users" className="size-8" src={imgUsers} />
+              <span className="shadow-sm rounded-md p-1 bg-white border border-[rgba(39,38,53,0.1)]">
+              <Users className="size-6" />
+              </span>
               <div className="text-[#272635] text-[14px] uppercase">overall campaigns</div>
             </div>
 
@@ -299,20 +302,20 @@ export function CampaignOverview() {
               ${metrics.raised.toLocaleString()}
             </div>
 
-            <div className="mt-2 flex items-center gap-2 text-[#272635] text-[12px] flex-wrap">
-              <img alt="Calendar" className="size-4" src="/svg/icons/calendar.svg" />
+            <div className="mt-2 flex items-center gap-2 text-[#272635] bg-[#F9FAF7] rounded-full p-2 max-w-fit text-[12px] flex-wrap">
+              <Calendar className="size-4" />
               <span>{metrics.academicSessions} Academic year</span>
             </div>
-
+            <hr className="my-2 border-t border-[rgba(39,38,53,0.1)]"/>
             <button
-              className="mt-3 flex items-center gap-2 text-[#198754] text-[12px]"
+              className="mt-3 flex items-center gap-2 text-[#198754] text-[12px] cursor-pointer"
               onClick={() => {
                 if (!currentCampaignId) return;
                 router.push(`/student/dashboard/campaign/${currentCampaignId}`);
               }}
             >
               <span>View</span>
-              <img alt="Arrow" className="size-4" src={imgArrow} />
+                <ArrowUpRight className="size-4 text-green-500" />
             </button>
           </div>
         </div>
