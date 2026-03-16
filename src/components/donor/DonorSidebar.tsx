@@ -78,7 +78,7 @@ export function DonorSidebar({
     }
 
     if (section === "students") {
-      router.push("/donor?tab=students");
+      router.push("/donor/students");
     }
   };
 
