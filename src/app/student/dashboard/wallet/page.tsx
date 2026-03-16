@@ -2,7 +2,7 @@
 
 import React, { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Wallet, Landmark } from "lucide-react";
+import { Wallet, Landmark, ArrowUpRight } from "lucide-react";
 
 import { getCampaignOverview } from "@/lib/student/campaign";
 import { listMyFundsRequests, type FundsRequest } from "@/lib/student/funds";
@@ -25,10 +25,10 @@ type RequestRow = {
 type BankInfo =
   | null
   | {
-      bankName: string;
-      accountName: string;
-      accountMasked: string;
-    };
+    bankName: string;
+    accountName: string;
+    accountMasked: string;
+  };
 
 function formatDate(v?: string) {
   if (!v) return "-";
@@ -153,20 +153,18 @@ export default function WalletPage() {
 
   return (
     <div className="glass rounded-[18px] sm:rounded-[24px] p-4 sm:p-6 lg:p-10 min-h-[640px] lg:min-h-[760px] min-w-0">
-      <Header
-        onRequestFunds={() =>
-          router.push("/student/dashboard/wallet/request-funds")
-        }
-      />
-
-      <div className="mt-6 sm:mt-8 grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
-        <WalletBalanceCard amount={walletBalance} />
-        <BankCard
+      <div className="flex flex-row">
+        <Header
+          onRequestFunds={() =>
+            router.push("/student/dashboard/wallet/request-funds")
+          }
+          walletBalance={walletBalance}
           bankInfo={bankInfo}
-          onAddOrChange={() =>
+          onAddOrChangeBank={() =>
             router.push("/student/dashboard/wallet/add-bank")
           }
         />
+
       </div>
 
       <div className="mt-8 sm:mt-10 min-w-0">
@@ -211,50 +209,82 @@ export default function WalletPage() {
 
 /* ---------------- UI Components ---------------- */
 
-function Header({ onRequestFunds }: { onRequestFunds: () => void }) {
+function Header({ onRequestFunds, walletBalance, bankInfo, onAddOrChangeBank }: { onRequestFunds: () => void, walletBalance: number, bankInfo: BankInfo, onAddOrChangeBank: () => void }) {
   return (
-    <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 sm:gap-6">
-      <div className="min-w-0">
-        <div className="text-[22px] sm:text-[24px] font-medium text-[var(--color-primary-text)]">
-          Funds Request
-        </div>
+    <>
 
-        <div className="mt-2 text-[11px] sm:text-[12px] uppercase tracking-wide text-[rgba(39,38,53,0.6)]">
-          Wallet & Bank
-        </div>
+      <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 sm:gap-6 w-full">
+        <div className="min-w-0 w-full">
+          <div className="flex flex-row justify-between items-center w-full">
+            <div className="text-[22px] sm:text-[24px] font-medium text-[var(--color-primary-text)]">
+              Funds Request
+            </div>
+            <button
+              onClick={onRequestFunds}
+              className="flex items-center justify-center gap-2 h-10 px-4 rounded-[12px] bg-white hover:bg-[rgba(39,38,53,0.03)] transition w-full sm:w-auto shrink-0 mb-3 cursor-pointer"
+            >
+              <span className="text-[13px]">Request for Funds</span>
+              <ArrowUpRight className="size-4 text-green-500" />
+            </button>
+          </div>
+          <div className="flex flex-row gap-4 w-full justify-between">
+            <div className="max-w-[50%]">
+              <div className="mt-2 text-[11px] sm:text-[12px] uppercase tracking-wide text-[rgba(39,38,53,0.6)]">
+                Wallet & Bank
+              </div>
 
-        <p className="mt-2 max-w-[420px] text-[13px] text-[rgba(39,38,53,0.55)] leading-5">
-          This is the total of the funds raised which can be accessed in order to pay for your fees.
-        </p>
+              <p className="mt-2 max-w-[420px] text-[13px] text-[rgba(39,38,53,0.55)] leading-5">
+                This is the total of the funds raised which can <br/> be accessed in order to pay for your fees.
+              </p>
+            </div>
+            <WalletBalanceCard amount={walletBalance} />
+            <BankCard
+              bankInfo={bankInfo}
+              onAddOrChange={() =>
+                onAddOrChangeBank
+              }
+            />
+          </div>
+        </div>
       </div>
 
-      <button
-        onClick={onRequestFunds}
-        className="flex items-center justify-center gap-2 h-10 px-4 rounded-[12px] bg-white border border-[rgba(39,38,53,0.08)] hover:bg-[rgba(39,38,53,0.03)] transition w-full sm:w-auto shrink-0"
-      >
-        <span className="text-[13px]">Request for Funds</span>
-        <span className="text-[16px]">↗</span>
-      </button>
-    </div>
+    </>
   );
 }
 
 function WalletBalanceCard({ amount }: { amount: number }) {
   return (
-    <div className="h-[150px] rounded-[16px] bg-[var(--color-primary)] text-white px-5 sm:px-6 py-5 flex flex-col justify-between shadow-[0px_10px_30px_-8px_rgba(0,0,0,0.2)] min-w-0">
-      <div className="flex items-center gap-3">
-        <div className="h-9 w-9 rounded-[10px] bg-white/15 flex items-center justify-center shrink-0">
-          <Wallet size={18} />
-        </div>
-        <div className="text-[12px] uppercase tracking-wide opacity-80">
-          Wallet Balance
-        </div>
-      </div>
+    <>
+      <style dangerouslySetInnerHTML={{
+        __html: `
+          .wallet-card-bg::before {
+            background-image: url('/images/ui/clipWallet.png');
+            background-position: top right;
+            background-repeat: no-repeat;
+            background-size: cover;
+          }
+        `
+      }} />
+      <div 
+        className="wallet-card-bg h-[150px] rounded-[16px] bg-[#193E2F] text-white shadow-[0px_10px_30px_-8px_rgba(0,0,0,0.2)] min-w-[250px] relative overflow-hidden before:content-[''] before:absolute before:inset-0 before:opacity-30 before:pointer-events-none before:w-full before:h-full"
+      >
+        {/* Padded content layer */}
+        <div className="relative z-10 h-full px-5 sm:px-6 py-5 flex flex-col justify-between">
+          <div className="flex items-center gap-3">
+            <div className="h-9 w-9 rounded-[10px] bg-[#D1EF7C] flex items-center justify-center shrink-0">
+              <Wallet size={18} className="text-black" />
+            </div>
+            <div className="text-[12px] text-white uppercase tracking-wide opacity-80">
+              Wallet Balance
+            </div>
+          </div>
 
-      <div className="text-[26px] sm:text-[30px] font-medium break-words">
-        ${amount.toLocaleString()}
+          <div className="text-[26px] sm:text-[30px] font-medium break-words">
+            ${amount.toLocaleString()}
+          </div>
+        </div>
       </div>
-    </div>
+    </>
   );
 }
 
@@ -267,7 +297,7 @@ function BankCard({
 }) {
   if (!bankInfo) {
     return (
-      <div className="h-[150px] rounded-[16px] border border-[rgba(39,38,53,0.08)] bg-white px-5 sm:px-6 py-5 flex flex-col justify-between shadow-[0px_10px_30px_-8px_rgba(39,38,53,0.08)] min-w-0">
+      <div className="h-[150px] rounded-[16px] border border-[rgba(39,38,53,0.08)] bg-white px-5 sm:px-6 py-5 flex flex-col justify-between shadow-[0px_10px_30px_-8px_rgba(39,38,53,0.08)] min-w-0 min-w-[250px]">
         <div className="flex items-center gap-3">
           <div className="h-9 w-9 rounded-[10px] bg-[rgba(39,38,53,0.05)] flex items-center justify-center shrink-0">
             <Landmark size={18} />

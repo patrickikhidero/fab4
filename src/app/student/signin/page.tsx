@@ -1,29 +1,35 @@
 "use client";
 
-import { useState } from "react";
 import { LoginForm } from "@/components/modules/student/LoginForm";
-import { login } from "@/lib/api/auth";
+import { useLoginMutation } from "@/lib/hooks/useLoginMutation";
+import { useToast } from "@/components/ui/toast/ToastProvider";
 
 export default function StudentSignInPage() {
-  const [isLoading, setIsLoading] = useState(false);
+  const { showToast } = useToast();
 
-  const handleLogin = async (email: string) => {
-    if (!email) return;
-
-    setIsLoading(true);
-
-    try {
-      console.log("Requesting login link for:", email);
-      await login({ email });
-      alert(`If your email exists, a login link has been sent to ${email}. Please check your email.`);
-
-    } catch (error) {
+  const loginMutation = useLoginMutation({
+    onSuccess: (data, variables) => {
+      console.log("Requesting login link for:", variables.email);
+      showToast(
+        "success",
+        `If your email exists, a login link has been sent to ${variables.email}. Please check your email.`,
+        "Login Link Sent"
+      );
+    },
+    onError: (error) => {
       console.error("Failed to send login link:", error);
-      alert("Failed to send login link. Please try again.");
-    } finally {
-      setIsLoading(false);
-    }
+      showToast(
+        "error",
+        "Failed to send login link. Please try again.",
+        "Login Failed"
+      );
+    },
+  });
+
+  const handleLogin = (email: string) => {
+    if (!email) return;
+    loginMutation.mutate({ email, user_type: 'STUDENT' });
   };
 
-  return <LoginForm onSubmit={handleLogin} isLoading={isLoading} />;
+  return <LoginForm onSubmit={handleLogin} isLoading={loginMutation.isPending} />;
 }

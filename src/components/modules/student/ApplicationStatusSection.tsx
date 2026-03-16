@@ -1,4 +1,5 @@
 import React from "react";
+import {CircleDashed} from "lucide-react";
 
 interface Comment {
   id: string;
@@ -442,11 +443,7 @@ export function ApplicationStatusSection({
                   data-name="donut_large"
                   data-node-id="476:5680"
                 >
-                  <img
-                    alt="Donut Large"
-                    className="block size-full max-w-none"
-                    src="/svg/icons/donut-large.svg"
-                  />
+                  <CircleDashed className="h-6 w-6 text-[#272635]" />
                 </div>
               </div>
             </div>
@@ -493,11 +490,7 @@ export function ApplicationStatusSection({
                   data-name="donut_large"
                   data-node-id="476:5690"
                 >
-                  <img
-                    alt="Donut Large"
-                    className="block size-full max-w-none"
-                    src="/svg/icons/donut-large.svg"
-                  />
+  <CircleDashed className="h-6 w-6 text-[#272635]" />
                 </div>
               </div>
             </div>

@@ -10,6 +10,7 @@ import {
   Menu,
   X,
 } from "lucide-react";
+import { CircularProgress } from "@/components/ui/CircularProgress";
 
 interface UserData {
   name: string;
@@ -180,9 +181,7 @@ export function SidebarNavigation({
                     </div>
                   </div>
 
-                  <div className="h-[41px] w-[41px] grid place-items-center rounded-full border">
-                    {campaignSummary.progress}%
-                  </div>
+                  <CircularProgress size={45} strokeWidth={4} percentage={typeof campaignSummary.progress === 'number' ? campaignSummary.progress : Number.parseInt(campaignSummary.progress)} />
                 </div>
 
                 <div className="mt-4 h-[1px] bg-[rgba(39,38,53,0.08)]" />

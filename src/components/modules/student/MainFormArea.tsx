@@ -823,7 +823,7 @@ export function MainFormArea({
               onClick={handleSaveClick}
               className="w-full rounded-lg px-2 py-2 text-[14px] text-[#272635] sm:w-auto sm:text-[16px]"
             >
-              <span className="underline leading-none">
+              <span className="underline leading-none cursor-pointer">
                 Save To Continue Later
               </span>
             </button>
@@ -849,7 +849,7 @@ export function MainFormArea({
               <button
                 type="button"
                 onClick={handleContinueClick}
-                className="h-12 w-full rounded-lg border border-[#2c2c2c] bg-[#273125] px-5 py-3 text-[15px] text-white sm:h-14 sm:w-auto sm:text-[16px]"
+                className="h-12 w-full cursor-pointer rounded-lg border border-[#2c2c2c] bg-[#273125] px-5 py-3 text-[15px] text-white sm:h-14 sm:w-auto sm:text-[16px]"
               >
                 Continue
               </button>
