@@ -560,7 +560,7 @@ export function MainFormArea({
 
                         <FormInput
                           label="Course Duration"
-                          placeholder="Ex. 2024 - 2028"
+                          placeholder={`Ex. ${new Date().getFullYear()} - ${new Date().getFullYear() + 4}`}
                           value={formData.courseDuration}
                           onChange={(value) =>
                             onFormChange("courseDuration", value)

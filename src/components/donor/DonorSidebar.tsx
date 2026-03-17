@@ -221,7 +221,7 @@ export function DonorSidebar({
             <div className="mt-6 h-px w-[220px] bg-[rgba(39,38,53,0.08)]" />
 
             <p className="mt-5 w-[220px] text-[11px] leading-4 text-[rgba(39,38,53,0.45)]">
-              © 2024 FabFour Foundation. All rights reserved.
+              © {new Date().getFullYear()} FabFour Foundation. All rights reserved.
             </p>
           </div>
         </div>

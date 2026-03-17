@@ -23,7 +23,7 @@ export function AuthLayout({ children, title, subtitle }: AuthLayoutProps) {
         </div>
         
         <div className="text-center text-sm text-muted-foreground">
-          <p>© 2024 FabFour Foundation. All rights reserved.</p>
+          <p>© {new Date().getFullYear()} FabFour Foundation. All rights reserved.</p>
         </div>
       </div>
     </div>

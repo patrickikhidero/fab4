@@ -245,7 +245,7 @@ export function CampaignOverview() {
 
         <button
           onClick={() => router.push("/student/dashboard/campaign/create")}
-          className="inline-flex items-center justify-center gap-2 text-[#272635] text-[14px] sm:text-[16px] hover:bg-black/5 px-3 py-2 rounded-[10px] transition-colors self-start sm:self-auto"
+          className="inline-flex cursor-pointer items-center justify-center gap-2 text-[#272635] text-[14px] sm:text-[16px] hover:bg-black/5 px-3 py-2 rounded-[10px] transition-colors self-start sm:self-auto"
         >
           <span>Create Campaign</span>
           <span className="relative size-5">
@@ -271,7 +271,7 @@ export function CampaignOverview() {
 
         <div className="flex-1 grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-5 w-full">
           {/* Goal Card */}
-          <div className="relative rounded-[12px] p-4 border border-[rgba(39,38,53,0.1)] shadow-[0px_1px_4px_0px_rgba(12,12,13,0.05)] min-w-0">
+          <div className="flex flex-col justify-between rounded-[12px] p-4 border border-[rgba(39,38,53,0.1)] shadow-[0px_1px_4px_0px_rgba(12,12,13,0.05)] min-w-0">
             <div className="flex flex-wrap items-center gap-2">
               <div className="text-[#272635] text-[14px] uppercase">campaign goal</div>
               <div className="bg-yellow-100 px-2 py-1 rounded-full text-[#272635] text-[10px]">
