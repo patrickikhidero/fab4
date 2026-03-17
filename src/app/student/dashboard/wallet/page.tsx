@@ -241,7 +241,7 @@ function Header({ onRequestFunds, walletBalance, bankInfo, onAddOrChangeBank }: 
               <WalletBalanceCard amount={walletBalance} />
               <BankCard
                 bankInfo={bankInfo}
-                onAddOrChange={() =>
+                onAddOrChange={
                   onAddOrChangeBank
                 }
               />
@@ -309,7 +309,7 @@ function BankCard({
           </div>
         </div>
 
-        <div className="flex items-center justify-between gap-3">
+        <div className="flex items-center justify-between gap-3 cursor-pointer">
           <span className="text-[13px] text-[rgba(39,38,53,0.6)]">-</span>
           <button
             onClick={onAddOrChange}
