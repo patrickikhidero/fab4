@@ -7,11 +7,11 @@ import { login } from "@/lib/api/auth";
 import { useToast } from "@/components/ui/toast/ToastProvider";
 import { FooterLinks } from "@/components/shared/FooterLinks";
 
-export default function LoginPage() {
+export default function DonorLoginPage() {
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const { showToast} = useToast();
+  const { showToast } = useToast();
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -26,12 +26,12 @@ export default function LoginPage() {
 
       await login({
         email: email.trim(),
-        user_type: "STUDENT",
+        user_type: "DONOR",
       });
 
       showToast(
         "success",
-        `If your email exists, a login link has been sent to ${email.trim()}. Please check your email.`,
+        `If your email exists, a donor login link has been sent to ${email.trim()}. Please check your email.`,
         "Login link sent"
       );
     } catch (err: any) {
@@ -98,12 +98,12 @@ export default function LoginPage() {
             <div className="w-full min-w-0">
               <div className="mt-4 sm:mt-8 md:mt-16 lg:mt-24">
                 <h1 className="text-[30px] sm:text-[34px] lg:text-[38px] leading-[1.12] font-medium text-[var(--color-primary-text)] max-w-[560px]">
-                  Login to your account
+                  Donor login
                 </h1>
 
                 <p className="mt-4 max-w-[420px] text-sm leading-6 text-[var(--color-muted)]">
-                  Africa’s trusted social fundraising platform to support smart
-                  minds through tertiary education.
+                  Access your donor account to support students, track giving,
+                  and manage your contributions.
                 </p>
 
                 <form
@@ -169,10 +169,10 @@ export default function LoginPage() {
 
                   <div className="pt-4">
                     <Link
-                      href="/donor/login"
+                      href="/login"
                       className="inline-flex items-center gap-2 text-xs sm:text-sm text-[var(--color-muted)] hover:text-[var(--color-primary-text)]"
                     >
-                      <span>Login As a Donor</span>
+                      <span>Login As a Student</span>
                       <span>↗</span>
                     </Link>
                   </div>
@@ -202,7 +202,7 @@ export default function LoginPage() {
                     <span className="text-[var(--color-muted)] shrink-0">›</span>
                   </div>
 
-                  <div className="text-[var(--color-muted)]">Rais</div>
+                  <div className="text-[var(--color-muted)]">Raise</div>
 
                   <div className="mt-2 flex items-center justify-between gap-2">
                     <div className="font-medium text-[var(--color-primary-text)] shrink-0">

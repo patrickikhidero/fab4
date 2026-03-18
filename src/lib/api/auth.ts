@@ -3,6 +3,7 @@ import { api } from "./client";
 export type LoginRequest = {
   email: string;
   password?: string;
+  user_type?: "STUDENT" | "DONOR";
 };
 
 export type LoginResponse = {
