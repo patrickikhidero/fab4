@@ -1004,7 +1004,7 @@ export function CreateCampaign({
               <div className="flex flex-col items-start justify-between w-full min-w-0 gap-8">
                 <div className="flex flex-col gap-4 w-full min-w-0">
                   <div>
-                    <header className="text-[#272635] text-[16px] md:text-24 font-semibold">Tell Donors Why You’re Fundraising</header>
+                    <header className="text-[#272635] text-[16px] md:text-24 lg:text-28 leading-[1.4] font-semibold">Tell Donors Why You’re Fundraising</header>
                     <p className="text-[#27263580]">Clearly provide details to help us understand and process your fund request.</p>
                   </div>
                   <div className="bg-[#f9faf7] flex flex-col gap-2.5 items-start justify-start p-4 sm:p-[20px] relative rounded-[12px] w-full">
