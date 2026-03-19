@@ -6,15 +6,16 @@ import { CalendarDays, X, Trash2, Upload, ChevronsRight } from 'lucide-react'
 
 import { getStoredUser } from '@/lib/auth/storage'
 import {
-  createCampaign,
-  updateCampaign,
-  createCampaignDocument,
   type CreateCampaignPayload,
 } from '@/lib/student/campaign'
 
-import { api } from '@/lib/api/client'
 import { CurrencySelect } from '@/components/ui/CurrencySelect'
 import { useFxRate, type FxSource, type SupportedCurrency } from '@/lib/hooks/useFxRate'
+import {
+  useCreateCampaignDocumentMutation,
+  useCreateCampaignMutation,
+  useUpdateCampaignMutation,
+} from '@/lib/hooks/useCampaignMutations'
 
 // Image assets from Figma design
 const imgBackArrow = '/211e63c41bedb13d7b5b07aace82fe8309636c60.svg'
@@ -296,6 +297,7 @@ export function CreateCampaign({
     'ACCOMMODATION',
   ])
 
+  const [fundraiserTitle, setFundraiserTitle] = useState<string>('')
   const [story, setStory] = useState<string>('Description')
 
   const [coverFile, setCoverFile] = useState<File | null>(null)
@@ -328,6 +330,9 @@ export function CreateCampaign({
   }
 
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const createCampaignMutation = useCreateCampaignMutation()
+  const updateCampaignMutation = useUpdateCampaignMutation()
+  const createCampaignDocumentMutation = useCreateCampaignDocumentMutation()
 
   useEffect(() => {
     const u = getStoredUser()
@@ -386,7 +391,7 @@ export function CreateCampaign({
   const buildPayload = (): CreateCampaignPayload => {
     const g = Number(goal)
     return {
-      name: studentName.trim() || 'Student',
+      name: fundraiserTitle.trim() || 'Untitled Fundraiser',
       description: story.trim(),
       start_date: startDate,
       end_date: endDate,
@@ -455,38 +460,64 @@ export function CreateCampaign({
     if (!validateStep1()) return false
 
     setIsSubmitting(true)
-    try {
-      const payload = buildPayload()
+    const payload = buildPayload()
 
+    const ok = await new Promise<boolean>((resolve) => {
       if (!campaignId) {
-        const created = await createCampaign({
-          ...payload,
-          description: payload.description?.trim() ? payload.description : ' ',
-        })
-        if (!created?.id)
-          throw new Error('Campaign ID not returned from createCampaign.')
-        setCampaignId(created.id)
-      } else {
-        await updateCampaign(campaignId, {
-          name: payload.name,
-          start_date: payload.start_date,
-          end_date: payload.end_date,
-          goal: payload.goal,
-          currency: payload.currency,
-          academic_session: payload.academic_session,
-          academic_needs: payload.academic_needs,
-          drafted: true,
-        })
+        createCampaignMutation.mutate(
+          {
+            ...payload,
+            description: payload.description?.trim() ? payload.description : ' ',
+          },
+          {
+            onSuccess: (created) => {
+              if (!created?.id) {
+                showToast('error', 'Failed to save step 1', 'Campaign ID not returned from createCampaign.')
+                resolve(false)
+                return
+              }
+              setCampaignId(created.id)
+              showToast('success', 'Saved', 'Campaign draft saved.')
+              resolve(true)
+            },
+            onError: (err) => {
+              showToast('error', 'Failed to save step 1', safeErrMessage(err))
+              resolve(false)
+            },
+          },
+        )
+        return
       }
 
-      showToast('success', 'Saved', 'Campaign draft saved.')
-      return true
-    } catch (err: any) {
-      showToast('error', 'Failed to save step 1', safeErrMessage(err))
-      return false
-    } finally {
-      setIsSubmitting(false)
-    }
+      updateCampaignMutation.mutate(
+        {
+          id: campaignId,
+          payload: {
+            name: payload.name,
+            start_date: payload.start_date,
+            end_date: payload.end_date,
+            goal: payload.goal,
+            currency: payload.currency,
+            academic_session: payload.academic_session,
+            academic_needs: payload.academic_needs,
+            drafted: true,
+          },
+        },
+        {
+          onSuccess: () => {
+            showToast('success', 'Saved', 'Campaign draft saved.')
+            resolve(true)
+          },
+          onError: (err) => {
+            showToast('error', 'Failed to save step 1', safeErrMessage(err))
+            resolve(false)
+          },
+        },
+      )
+    })
+
+    setIsSubmitting(false)
+    return ok
   }
 
   const saveStep2 = async () => {
@@ -497,27 +528,36 @@ export function CreateCampaign({
     if (!validateStep2()) return false
 
     setIsSubmitting(true)
-    try {
-      const payload = buildPayload()
+    const payload = buildPayload()
 
-      await updateCampaign(campaignId, {
-        name: payload.name,
-        description: payload.description,
-      })
+    const ok = await new Promise<boolean>((resolve) => {
+      updateCampaignMutation.mutate(
+        {
+          id: campaignId,
+          payload: {
+            name: payload.name,
+            description: payload.description,
+          },
+        },
+        {
+          onSuccess: () => {
+            if (coverFile) {
+              showToast('info', 'Cover selected', 'Cover upload endpoint is not connected yet.')
+            } else {
+              showToast('success', 'Saved', 'Campaign details saved.')
+            }
+            resolve(true)
+          },
+          onError: (err) => {
+            showToast('error', 'Failed to save step 2', safeErrMessage(err))
+            resolve(false)
+          },
+        },
+      )
+    })
 
-      if (coverFile) {
-        showToast('info', 'Cover selected', 'Cover upload endpoint is not connected yet.')
-      } else {
-        showToast('success', 'Saved', 'Campaign details saved.')
-      }
-
-      return true
-    } catch (err: any) {
-      showToast('error', 'Failed to save step 2', safeErrMessage(err))
-      return false
-    } finally {
-      setIsSubmitting(false)
-    }
+    setIsSubmitting(false)
+    return ok
   }
 
   const uploadDocumentsAndFinish = async () => {
@@ -533,38 +573,46 @@ export function CreateCampaign({
     }
 
     setIsSubmitting(true)
-    try {
-      setUploadedFiles((p) =>
-        p.map((r) => ({
-          ...r,
-          status: 'uploading',
-          progress: 0,
-        })),
-      )
+    setUploadedFiles((p) =>
+      p.map((r) => ({
+        ...r,
+        status: 'uploading',
+        progress: 0,
+      })),
+    )
 
-      await createCampaignDocument(campaignId, files)
+    await new Promise<void>((resolve) => {
+      createCampaignDocumentMutation.mutate(
+        { campaignId, files },
+        {
+          onSuccess: () => {
+            setUploadedFiles((p) =>
+              p.map((r) => ({
+                ...r,
+                status: 'completed',
+                progress: 100,
+              })),
+            )
 
-      setUploadedFiles((p) =>
-        p.map((r) => ({
-          ...r,
-          status: 'completed',
-          progress: 100,
-        })),
+            showToast('success', 'Campaign created', 'Your campaign was created successfully.')
+            router.push('/student/dashboard/campaign')
+            resolve()
+          },
+          onError: (err) => {
+            setUploadedFiles((p) =>
+              p.map((r) => ({
+                ...r,
+                status: 'error',
+              })),
+            )
+            showToast('error', 'Failed to upload documents', safeErrMessage(err))
+            resolve()
+          },
+        },
       )
+    })
 
-      showToast('success', 'Campaign created', 'Your campaign was created successfully.')
-      router.push('/student/dashboard/campaign')
-    } catch (err: any) {
-      setUploadedFiles((p) =>
-        p.map((r) => ({
-          ...r,
-          status: 'error',
-        })),
-      )
-      showToast('error', 'Failed to upload documents', safeErrMessage(err))
-    } finally {
-      setIsSubmitting(false)
-    }
+    setIsSubmitting(false)
   }
 
   const goalNum = Number(goal || 0)
@@ -679,7 +727,11 @@ export function CreateCampaign({
 
                           <input
                             value={goal}
-                            onChange={(e) => setGoal(e.target.value)}
+                            onChange={(e) => {
+                              const next = e.target.value
+                              // Allow only numbers with an optional decimal part.
+                              if (/^\d*\.?\d*$/.test(next)) setGoal(next)
+                            }}
                             inputMode="decimal"
                             placeholder="Enter goal amount"
                             className="w-full min-w-0 bg-transparent outline-none text-[#272635] text-[14px]"
@@ -951,6 +1003,33 @@ export function CreateCampaign({
             {currentStage === 2 && (
               <div className="flex flex-col items-start justify-between w-full min-w-0 gap-8">
                 <div className="flex flex-col gap-4 w-full min-w-0">
+                  <div>
+                    <header className="text-[#272635] text-[16px] md:text-24 font-semibold">Tell Donors Why You’re Fundraising</header>
+                    <p className="text-[#27263580]">Clearly provide details to help us understand and process your fund request.</p>
+                  </div>
+                  <div className="bg-[#f9faf7] flex flex-col gap-2.5 items-start justify-start p-4 sm:p-[20px] relative rounded-[12px] w-full">
+                    <div className="flex flex-col gap-2 items-start justify-start w-full">
+                    <div className="text-[#272635] text-[16px] w-full">
+                        <p className="leading-[1.4]">Give your fundraiser a title</p>
+                      </div>
+
+                      <div className="bg-white h-12 min-w-0 relative rounded-[8px] w-full">
+                        <div className="flex h-full items-center justify-start overflow-clip px-4 py-3 relative w-full">
+                          <input
+                            type="text"
+                            value={fundraiserTitle}
+                            onChange={(e) => setFundraiserTitle(e.target.value)}
+                            placeholder="Write a descriptive title"
+                            className="w-full bg-transparent outline-none text-[#272635] text-[14px]"
+                          />
+                        </div>
+                        <div
+                          aria-hidden="true"
+                          className="absolute border border-[rgba(39,38,53,0.1)] border-solid inset-[-0.5px] pointer-events-none rounded-[8.5px] shadow-[0px_1px_4px_0px_rgba(12,12,13,0.05)]"
+                        />
+                      </div>
+                    </div>
+                  </div>
                   <div className="bg-[#f9faf7] flex flex-col gap-2.5 items-start justify-start p-4 sm:p-[20px] relative rounded-[12px] w-full">
                     <div className="flex flex-col gap-2 items-start justify-start w-full">
                       <div className="text-[#272635] text-[16px] w-full">
