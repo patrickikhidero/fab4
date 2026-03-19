@@ -27,14 +27,21 @@ api.interceptors.response.use(
     const status = error?.response?.status;
 
     //  backend returns 402 for unauthorized (and sometimes you may also get 401/403)
-    if (status === 401 || status === 402 || status === 403) {
+    if (status === 401 || status === 402) {
+      console.log("Status returned: ", status)
       // Clear tokens so RequireAuth won't allow staying on protected pages
       localStorage.removeItem("fab4_access");
       localStorage.removeItem("fab4_refresh");
       localStorage.removeItem("fab4_user");
 
       // Avoid infinite loop if you're already on login
-      if (window.location.pathname !== "/login") {
+      const path = window.location.pathname;
+      const isAuthPage =
+        path === "/login" ||
+        path.startsWith("/donor/login") ||
+        path.includes("/authenticate/");
+
+      if (!isAuthPage) {
         window.location.replace("/login");
       }
     }

@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { authenticate } from "@/lib/api/auth";
 import { getMe } from "@/lib/api/users";
-import { setAuthTokens } from "@/lib/auth/storage";
+import { getDefaultRouteByUserType, setAuthTokens } from "@/lib/auth/storage";
 
 export default function AuthenticatePage() {
   const params = useParams();
@@ -45,7 +45,8 @@ export default function AuthenticatePage() {
           user: me,
         });
 
-        router.replace("/student/dashboard");
+        const destination = getDefaultRouteByUserType(me?.user_type);
+        router.replace(destination);
       } catch (err: any) {
         console.error("Authentication failed:", err);
 
