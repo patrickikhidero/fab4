@@ -68,6 +68,7 @@ export type UpdateUserPayload = {
 export async function getMe() {
   const res = await api.get<MeResponse>("/api/users/me/");
   console.log(res)
+  console.log(res.data)
   return res.data;
 }
 

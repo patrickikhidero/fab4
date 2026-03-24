@@ -39,6 +39,8 @@ export default function AuthenticatePage() {
 
         const me = await getMe();
 
+        console.log(me)
+
         setAuthTokens({
           access: authRes.access,
           refresh: authRes.refresh,

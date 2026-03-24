@@ -3,8 +3,6 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 
-import { getStoredUser, getUserIdFromToken } from "@/lib/auth/storage";
-import { getStudentProfile } from "@/lib/student/application";
 import { getCampaignOverview, listMyCampaigns } from "@/lib/student/campaign";
 import { listDonationsByCampaign } from "@/lib/student/donations";
 
@@ -58,7 +56,6 @@ export function CampaignOverview() {
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 4;
 
-  const [isVerified, setIsVerified] = useState(false);
   const [donors, setDonors] = useState<Donor[]>([]);
   const [campaignMetrics, setCampaignMetrics] = useState<CampaignMetrics | null>(null);
   const [currentCampaignId, setCurrentCampaignId] = useState<number | null>(null);
@@ -91,29 +88,34 @@ export function CampaignOverview() {
     return (rows ?? []).map((d: any, idx: number) => {
       const isAnon = !!(d?.is_anonymous ?? d?.anonymous);
 
-      const name =
-        isAnon
-          ? "Anonymous"
-          : (d?.donor_name ??
-              d?.donor?.name ??
-              d?.donor?.full_name ??
-              d?.name ??
-              "Anonymous");
+      const name = isAnon
+        ? "Anonymous"
+        : d?.donor_name ??
+          d?.donor?.name ??
+          d?.donor?.full_name ??
+          d?.name ??
+          "Anonymous";
 
       const amount = toNum(d?.amount ?? d?.donation_amount ?? d?.total);
 
       const dateRaw = d?.created_at ?? d?.date ?? d?.created;
       const date = dateRaw ? new Date(dateRaw).toLocaleDateString() : "—";
 
+      const donorTypeRaw = String(d?.donor_type ?? "").toLowerCase();
       const type: Donor["type"] =
-        d?.donor_type === "guardian"
+        donorTypeRaw === "guardian"
           ? "guardian"
-          : d?.donor_type === "good-samaritan"
+          : donorTypeRaw === "good-samaritan" || donorTypeRaw === "good_samaritan"
           ? "good-samaritan"
           : "anonymous";
 
+      const statusRaw = String(d?.status ?? "").toLowerCase();
       const status: Donor["status"] =
-        d?.status === "completed" ? "completed" : d?.status === "failed" ? "failed" : "pending";
+        statusRaw === "completed" || statusRaw === "success"
+          ? "completed"
+          : statusRaw === "failed"
+          ? "failed"
+          : "pending";
 
       return {
         id: String(d?.id ?? idx),
@@ -155,31 +157,23 @@ export function CampaignOverview() {
       try {
         setLoading(true);
 
-        const u = getStoredUser();
-        let userId: number | null = u?.id ?? null;
-        if (!userId) userId = getUserIdFromToken();
-
-        const profile = await getStudentProfile(userId as any);
-        const verified = !!profile?.is_verified;
-        setIsVerified(verified);
-
-        if (!verified) {
-          setCampaignMetrics(null);
-          setDonors([]);
-          setCurrentCampaignId(null);
-          return;
-        }
-
         const [ov, mine] = await Promise.all([getCampaignOverview(), listMyCampaigns()]);
 
-        const results: CampaignListItem[] = (mine as any)?.results ?? [];
+        const results: CampaignListItem[] =
+          (mine as any)?.results ?? (mine as any)?.raw?.results ?? [];
+
         const current = pickCurrentCampaign(results);
         const campaignId = current?.id ?? null;
 
         setCurrentCampaignId(campaignId);
 
         const goal = toNum(current?.goal);
-        const totalRaised = toNum((ov as any)?.overall_stats?.total_amount_raised);
+        const totalRaised =
+          toNum((ov as any)?.overall_stats?.total_amount_raised) ||
+          toNum((ov as any)?.current_campaign?.amount_raised) ||
+          toNum((ov as any)?.current_campaign?.raised_amount) ||
+          toNum((ov as any)?.current_campaign?.amount);
+
         const academicSessions = toNum((ov as any)?.overall_stats?.total_academic_sessions);
 
         const status = mapStatus(current?.status ?? (current?.accepted ? "active" : "under-review"));
@@ -217,26 +211,8 @@ export function CampaignOverview() {
     return <div className="py-24 text-center text-[#272635]">Loading...</div>;
   }
 
-  if (!isVerified) {
-    return (
-      <div className="py-16 sm:py-24 text-center px-4">
-        <div className="text-[#272635] text-[18px] font-medium">Campaign is not available</div>
-        <div className="mt-2 text-[13px] text-[rgba(39,38,53,0.6)] max-w-[420px] mx-auto">
-          Complete your application and get verified to access Campaign features.
-        </div>
-        <button
-          className="mt-6 h-10 px-4 rounded-[12px] border border-[rgba(39,38,53,0.1)] bg-white text-[#272635]"
-          onClick={() => router.push("/student/dashboard")}
-        >
-          Go back
-        </button>
-      </div>
-    );
-  }
-
   return (
     <div className="max-w-6xl mx-auto min-w-0">
-      {/* page header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
         <div className="text-[#272635] text-[24px] sm:text-[28px] font-['Neue_Montreal:Regular',_sans-serif]">
           Campaign
@@ -259,7 +235,6 @@ export function CampaignOverview() {
         </button>
       </div>
 
-      {/* Overview Section */}
       <div className="flex flex-col xl:flex-row gap-6 xl:gap-10 items-start mb-10">
         <div className="shrink-0 w-full xl:w-auto">
           <div className="text-[#272635] text-[16px] sm:text-[18px] uppercase">overview of campaigns</div>
@@ -269,12 +244,17 @@ export function CampaignOverview() {
         </div>
 
         <div className="flex-1 grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-5 w-full">
-          {/* Goal Card */}
           <div className="relative rounded-[12px] p-4 border border-[rgba(39,38,53,0.1)] shadow-[0px_1px_4px_0px_rgba(12,12,13,0.05)] min-w-0">
             <div className="flex flex-wrap items-center gap-2">
               <div className="text-[#272635] text-[14px] uppercase">campaign goal</div>
               <div className="bg-yellow-100 px-2 py-1 rounded-full text-[#272635] text-[10px]">
-                {metrics.status === "active" ? "Active" : "Under review"}
+                {metrics.status === "active"
+                  ? "Active"
+                  : metrics.status === "completed"
+                  ? "Completed"
+                  : metrics.status === "paused"
+                  ? "Paused"
+                  : "Under review"}
               </div>
             </div>
 
@@ -288,7 +268,6 @@ export function CampaignOverview() {
             </button>
           </div>
 
-          {/* Overall Card */}
           <div className="relative rounded-[12px] p-4 border border-[rgba(39,38,53,0.1)] shadow-[0px_1px_4px_0px_rgba(12,12,13,0.05)] min-w-0">
             <div className="flex items-center gap-2">
               <img alt="Users" className="size-8" src={imgUsers} />
@@ -318,7 +297,6 @@ export function CampaignOverview() {
         </div>
       </div>
 
-      {/* Donor History */}
       <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-4 mb-6">
         <div className="w-full lg:w-[508px] min-w-0">
           <div className="text-[#272635] text-[16px] sm:text-[18px] uppercase">history of donors</div>
@@ -333,7 +311,6 @@ export function CampaignOverview() {
         </div>
       </div>
 
-      {/* Tabs */}
       <div className="flex flex-wrap gap-x-6 gap-y-3 items-center mb-6">
         <Tab
           active={activeTab === "all"}
@@ -363,7 +340,6 @@ export function CampaignOverview() {
         />
       </div>
 
-      {/* Mobile cards */}
       <div className="lg:hidden space-y-3">
         {paginatedDonors.length === 0 ? (
           <div className="rounded-[12px] border border-[rgba(39,38,53,0.1)] px-6 py-14 text-center">
@@ -423,7 +399,6 @@ export function CampaignOverview() {
         </div>
       </div>
 
-      {/* Desktop table */}
       <div className="hidden lg:block rounded-[12px] border border-[rgba(39,38,53,0.1)] overflow-hidden">
         <div className="flex border-b border-[rgba(39,38,53,0.1)] text-[12px] uppercase text-[#272635]">
           <div className="w-[279px] px-4 py-3">Names</div>
