@@ -14,7 +14,14 @@ function isStudentProtectedRoute(pathname: string) {
 }
 
 function isDonorAuthRoute(pathname: string) {
-  return pathname === "/donor/login" || pathname.startsWith("/donor/login/");
+  return pathname === "/donor/signup" || pathname.startsWith("/donor/signup/");
+}
+
+function isStudentAuthRoute(pathname: string) {
+  return (
+    pathname === "/student/signup" ||
+    pathname.startsWith("/student/signup/")
+  );
 }
 
 function isDonorProtectedRoute(pathname: string) {
@@ -24,10 +31,8 @@ function isDonorProtectedRoute(pathname: string) {
 function isAuthRoute(pathname: string) {
   return (
     pathname === "/login" ||
-    pathname === "/student/login" ||
-    pathname === "/student/signin" ||
-    pathname === "/student/signup" ||
-    pathname === "/donor/login"
+    isStudentAuthRoute(pathname) ||
+    isDonorAuthRoute(pathname)
   );
 }
 
@@ -40,6 +45,7 @@ export function RequireAuth({ children }: { children: React.ReactNode }) {
     const user = getStoredUser();
     const userType = user?.user_type?.toUpperCase?.() ?? null;
 
+    const authRoute = isAuthRoute(pathname);
     const isProtectedRoute =
       isStudentProtectedRoute(pathname) || isDonorProtectedRoute(pathname);
 
@@ -52,11 +58,15 @@ export function RequireAuth({ children }: { children: React.ReactNode }) {
 
     if (!user) {
       clearAuthTokens();
-      router.replace("/login");
+
+      if (isProtectedRoute) {
+        router.replace("/login");
+      }
+
       return;
     }
 
-    if (isAuthRoute(pathname)) {
+    if (authRoute) {
       router.replace(getDefaultRouteByUserType(userType));
       return;
     }

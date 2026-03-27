@@ -1,10 +1,72 @@
+export type StudentProfile = {
+  id: number;
+
+  is_flagged: boolean;
+  flag_count: number;
+
+  created_at: string;
+  updated_at: string;
+
+  first_name: string | null;
+  last_name: string | null;
+  email: string;
+
+  phone_number: string | null;
+  date_of_birth: string | null;
+
+  country: string | null;
+  state: string | null;
+  residential_address: string | null;
+
+  verification_means: string | null;
+  is_verified: boolean;
+
+  student_entry: string | null;
+
+  institution: string | null;
+  course: string | null;
+  course_duration: string | null;
+  level: string | null;
+
+  course_state: string | null;
+  course_country: string | null;
+
+  application_status: "IN_PROGRESS" | "SUBMITTED" | "APPROVED" | "REJECTED";
+
+  application_started_at: string | null;
+  application_terminated_at: string | null;
+
+  reminder_sequence_cancelled: boolean;
+
+  user: number;
+};
+
+export type Wallet = {
+  id: number;
+  student: number;
+  balance: string;
+  status: "ACTIVE" | "INACTIVE";
+  currency: string;
+  created_at: string;
+  updated_at: string;
+};
+
 export type StoredUser = {
   id: number;
   email: string;
-  first_name?: string;
-  last_name?: string;
+
+  first_name: string | null;
+  last_name: string | null;
+
+  last_login?: string;
   photo?: string | null;
-  user_type?: string;
+
+  user_type: "STUDENT" | "DONOR";
+
+  mfa_enabled?: boolean;
+
+  student_profile?: StudentProfile | null;
+  wallet?: Wallet | null;
 };
 
 export function setAuthTokens(tokens: { access?: string; refresh?: string; user?: object }) {

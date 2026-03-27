@@ -3,7 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
-import { login } from "@/lib/api/auth";
+import { signup } from "@/lib/api/auth";
 import { useToast } from "@/components/ui/toast/ToastProvider";
 import { FooterLinks } from "@/components/shared/FooterLinks";
 
@@ -24,7 +24,7 @@ export default function DonorLoginPage() {
     try {
       setLoading(true);
 
-      await login({
+      await signup({
         email: email.trim(),
         user_type: "DONOR",
       });
@@ -83,8 +83,15 @@ export default function DonorLoginPage() {
       <div className="relative z-[10] min-h-screen pb-[120px] md:pb-[96px]">
         <div className="mx-auto max-w-[1440px] px-4 sm:px-6 pt-6 sm:pt-8 lg:pt-10">
           <div className="flex items-center justify-between gap-4">
-            <div className="text-base sm:text-lg font-semibold tracking-wide text-[var(--color-primary-text)] opacity-60">
-              LOGO
+            <div className="flex items-center">
+              <Image
+                src="/assets/logo.jpg"
+                alt="FabFour Logo"
+                width={120}
+                height={40}
+                priority
+                className="h-auto w-[100px] sm:w-[120px] object-contain"
+              />
             </div>
 
             <div className="flex items-center gap-1 text-[11px] sm:text-xs text-[var(--color-muted)] shrink-0">
@@ -98,7 +105,7 @@ export default function DonorLoginPage() {
             <div className="w-full min-w-0">
               <div className="mt-4 sm:mt-8 md:mt-16 lg:mt-24">
                 <h1 className="text-[30px] sm:text-[34px] lg:text-[38px] leading-[1.12] font-medium text-[var(--color-primary-text)] max-w-[560px]">
-                  Donor login
+                  Donor Sign Up
                 </h1>
 
                 <p className="mt-4 max-w-[420px] text-sm leading-6 text-[var(--color-muted)]">
@@ -114,7 +121,7 @@ export default function DonorLoginPage() {
                     Email Address
                   </label>
 
-                  <div className="relative grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-x-12 lg:gap-x-20 items-start">
+                  <div className="relative grid grid-cols-1 md:grid-cols-1 gap-4 md:gap-x-12 lg:gap-x-20 items-start">
                     <div className="space-y-4">
                       <input
                         type="email"
@@ -133,46 +140,30 @@ export default function DonorLoginPage() {
                         {loading ? "Sending link..." : "Continue"}
                       </button>
                     </div>
-
-                    <div className="space-y-4">
-                      <button
-                        type="button"
-                        className="btn-secondary w-full flex items-center justify-center gap-2 h-[52px] sm:h-[56px]"
-                      >
-                        <GoogleIcon />
-                        <span className="text-sm sm:text-base">Sign in with Google</span>
-                      </button>
-
-                      <button
-                        type="button"
-                        className="btn-secondary w-full flex items-center justify-center gap-2 h-[52px] sm:h-[56px]"
-                      >
-                        <AppleIcon />
-                        <span className="text-sm sm:text-base">Sign in with Apple ID</span>
-                      </button>
-                    </div>
-
-                    <div className="pointer-events-none hidden md:block absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
-                      <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[var(--color-accent)] text-xs font-medium text-[var(--color-primary-text)] shadow-sm">
-                        OR
-                      </div>
-                    </div>
-
-                    <div className="md:hidden flex items-center justify-center py-1">
-                      <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[var(--color-accent)] text-[11px] font-medium text-[var(--color-primary-text)] shadow-sm">
-                        OR
-                      </div>
-                    </div>
                   </div>
 
                   <div className="mt-8 sm:mt-10 h-px w-full bg-[var(--color-border)]" />
 
-                  <div className="pt-4">
+                  <div className="pt-4 flex flex-wrap items-center gap-x-4 gap-y-2 text-xs sm:text-sm text-[var(--color-muted)]">
+                    <span className="text-[var(--color-muted)]">
+                      Already have an account?
+                    </span>
+
                     <Link
                       href="/login"
-                      className="inline-flex items-center gap-2 text-xs sm:text-sm text-[var(--color-muted)] hover:text-[var(--color-primary-text)]"
+                      className="inline-flex items-center gap-2 hover:text-[var(--color-primary-text)]"
                     >
-                      <span>Login As a Student</span>
+                      <span>Login</span>
+                      <span>↗</span>
+                    </Link>
+
+                    <span className="hidden sm:inline opacity-40">|</span>
+
+                    <Link
+                      href="/student/signup"
+                      className="inline-flex items-center gap-2 hover:text-[var(--color-primary-text)]"
+                    >
+                      <span>Sign Up as Student</span>
                       <span>↗</span>
                     </Link>
                   </div>

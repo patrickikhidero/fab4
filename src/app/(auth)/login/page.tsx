@@ -11,7 +11,7 @@ export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const { showToast} = useToast();
+  const { showToast } = useToast();
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -25,8 +25,7 @@ export default function LoginPage() {
       setLoading(true);
 
       await login({
-        email: email.trim(),
-        user_type: "STUDENT",
+        email: email.trim()
       });
 
       showToast(
@@ -83,8 +82,15 @@ export default function LoginPage() {
       <div className="relative z-[10] min-h-screen pb-[120px] md:pb-[96px]">
         <div className="mx-auto max-w-[1440px] px-4 sm:px-6 pt-6 sm:pt-8 lg:pt-10">
           <div className="flex items-center justify-between gap-4">
-            <div className="text-base sm:text-lg font-semibold tracking-wide text-[var(--color-primary-text)] opacity-60">
-              LOGO
+            <div className="flex items-center">
+              <Image
+                src="/assets/logo.jpg"
+                alt="FabFour Logo"
+                width={120}
+                height={40}
+                priority
+                className="h-auto w-[100px] sm:w-[120px] object-contain"
+              />
             </div>
 
             <div className="flex items-center gap-1 text-[11px] sm:text-xs text-[var(--color-muted)] shrink-0">
@@ -167,12 +173,26 @@ export default function LoginPage() {
 
                   <div className="mt-8 sm:mt-10 h-px w-full bg-[var(--color-border)]" />
 
-                  <div className="pt-4">
+                  <div className="pt-4 flex flex-wrap items-center gap-x-4 gap-y-2 text-xs sm:text-sm text-[var(--color-muted)]">
+                    <span className="text-[var(--color-muted)]">
+                      Don&apos;t have an account?
+                    </span>
+
                     <Link
-                      href="/donor/login"
-                      className="inline-flex items-center gap-2 text-xs sm:text-sm text-[var(--color-muted)] hover:text-[var(--color-primary-text)]"
+                      href="/student/signup"
+                      className="inline-flex items-center gap-2 hover:text-[var(--color-primary-text)]"
                     >
-                      <span>Login As a Donor</span>
+                      <span>Signup as Student</span>
+                      <span>↗</span>
+                    </Link>
+
+                    <span className="hidden sm:inline opacity-40">|</span>
+
+                    <Link
+                      href="/donor/signup"
+                      className="inline-flex items-center gap-2 hover:text-[var(--color-primary-text)]"
+                    >
+                      <span>Signup as Donor</span>
                       <span>↗</span>
                     </Link>
                   </div>

@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useMemo, useState } from "react";
@@ -25,6 +26,7 @@ type StoredMe = {
   student_profile?: {
     id?: number | string;
     is_verified?: boolean;
+    is_flagged?: boolean;
     first_name?: string | null;
     last_name?: string | null;
     email?: string | null;
@@ -41,6 +43,10 @@ type StoredMe = {
     level?: string | null;
     course_state?: string | null;
     course_country?: string | null;
+    application_status?: string | null;
+    application_started_at?: string | null;
+    application_terminated_at?: string | null;
+    reminder_sequence_cancelled?: boolean;
     user?: number;
   } | null;
   wallet?: unknown;
@@ -102,12 +108,10 @@ function mapStudentEntry(value: string) {
   }
 }
 
-// Keep raw value for now until backend valid choices are confirmed.
 function mapIdentification(value: string) {
   return value;
 }
 
-// Keep stored value as-is for now.
 function mapStoredIdentification(value?: string | null) {
   return value ?? "";
 }
@@ -133,6 +137,35 @@ function buildStudentProfilePayload(formData: ApplicationFormData) {
   };
 }
 
+function isBlank(value?: string | null) {
+  return !value || !String(value).trim();
+}
+
+function isStudentProfileIncomplete(profile?: StoredMe["student_profile"]) {
+  if (!profile) return true;
+
+  const requiredFields = [
+    profile.first_name,
+    profile.last_name,
+    profile.email,
+    profile.phone_number,
+    profile.date_of_birth,
+    profile.country,
+    profile.state,
+    profile.residential_address,
+    profile.verification_means,
+    profile.student_entry,
+    profile.institution,
+    profile.course,
+    profile.course_duration,
+    profile.level,
+    profile.course_state,
+    profile.course_country,
+  ];
+
+  return requiredFields.some(isBlank);
+}
+
 export function ProfileCompletionForm() {
   const router = useRouter();
   const { showToast } = useToast();
@@ -140,8 +173,13 @@ export function ProfileCompletionForm() {
   const storedUser = (getStoredUser() as StoredMe | null) ?? null;
   const storedProfile = storedUser?.student_profile ?? null;
 
-  const hasProfile = !!storedProfile;
   const isVerified = !!storedProfile?.is_verified;
+  const applicationStatus = storedProfile?.application_status ?? null;
+  const profileIncomplete = isStudentProfileIncomplete(storedProfile);
+
+  const shouldShowForm = !isVerified && profileIncomplete;
+  const shouldShowApproved = isVerified;
+  const shouldShowPendingStatus = !isVerified && !profileIncomplete;
 
   const [activeSection, setActiveSection] =
     useState<DashboardSection>("application");
@@ -244,18 +282,18 @@ export function ProfileCompletionForm() {
       user: {
         ...latestUser,
         first_name:
-          latestUser.first_name ??
           (incomingProfile.first_name as string | null | undefined) ??
+          latestUser.first_name ??
           latestUser.student_profile?.first_name ??
           null,
         last_name:
-          latestUser.last_name ??
           (incomingProfile.last_name as string | null | undefined) ??
+          latestUser.last_name ??
           latestUser.student_profile?.last_name ??
           null,
         email:
-          latestUser.email ??
           (incomingProfile.email as string | undefined) ??
+          latestUser.email ??
           "",
         student_profile: {
           ...(latestUser.student_profile ?? {}),
@@ -285,6 +323,10 @@ export function ProfileCompletionForm() {
     persistProfileToLocalStorage({
       id: response.id,
       is_verified: false,
+      application_status:
+        response.application_status ??
+        storedProfile?.application_status ??
+        "IN_PROGRESS",
       first_name: payload.first_name,
       last_name: payload.last_name,
       email: payload.email,
@@ -486,6 +528,8 @@ export function ProfileCompletionForm() {
             ...(latestUser.student_profile ?? {}),
             id: profileId,
             is_verified: false,
+            application_status:
+              latestUser.student_profile?.application_status ?? "IN_PROGRESS",
           },
         },
       });
@@ -526,7 +570,7 @@ export function ProfileCompletionForm() {
   };
 
   const renderApplicationPage = () => {
-    if (!hasProfile) {
+    if (shouldShowForm) {
       return (
         <MainFormArea
           currentStep={currentStep}
@@ -540,7 +584,7 @@ export function ProfileCompletionForm() {
       );
     }
 
-    if (isVerified) {
+    if (shouldShowApproved) {
       return (
         <div className="p-4 sm:p-6 lg:p-8">
           <ApprovedApplicationStatus />
@@ -548,10 +592,24 @@ export function ProfileCompletionForm() {
       );
     }
 
+    if (shouldShowPendingStatus) {
+      return (
+        <div className="p-4 sm:p-6 lg:p-8">
+          <ApplicationStatusSection />
+        </div>
+      );
+    }
+
     return (
-      <div className="p-4 sm:p-6 lg:p-8">
-        <ApplicationStatusSection />
-      </div>
+      <MainFormArea
+        currentStep={currentStep}
+        formData={formData}
+        onFormChange={handleFormChange}
+        onGuarantorsChange={handleGuarantorsChange}
+        onContinue={handleContinue}
+        onSave={handleSave}
+        onSubmit={handleSubmit}
+      />
     );
   };
 
