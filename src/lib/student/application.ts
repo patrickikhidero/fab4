@@ -30,6 +30,7 @@ export interface StudentProfileData {
 }
 
 export interface StudentProfileResponse {
+  application_status: string | null | undefined
   id: string
   user: number
   first_name: string | null

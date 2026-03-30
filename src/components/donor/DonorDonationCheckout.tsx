@@ -3,7 +3,6 @@
 import React, { useMemo, useState } from "react";
 import Link from "next/link";
 import { ArrowLeft, ChevronDown } from "lucide-react";
-import { useRouter } from "next/navigation";
 import { FooterLinks } from "@/components/shared/FooterLinks";
 
 export interface DonorDonationCheckoutData {
@@ -17,6 +16,12 @@ export interface DonorDonationCheckoutData {
 
 interface DonorDonationCheckoutProps {
   campaign: DonorDonationCheckoutData;
+  currency?: string;
+  onDonate: (payload: {
+    amount: number;
+    paymentMethod: "paystack" | "googlepay" | "stripe";
+    anonymous: boolean;
+  }) => Promise<void>;
 }
 
 const PRESET_AMOUNTS = [10, 20, 30, 40, 50, 60, 70];
@@ -25,14 +30,16 @@ type PaymentMethod = "paystack" | "googlepay" | "stripe";
 
 export function DonorDonationCheckout({
   campaign,
+  currency = "USD",
+  onDonate,
 }: DonorDonationCheckoutProps) {
-  const router = useRouter();
-
   const [selectedAmount, setSelectedAmount] = useState<number>(20);
   const [customAmount, setCustomAmount] = useState<string>("20");
   const [paymentMethod, setPaymentMethod] =
     useState<PaymentMethod>("googlepay");
   const [anonymous, setAnonymous] = useState(true);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
 
   const numericAmount = useMemo(() => {
     const parsed = Number(customAmount);
@@ -45,16 +52,28 @@ export function DonorDonationCheckout({
     setCustomAmount(String(amount));
   };
 
-  const handleDonate = () => {
-    if (!numericAmount || numericAmount <= 0) return;
+  const handleDonate = async () => {
+    if (!numericAmount || numericAmount <= 0 || isSubmitting) return;
 
-    const params = new URLSearchParams({
-      amount: String(numericAmount),
-      method: paymentMethod,
-      anonymous: String(anonymous),
-    });
+    try {
+      setIsSubmitting(true);
+      setSubmitError(null);
 
-    router.push(`/donor/campaigns/${campaign.id}/success?${params.toString()}`);
+      await onDonate({
+        amount: numericAmount,
+        paymentMethod,
+        anonymous,
+      });
+    } catch (err: any) {
+      console.error("Donation checkout failed", err);
+      setSubmitError(
+        err?.response?.data?.detail ||
+          err?.message ||
+          "Unable to start donation checkout."
+      );
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -157,26 +176,26 @@ export function DonorDonationCheckout({
 
               <div className="ml-3 inline-flex shrink-0 items-center gap-2 rounded-full border border-[rgba(39,38,53,0.08)] bg-white px-3 py-2 text-[12px] text-[rgba(39,38,53,0.7)]">
                 <span>🇺🇸</span>
-                <span>USD</span>
+                <span>{currency}</span>
               </div>
             </div>
           </div>
 
           <div className="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-3">
             <PaymentOption
-              label="Pay"
+              label="Paystack"
               active={paymentMethod === "paystack"}
               onClick={() => setPaymentMethod("paystack")}
             />
 
             <PaymentOption
-              label="G Pay"
+              label="G Pay / Stripe"
               active={paymentMethod === "googlepay"}
               onClick={() => setPaymentMethod("googlepay")}
             />
 
             <PaymentOption
-              label="stripe"
+              label="Stripe"
               active={paymentMethod === "stripe"}
               onClick={() => setPaymentMethod("stripe")}
             />
@@ -201,17 +220,23 @@ export function DonorDonationCheckout({
             </span>
           </label>
 
+          {submitError ? (
+            <p className="mt-4 text-[13px] text-red-600">{submitError}</p>
+          ) : null}
+
           <button
             type="button"
             onClick={handleDonate}
-            disabled={numericAmount <= 0}
+            disabled={numericAmount <= 0 || isSubmitting}
             className="mt-8 flex h-12 w-full items-center justify-center rounded-[10px] bg-[#153f30] text-[14px] text-white transition hover:opacity-95 disabled:cursor-not-allowed disabled:opacity-50"
           >
-            {paymentMethod === "googlepay"
+            {isSubmitting
+              ? "Processing..."
+              : paymentMethod === "googlepay"
               ? `Pay with GooglePay`
               : paymentMethod === "stripe"
               ? "Continue with Stripe"
-              : "Continue to Pay"}
+              : "Continue to Paystack"}
           </button>
 
           <div className="mt-6 rounded-[14px] border border-[rgba(39,38,53,0.08)] bg-[#fbfbf8] px-4 py-4 text-[12px] leading-5 text-[rgba(39,38,53,0.6)]">

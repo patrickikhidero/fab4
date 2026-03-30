@@ -78,7 +78,7 @@ export function DonorSidebar({
     }
 
     if (section === "students") {
-      router.push("/donor?tab=students");
+      router.push("/donor/students");
     }
   };
 
@@ -86,7 +86,7 @@ export function DonorSidebar({
     <>
       <div className="fixed left-0 right-0 top-0 z-50 flex h-[60px] items-center justify-between border-b border-[rgba(39,38,53,0.08)] bg-white px-4 lg:hidden">
         <img
-          src="/assets/logo.svg"
+          src="/assets/logo.jpg"
           alt="FabFour Foundation"
           className="h-5 w-auto opacity-60"
         />

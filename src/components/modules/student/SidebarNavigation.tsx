@@ -78,7 +78,7 @@ export function SidebarNavigation({
       {/* MOBILE HEADER */}
       <div className="lg:hidden fixed top-0 left-0 right-0 h-[60px] bg-white z-50 flex items-center justify-between px-4 border-b">
         <img
-          src="/assets/logo.svg"
+          src="/assets/logo.jpg"
           alt="logo"
           className="h-5 opacity-60"
         />

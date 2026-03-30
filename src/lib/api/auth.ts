@@ -2,8 +2,12 @@ import { api } from "./client";
 
 export type LoginRequest = {
   email: string;
-  password?: string;
 };
+
+export type SignUpRequest = {
+  email: string;
+  user_type?: "STUDENT" | "DONOR";
+}
 
 export type LoginResponse = {
   access?: string;
@@ -35,6 +39,11 @@ export type AuthenticateResponse = {
 
 export async function login(payload: LoginRequest) {
   const res = await api.post<LoginResponse>("/authentications/login/", payload);
+  return res.data;
+}
+
+export async function signup(payload: SignUpRequest){
+  const res = await api.post<SignUpRequest>("/authentications/signup/", payload);
   return res.data;
 }
 

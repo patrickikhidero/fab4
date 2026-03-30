@@ -1,3 +1,5 @@
+
+
 "use client";
 
 import React, { useEffect, useMemo, useState } from "react";
@@ -70,6 +72,17 @@ function resolveActiveSection(pathname: string): DashboardSection {
   return "application";
 }
 
+function isStudentAuthRoute(pathname: string) {
+  return (
+    pathname === "/student/signup" ||
+    pathname.startsWith("/student/signup/") ||
+    pathname === "/student/login" ||
+    pathname.startsWith("/student/login/") ||
+    pathname === "/student/signin" ||
+    pathname.startsWith("/student/signin/")
+  );
+}
+
 function TopRightHeader({
   onConversations,
 }: {
@@ -98,9 +111,10 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const router = useRouter();
   const pathname = usePathname();
 
+  const isAuthPage = isStudentAuthRoute(pathname);
   const activeSection = useMemo(() => resolveActiveSection(pathname), [pathname]);
 
-  const [isLoadingSidebar, setIsLoadingSidebar] = useState(true);
+  const [isLoadingSidebar, setIsLoadingSidebar] = useState(!isAuthPage);
   const [isVerified, setIsVerified] = useState(false);
   const [me, setMe] = useState<MeResponse | null>(null);
 
@@ -115,6 +129,11 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const currentStep = 1;
 
   useEffect(() => {
+    if (isAuthPage) {
+      setIsLoadingSidebar(false);
+      return;
+    }
+
     const run = async () => {
       try {
         setIsLoadingSidebar(true);
@@ -212,7 +231,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     };
 
     run();
-  }, [router]);
+  }, [isAuthPage, router]);
 
   const onNavigationChange = (section: DashboardSection) => {
     switch (section) {
@@ -232,6 +251,10 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         router.push("/student/dashboard/application/profile");
     }
   };
+
+  if (isAuthPage) {
+    return <>{children}</>;
+  }
 
   return (
     <div className="min-h-screen bg-[#eceee4] lg:flex">
