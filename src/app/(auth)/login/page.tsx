@@ -84,7 +84,7 @@ export default function LoginPage() {
           <div className="flex items-center justify-between gap-4">
             <div className="flex items-center">
               <Image
-                src="/assets/logo.jpg"
+                src="/assets/fabfour-logo-.png"
                 alt="FabFour Logo"
                 width={120}
                 height={40}
