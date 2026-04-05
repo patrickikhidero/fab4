@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useMemo, useState } from "react";
+import React, { use, useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { DonorSidebar } from "@/components/donor/DonorSidebar";
 import {
@@ -42,8 +42,9 @@ const campaignMap: Record<string, DonorDonationSuccessData> = {
 export default function DonorDonationSuccessPage({
   params,
 }: {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }) {
+  const { id } = use(params);
   const searchParams = useSearchParams();
 
   const [activeSection, setActiveSection] = useState<DonorSection>("campaigns");
@@ -72,7 +73,7 @@ export default function DonorDonationSuccessPage({
     };
   }, [user]);
 
-  const campaign = campaignMap[params.id] || campaignMap["1"];
+  const campaign = campaignMap[id] || campaignMap["1"];
   const amount = Number(searchParams.get("amount") || "106.5");
 
   return (

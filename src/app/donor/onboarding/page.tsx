@@ -1,46 +1,76 @@
 "use client";
 
 import Image from "next/image";
-import Link from "next/link";
-import { useState } from "react";
-import { signup } from "@/lib/api/auth";
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { patchUser } from "@/lib/api/users";
+import { getStoredUser, setAuthTokens, getAccessToken, getRefreshToken } from "@/lib/auth/storage";
 import { useToast } from "@/components/ui/toast/ToastProvider";
 import { FooterLinks } from "@/components/shared/FooterLinks";
 
-export default function DonorLoginPage() {
-  const [email, setEmail] = useState("");
+export default function DonorOnboardingPage() {
+  const router = useRouter();
+  const { showToast } = useToast();
+
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const { showToast } = useToast();
+  useEffect(() => {
+    const user = getStoredUser();
+    if (!user) {
+      router.replace("/login");
+      return;
+    }
+    if (user.first_name?.trim() && user.last_name?.trim()) {
+      router.replace("/donor");
+    }
+  }, [router]);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
 
-    if (!email.trim()) {
-      showToast("warning", "Please enter your email address.", "Missing email");
+    if (!firstName.trim()) {
+      showToast("warning", "Please enter your first name.", "Missing field");
+      return;
+    }
+
+    if (!lastName.trim()) {
+      showToast("warning", "Please enter your last name.", "Missing field");
+      return;
+    }
+
+    const user = getStoredUser();
+    if (!user?.id) {
+      showToast("error", "Session expired. Please log in again.", "Error");
+      router.replace("/login");
       return;
     }
 
     try {
       setLoading(true);
 
-      await signup({
-        email: email.trim(),
+      const updated = await patchUser(user.id, {
+        first_name: firstName.trim(),
+        last_name: lastName.trim(),
         user_type: "DONOR",
       });
 
-      showToast(
-        "success",
-        `If your email exists, a donor login link has been sent to ${email.trim()}. Please check your email.`,
-        "Login link sent"
-      );
+      setAuthTokens({
+        access: getAccessToken() || undefined,
+        refresh: getRefreshToken() || undefined,
+        user: updated,
+      });
+
+      showToast("success", "Profile completed successfully!", "Welcome");
+      router.replace("/donor");
     } catch (err: any) {
       const msg =
         err?.response?.data?.detail ||
         err?.response?.data?.message ||
-        "Failed to send login link";
+        "Failed to update profile. Please try again.";
 
-      showToast("error", msg, "Unable to continue");
+      showToast("error", msg, "Update failed");
     } finally {
       setLoading(false);
     }
@@ -105,67 +135,54 @@ export default function DonorLoginPage() {
             <div className="w-full min-w-0">
               <div className="mt-4 sm:mt-8 md:mt-16 lg:mt-24">
                 <h1 className="text-[30px] sm:text-[34px] lg:text-[38px] leading-[1.12] font-medium text-[var(--color-primary-text)] max-w-[560px]">
-                  Donor Sign Up
+                  Complete Your Profile
                 </h1>
 
                 <p className="mt-4 max-w-[420px] text-sm leading-6 text-[var(--color-muted)]">
-                  Access your donor account to support students, track giving,
-                  and manage your contributions.
+                  Tell us your name so we can personalize your donor experience.
                 </p>
 
                 <form
                   onSubmit={handleSubmit}
                   className="mt-8 sm:mt-10 w-full max-w-[700px]"
                 >
-                  <label className="mb-2 block text-xs text-[var(--color-primary-text)]">
-                    Email Address
-                  </label>
-
-                  <div className="relative grid grid-cols-1 md:grid-cols-1 gap-4 md:gap-x-12 lg:gap-x-20 items-start">
-                    <div className="space-y-4">
+                  <div className="space-y-5">
+                    <div>
+                      <label className="mb-2 block text-xs text-[var(--color-primary-text)]">
+                        First Name
+                      </label>
                       <input
-                        type="email"
-                        placeholder="example@email.com"
+                        type="text"
+                        placeholder="Enter your first name"
                         className="input-field w-full"
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
+                        value={firstName}
+                        onChange={(e) => setFirstName(e.target.value)}
+                        disabled={loading}
+                        autoFocus
+                      />
+                    </div>
+
+                    <div>
+                      <label className="mb-2 block text-xs text-[var(--color-primary-text)]">
+                        Last Name
+                      </label>
+                      <input
+                        type="text"
+                        placeholder="Enter your last name"
+                        className="input-field w-full"
+                        value={lastName}
+                        onChange={(e) => setLastName(e.target.value)}
                         disabled={loading}
                       />
-
-                      <button
-                        type="submit"
-                        disabled={loading}
-                        className="btn-primary w-full h-[52px] sm:h-[56px] disabled:opacity-60"
-                      >
-                        {loading ? "Sending link..." : "Continue"}
-                      </button>
                     </div>
-                  </div>
 
-                  <div className="mt-8 sm:mt-10 h-px w-full bg-[var(--color-border)]" />
-
-                  <div className="pt-4 flex flex-wrap items-center gap-x-4 gap-y-2 text-xs sm:text-sm text-[var(--color-muted)]">
-                    <span className="text-[var(--color-muted)]">
-                      Already have an account?
-                    </span>
-
-                    <Link
-                      href="/login"
-                      className="inline-flex items-center gap-2 hover:text-[var(--color-primary-text)]"
+                    <button
+                      type="submit"
+                      disabled={loading}
+                      className="btn-primary w-full h-[52px] sm:h-[56px] disabled:opacity-60"
                     >
-                      <span>Login</span>
-                      <span>↗</span>
-                    </Link>
-
-                    <span className="hidden sm:inline opacity-40">|</span>
-
-                    <Link
-                      href="/student/signup"
-                      className="inline-flex items-center gap-2 hover:text-[var(--color-primary-text)]"
-                    >
-                      <span>Sign Up as Student</span>
-                      <span>↗</span>
-                    </Link>
+                      {loading ? "Saving..." : "Continue"}
+                    </button>
                   </div>
                 </form>
               </div>
@@ -235,39 +252,5 @@ export default function DonorLoginPage() {
         </footer>
       </div>
     </div>
-  );
-}
-
-function GoogleIcon() {
-  return (
-    <svg width="18" height="18" viewBox="0 0 48 48" aria-hidden="true">
-      <path
-        fill="#FFC107"
-        d="M43.611 20.083H42V20H24v8h11.303C33.824 32.477 29.277 36 24 36c-6.627 0-12-5.373-12-12s5.373-12 12-12c3.059 0 5.842 1.154 7.955 3.045l5.657-5.657C34.98 6.053 29.764 4 24 4 12.954 4 4 12.954 4 24s8.954 20 20 20 20-8.954 20-20c0-1.341-.138-2.651-.389-3.917z"
-      />
-      <path
-        fill="#FF3D00"
-        d="M6.306 14.691l6.574 4.819C14.655 15.108 18.959 12 24 12c3.059 0 5.842 1.154 7.955 3.045l5.657-5.657C34.98 6.053 29.764 4 24 4c-7.682 0-14.354 4.327-17.694 10.691z"
-      />
-      <path
-        fill="#4CAF50"
-        d="M24 44c5.657 0 10.767-2.165 14.647-5.694l-6.765-5.726C29.86 34.794 27.06 36 24 36c-5.217 0-9.588-3.317-11.292-7.946l-6.525 5.025C9.496 39.556 16.227 44 24 44z"
-      />
-      <path
-        fill="#1976D2"
-        d="M43.611 20.083H42V20H24v8h11.303a12.06 12.06 0 0 1-4.421 5.58l6.765 5.726C36.882 40.007 44 35 44 24c0-1.341-.138-2.651-.389-3.917z"
-      />
-    </svg>
-  );
-}
-
-function AppleIcon() {
-  return (
-    <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true">
-      <path
-        fill="currentColor"
-        d="M16.7 2.3c-.9.1-2 .7-2.6 1.5-.6.7-1.1 1.9-.9 3.1 1 0 2-.6 2.7-1.4.6-.8 1.1-1.9.8-3.2zM20.4 17.1c-.4.9-.6 1.3-1.1 2.1-.7 1.1-1.7 2.5-2.9 2.5-1.1 0-1.4-.7-2.9-.7s-1.9.7-3 .7c-1.2 0-2.1-1.3-2.8-2.4-1.6-2.3-2.9-6.5-1.2-9.3.8-1.4 2.3-2.3 3.9-2.3 1.2 0 2.4.8 3 .8.6 0 2-.9 3.4-.8.6 0 2.3.2 3.4 1.7-2.9 1.6-2.4 5.9.2 7z"
-      />
-    </svg>
   );
 }

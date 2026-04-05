@@ -37,7 +37,7 @@ export async function listDonorCampaigns(params?: {
   drafted?: boolean;
   end_date?: string;
 }) {
-  const res = await api.get<Paginated<DonorCampaign>>("/ff-admin/campaigns/", {
+  const res = await api.get<Paginated<DonorCampaign>>("/students/campaign/", {
     params,
   });
   return res.data;
@@ -56,7 +56,9 @@ export async function listStudentCampaigns(studentId: number, params?: {
 
 export async function getDonorCampaign(id: number) {
   const firstPage = await listDonorCampaigns({ limit: 100, offset: 0 });
-  const found = firstPage.results.find((item) => Number(item.id) === Number(id));
+  const found = firstPage.results.find(
+    (item) => Number(item.id) === Number(id) && item.accepted === true && item.drafted === false
+  );
   if (found) return found;
 
   throw new Error("Campaign not found");

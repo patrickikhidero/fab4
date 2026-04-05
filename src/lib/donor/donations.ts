@@ -55,7 +55,7 @@ export type CreateDonationPayload = {
   currency: string;
   donor_type: DonorType;
   campaign: number;
-  wallet: number;
+  wallet?: number;
 };
 
 export type CreateDonationParams = {

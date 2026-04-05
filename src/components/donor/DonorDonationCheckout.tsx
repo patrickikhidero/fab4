@@ -66,10 +66,18 @@ export function DonorDonationCheckout({
       });
     } catch (err: any) {
       console.error("Donation checkout failed", err);
-      setSubmitError(
+      const rawMsg =
         err?.response?.data?.detail ||
-          err?.message ||
-          "Unable to start donation checkout."
+        err?.response?.data?.errors?.[0]?.detail ||
+        "";
+
+      const isSensitive =
+        !rawMsg || rawMsg.includes("sk_") || rawMsg.includes("Stripe");
+
+      setSubmitError(
+        isSensitive
+          ? "Something went wrong processing your payment. Please try again or contact support."
+          : rawMsg
       );
     } finally {
       setIsSubmitting(false);

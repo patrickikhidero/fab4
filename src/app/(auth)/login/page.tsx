@@ -257,7 +257,7 @@ export default function LoginPage() {
         <footer className="absolute bottom-0 left-0 w-screen bg-[var(--color-surface)] border-t border-[var(--color-border)]">
           <div className="mx-auto max-w-[1440px] px-4 sm:px-6 min-h-[64px] py-3 md:h-[64px] flex flex-col md:flex-row items-center justify-between gap-2 text-[11px] sm:text-xs text-[var(--color-muted)]">
             <div className="text-center md:text-left">
-              © 2024 FabFour Foundation. All rights reserved.
+              © {new Date().getFullYear()} FabFour Foundation. All rights reserved.
             </div>
             <FooterLinks className="flex flex-wrap items-center justify-center md:justify-end gap-x-4 sm:gap-x-6 gap-y-1" />
           </div>

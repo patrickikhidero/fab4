@@ -76,3 +76,32 @@ export async function updateUser(userId: number, payload: UpdateUserPayload) {
   const res = await api.put<MeResponse>(`/api/users/${userId}/`, payload);
   return res.data;
 }
+
+export type PatchUserPayload = {
+  first_name?: string;
+  last_name?: string;
+  user_type?: string;
+  mfa_enabled?: boolean;
+  photo?: string;
+};
+
+export async function patchUser(userId: number, payload: PatchUserPayload) {
+  const res = await api.patch<MeResponse>(`/api/users/${userId}/`, payload);
+  return res.data;
+}
+
+export async function patchUserWithPhoto(
+  userId: number,
+  payload: PatchUserPayload & { photoFile?: File }
+) {
+  const formData = new FormData();
+  if (payload.first_name) formData.append("first_name", payload.first_name);
+  if (payload.last_name) formData.append("last_name", payload.last_name);
+  if (payload.user_type) formData.append("user_type", payload.user_type);
+  if (payload.photoFile) formData.append("photo", payload.photoFile);
+
+  const res = await api.patch<MeResponse>(`/api/users/${userId}/`, formData, {
+    headers: { "Content-Type": "multipart/form-data" },
+  });
+  return res.data;
+}
