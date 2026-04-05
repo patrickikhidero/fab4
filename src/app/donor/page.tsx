@@ -74,7 +74,11 @@ export default function DonorPage() {
           drafted: false,
         });
 
-        setCampaigns(res.results.map(mapCampaignToGridItem));
+        setCampaigns(
+          res.results
+            .filter((c) => c.accepted === true && c.drafted === false)
+            .map(mapCampaignToGridItem)
+        );
       } catch (err: any) {
         console.error("Failed to load donor campaigns", err);
         setError(

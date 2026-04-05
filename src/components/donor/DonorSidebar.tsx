@@ -86,7 +86,7 @@ export function DonorSidebar({
     <>
       <div className="fixed left-0 right-0 top-0 z-50 flex h-[60px] items-center justify-between border-b border-[rgba(39,38,53,0.08)] bg-white px-4 lg:hidden">
         <img
-          src="/assets/logo.jpg"
+          src="/assets/fabfour-logo-.png"
           alt="FabFour Foundation"
           className="h-5 w-auto opacity-60"
         />
@@ -129,7 +129,7 @@ export function DonorSidebar({
             <div className="flex w-[300px] flex-col gap-6 pt-10 lg:pt-16">
               <div className="flex w-full flex-col items-start justify-center gap-10 px-10">
                 <img
-                  src="/assets/logo.svg"
+                  src="/assets/fabfour-logo-.png"
                   alt="FabFour Foundation"
                   className="h-6 w-auto opacity-60"
                 />
@@ -221,7 +221,7 @@ export function DonorSidebar({
             <div className="mt-6 h-px w-[220px] bg-[rgba(39,38,53,0.08)]" />
 
             <p className="mt-5 w-[220px] text-[11px] leading-4 text-[rgba(39,38,53,0.45)]">
-              © 2024 FabFour Foundation. All rights reserved.
+              © {new Date().getFullYear()} FabFour Foundation. All rights reserved.
             </p>
           </div>
         </div>

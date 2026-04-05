@@ -17,6 +17,10 @@ function isDonorAuthRoute(pathname: string) {
   return pathname === "/donor/signup" || pathname.startsWith("/donor/signup/");
 }
 
+function isDonorOnboardingRoute(pathname: string) {
+  return pathname === "/donor/onboarding" || pathname.startsWith("/donor/onboarding/");
+}
+
 function isStudentAuthRoute(pathname: string) {
   return (
     pathname === "/student/signup" ||
@@ -25,7 +29,11 @@ function isStudentAuthRoute(pathname: string) {
 }
 
 function isDonorProtectedRoute(pathname: string) {
-  return pathname.startsWith("/donor") && !isDonorAuthRoute(pathname);
+  return (
+    pathname.startsWith("/donor") &&
+    !isDonorAuthRoute(pathname) &&
+    !isDonorOnboardingRoute(pathname)
+  );
 }
 
 function isAuthRoute(pathname: string) {
@@ -78,6 +86,15 @@ export function RequireAuth({ children }: { children: React.ReactNode }) {
 
     if (isDonorProtectedRoute(pathname) && userType !== "DONOR") {
       router.replace(getDefaultRouteByUserType(userType));
+      return;
+    }
+
+    if (
+      isDonorProtectedRoute(pathname) &&
+      userType === "DONOR" &&
+      (!user.first_name?.trim() || !user.last_name?.trim())
+    ) {
+      router.replace("/donor/onboarding");
       return;
     }
   }, [pathname, router]);

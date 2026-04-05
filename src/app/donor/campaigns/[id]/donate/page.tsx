@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useMemo, useState } from "react";
+import React, { use, useEffect, useMemo, useState } from "react";
 import { DonorSidebar } from "@/components/donor/DonorSidebar";
 import {
   DonorDonationCheckout,
@@ -8,7 +8,6 @@ import {
 } from "@/components/donor/DonorDonationCheckout";
 import { getStoredUser } from "@/lib/auth/storage";
 import { getDonorCampaign } from "@/lib/donor/campaigns";
-import { getWalletForStudent } from "@/lib/donor/wallets";
 import {
   createDonation,
   type Donation,
@@ -28,13 +27,12 @@ type StoredUser = {
 export default function DonorDonatePage({
   params,
 }: {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }) {
+  const { id } = use(params);
   const [activeSection, setActiveSection] = useState<DonorSection>("campaigns");
   const [user, setUser] = useState<StoredUser | null>(null);
   const [campaign, setCampaign] = useState<DonorDonationCheckoutData | null>(null);
-  const [studentId, setStudentId] = useState<number | null>(null);
-  const [walletId, setWalletId] = useState<number | null>(null);
   const [currency, setCurrency] = useState<string>("USD");
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -50,19 +48,10 @@ export default function DonorDonatePage({
         setIsLoading(true);
         setError(null);
 
-        const campaignId = Number(params.id);
+        const campaignId = Number(id);
         const campaignRes = await getDonorCampaign(campaignId);
 
-        setStudentId(Number(campaignRes.student ?? 0));
         setCurrency(campaignRes.currency || "USD");
-
-        if (campaignRes.student) {
-          const wallet = await getWalletForStudent(Number(campaignRes.student));
-          if (!wallet) {
-            throw new Error("No wallet found for the campaign student.");
-          }
-          setWalletId(wallet.id);
-        }
 
         setCampaign({
           id: campaignRes.id,
@@ -87,7 +76,7 @@ export default function DonorDonatePage({
     };
 
     run();
-  }, [params.id]);
+  }, [id]);
 
   const userData = useMemo(() => {
     const firstName = user?.first_name?.trim() || "";
@@ -107,13 +96,13 @@ export default function DonorDonatePage({
     anonymous: boolean;
   }) => {
     if (!campaign) throw new Error("Campaign is missing.");
-    if (!walletId) throw new Error("Student wallet not found.");
-    if (!studentId) throw new Error("Student not found for campaign.");
 
     const provider =
       payload.paymentMethod === "paystack" ? "PAYSTACK" : "STRIPE";
 
     const donorType = payload.anonymous ? "GOOD_SAMARITAN" : "GUARDIAN";
+
+    const effectiveCurrency = provider === "STRIPE" ? "USD" : currency;
 
     const origin =
       typeof window !== "undefined" ? window.location.origin : "";
@@ -122,10 +111,9 @@ export default function DonorDonatePage({
       {
         amount: payload.amount,
         payment_providers: provider,
-        currency,
+        currency: effectiveCurrency,
         donor_type: donorType,
         campaign: campaign.id,
-        wallet: walletId,
       },
       {
         return_url: `${origin}/donor/campaigns/${campaign.id}/donate`,
@@ -168,7 +156,7 @@ export default function DonorDonatePage({
               <DonorDonationCheckout
                 campaign={campaign}
                 onDonate={handleCreateDonation}
-                currency={currency}
+                currency="USD"
               />
             ) : null}
           </div>

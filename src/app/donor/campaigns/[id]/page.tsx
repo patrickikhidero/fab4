@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useMemo, useState } from "react";
+import React, { use, useEffect, useMemo, useState } from "react";
 import { DonorSidebar } from "@/components/donor/DonorSidebar";
 import {
   DonorCampaignDetails,
@@ -37,8 +37,9 @@ function prettifyNeed(value: string) {
 export default function DonorCampaignDetailsPage({
   params,
 }: {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }) {
+  const { id } = use(params);
   const [activeSection, setActiveSection] =
     useState<DonorSection>("campaigns");
   const [user, setUser] = useState<StoredUser | null>(null);
@@ -57,11 +58,15 @@ export default function DonorCampaignDetailsPage({
         setIsLoading(true);
         setError(null);
 
-        const campaignId = Number(params.id);
-        const [campaignRes, donationsRes] = await Promise.all([
-          getDonorCampaign(campaignId),
-          listCampaignDonations(campaignId, { limit: 20, offset: 0 }),
-        ]);
+        const campaignId = Number(id);
+        const campaignRes = await getDonorCampaign(campaignId);
+
+        let donationsRes: { count: number; results: any[] } = { count: 0, results: [] };
+        try {
+          donationsRes = await listCampaignDonations(campaignId, { limit: 20, offset: 0 });
+        } catch {
+          console.warn("Could not load donation history for campaign", campaignId);
+        }
 
         const mapped: DonorCampaignDetailsData = {
           id: campaignRes.id,
@@ -106,7 +111,7 @@ export default function DonorCampaignDetailsPage({
     };
 
     run();
-  }, [params.id]);
+  }, [id]);
 
   const userData = useMemo(() => {
     const firstName = user?.first_name?.trim() || "";

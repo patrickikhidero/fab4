@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import Link from "next/link";
 import { FooterLinks } from "@/components/shared/FooterLinks";
 import {
@@ -53,6 +53,23 @@ interface DonorCampaignDetailsProps {
 export function DonorCampaignDetails({
   campaign,
 }: DonorCampaignDetailsProps) {
+  const [copied, setCopied] = useState(false);
+
+  const handleShare = async () => {
+    const url = `${window.location.origin}/donor/campaigns/${campaign.id}`;
+    if (navigator.share) {
+      try {
+        await navigator.share({ title: campaign.title, url });
+      } catch {}
+      return;
+    }
+    try {
+      await navigator.clipboard.writeText(url);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch {}
+  };
+
   return (
     <div className="w-full overflow-hidden rounded-[24px] border border-[rgba(39,38,53,0.06)] bg-white shadow-[0_10px_40px_rgba(0,0,0,0.03)]">
       {/* TOP BAR */}
@@ -97,10 +114,15 @@ export function DonorCampaignDetails({
 
           <button
             type="button"
-            className="inline-flex items-center gap-2 self-start text-[13px] text-[rgba(39,38,53,0.7)]"
+            onClick={handleShare}
+            className="inline-flex items-center gap-2 self-start text-[13px] text-[rgba(39,38,53,0.7)] hover:text-[#198754] transition-colors"
           >
-            <span>Share Campaign</span>
-            <ExternalLink className="h-4 w-4 text-[#198754]" />
+            <span>{copied ? "Link Copied!" : "Share Campaign"}</span>
+            {copied ? (
+              <Check className="h-4 w-4 text-[#198754]" />
+            ) : (
+              <ExternalLink className="h-4 w-4 text-[#198754]" />
+            )}
           </button>
         </div>
 

@@ -47,7 +47,13 @@ export default function AuthenticatePage() {
           user: me,
         });
 
-        const destination = getDefaultRouteByUserType(me?.user_type);
+        const isDonorWithoutName =
+          me?.user_type?.toUpperCase() === "DONOR" &&
+          (!me?.first_name?.trim() || !me?.last_name?.trim());
+
+        const destination = isDonorWithoutName
+          ? "/donor/onboarding"
+          : getDefaultRouteByUserType(me?.user_type);
         router.replace(destination);
       } catch (err: any) {
         console.error("Authentication failed:", err);

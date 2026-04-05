@@ -78,7 +78,7 @@ export function SidebarNavigation({
       {/* MOBILE HEADER */}
       <div className="lg:hidden fixed top-0 left-0 right-0 h-[60px] bg-white z-50 flex items-center justify-between px-4 border-b">
         <img
-          src="/assets/logo.jpg"
+          src="/assets/fabfour-logo-.png"
           alt="logo"
           className="h-5 opacity-60"
         />
@@ -119,7 +119,7 @@ export function SidebarNavigation({
             <div className="flex flex-col gap-6 pt-10 lg:pt-16 w-[300px]">
               <div className="flex flex-col gap-10 items-start justify-center px-10 w-full">
                 <img
-                  src="/assets/logo.svg"
+                  src="/assets/fabfour-logo-.png"
                   alt="FabFour Foundation"
                   className="h-6 w-auto opacity-60"
                 />
