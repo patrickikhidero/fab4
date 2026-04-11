@@ -175,11 +175,22 @@ export default function WalletPage() {
         {/* Mobile cards */}
         <div className="mt-4 lg:hidden">
           {loading ? (
-            <div className="rounded-[16px] border border-[rgba(39,38,53,0.08)] bg-white px-4 py-10 text-[13px] text-[rgba(39,38,53,0.6)]">
-              Loading...
+            <div className="rounded-[16px] border border-[rgba(39,38,53,0.08)] bg-white animate-pulse">
+              <div className="divide-y divide-[rgba(39,38,53,0.08)]">
+                {Array.from({ length: 5 }).map((_, i) => (
+                  <div key={i} className="px-4 py-4 space-y-2">
+                    <div className="flex items-center justify-between">
+                      <div className="h-4 w-24 rounded bg-gray-200" />
+                      <div className="h-5 w-16 rounded-full bg-gray-200" />
+                    </div>
+                    <div className="h-3 w-32 rounded bg-gray-200" />
+                    <div className="h-3 w-20 rounded bg-gray-200" />
+                  </div>
+                ))}
+              </div>
             </div>
           ) : filteredRows.length === 0 ? (
-            <div className="rounded-[16px] border border-[rgba(39,38,53,0.08)] bg-white">
+            <div className="rounded-[16px] border border-[rgba(39,38,53,0.08)] bg-white min-h-[320px]">
               <EmptyState />
             </div>
           ) : (
@@ -192,8 +203,18 @@ export default function WalletPage() {
           <TableHeader />
 
           {loading ? (
-            <div className="px-6 py-14 text-[13px] text-[rgba(39,38,53,0.6)]">
-              Loading...
+            <div className="animate-pulse">
+              <div className="divide-y divide-[rgba(39,38,53,0.08)]">
+                {Array.from({ length: 5 }).map((_, i) => (
+                  <div key={i} className="grid grid-cols-5 gap-4 px-6 py-4">
+                    <div className="h-4 w-20 rounded bg-gray-200" />
+                    <div className="h-4 w-20 rounded bg-gray-200" />
+                    <div className="h-4 w-16 rounded bg-gray-200" />
+                    <div className="h-4 w-20 rounded bg-gray-200" />
+                    <div className="h-5 w-16 rounded-full bg-gray-200" />
+                  </div>
+                ))}
+              </div>
             </div>
           ) : filteredRows.length === 0 ? (
             <EmptyState />

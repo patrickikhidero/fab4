@@ -120,13 +120,58 @@ export default function DonorPage() {
             {activeSection === "campaigns" && (
               <>
                 {isLoading ? (
-                  <div className="rounded-[24px] bg-white border border-[rgba(39,38,53,0.06)] px-6 py-10 lg:px-10">
-                    <p className="text-[14px] text-[rgba(39,38,53,0.65)]">
-                      Loading campaigns...
-                    </p>
+                  <div className="w-full overflow-hidden rounded-[24px] border border-[rgba(39,38,53,0.06)] bg-white shadow-[0_10px_40px_rgba(0,0,0,0.03)]">
+                    <div className="flex flex-col gap-4 border-b border-[rgba(39,38,53,0.06)] px-4 py-4 sm:px-6 lg:px-10 lg:py-6">
+                      <div className="flex items-center justify-end">
+                        <div className="h-4 w-16 animate-pulse rounded bg-gray-200" />
+                      </div>
+                      <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+                        <div className="h-11 w-full lg:max-w-[360px] animate-pulse rounded-full bg-gray-200" />
+                        <div className="flex gap-3 lg:gap-6">
+                          <div className="h-11 w-36 animate-pulse rounded-full bg-gray-200" />
+                          <div className="h-11 w-36 animate-pulse rounded-full bg-gray-200" />
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="px-4 py-6 sm:px-6 lg:px-10 lg:py-8">
+                      <div className="mb-8">
+                        <div className="h-8 w-3/4 animate-pulse rounded bg-gray-200" />
+                        <div className="mt-2 h-4 w-1/2 animate-pulse rounded bg-gray-200" />
+                      </div>
+
+                      <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 xl:grid-cols-3">
+                        {Array.from({ length: 6 }).map((_, i) => (
+                          <div key={i}>
+                            <div className="h-[220px] w-full animate-pulse rounded-[24px] bg-gray-200" />
+                            <div className="mt-3 flex items-start justify-between gap-3">
+                              <div className="flex-1">
+                                <div className="h-5 w-3/4 animate-pulse rounded bg-gray-200" />
+                                <div className="mt-2 h-3 w-16 animate-pulse rounded bg-gray-200" />
+                                <div className="mt-1 h-4 w-20 animate-pulse rounded bg-gray-200" />
+                              </div>
+                              <div className="h-10 w-10 animate-pulse rounded-full bg-gray-200" />
+                            </div>
+                            <div className="mt-3 flex gap-2">
+                              <div className="h-6 w-16 animate-pulse rounded-full bg-gray-200" />
+                              <div className="h-6 w-20 animate-pulse rounded-full bg-gray-200" />
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+
+                      <div className="mt-10 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+                        <div className="h-4 w-40 animate-pulse rounded bg-gray-200" />
+                        <div className="flex gap-2">
+                          {Array.from({ length: 5 }).map((_, i) => (
+                            <div key={i} className="h-9 w-9 animate-pulse rounded-[10px] bg-gray-200" />
+                          ))}
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 ) : error ? (
-                  <div className="rounded-[24px] bg-white border border-[rgba(39,38,53,0.06)] px-6 py-10 lg:px-10">
+                  <div className="min-h-[calc(100vh-120px)] rounded-[24px] bg-white border border-[rgba(39,38,53,0.06)] px-6 py-10 lg:px-10">
                     <h2 className="text-[28px] text-[#272635]">Campaigns</h2>
                     <p className="mt-2 text-[14px] text-red-600">{error}</p>
                   </div>

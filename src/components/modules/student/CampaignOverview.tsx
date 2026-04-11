@@ -208,7 +208,63 @@ export function CampaignOverview() {
   }, []);
 
   if (loading) {
-    return <div className="py-24 text-center text-[#272635]">Loading...</div>;
+    return (
+      <div className="max-w-6xl mx-auto min-w-0 animate-pulse">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
+          <div className="h-7 w-36 rounded bg-gray-200" />
+          <div className="h-5 w-32 rounded bg-gray-200" />
+        </div>
+        <div className="flex flex-col xl:flex-row gap-6 xl:gap-10 items-start mb-10">
+          <div className="shrink-0 w-full xl:w-auto">
+            <div className="h-5 w-48 rounded bg-gray-200" />
+            <div className="mt-2 h-4 w-full xl:w-[277px] rounded bg-gray-200" />
+            <div className="mt-1 h-4 w-3/4 xl:w-[200px] rounded bg-gray-200" />
+          </div>
+          <div className="flex-1 grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-5 w-full">
+            <div className="rounded-[12px] p-4 border border-[rgba(39,38,53,0.1)] h-[140px]">
+              <div className="h-4 w-28 rounded bg-gray-200" />
+              <div className="mt-3 h-7 w-32 rounded bg-gray-200" />
+              <div className="mt-4 h-4 w-20 rounded bg-gray-200" />
+            </div>
+            <div className="rounded-[12px] p-4 border border-[rgba(39,38,53,0.1)] h-[140px]">
+              <div className="h-4 w-32 rounded bg-gray-200" />
+              <div className="mt-3 h-7 w-28 rounded bg-gray-200" />
+              <div className="mt-4 h-4 w-24 rounded bg-gray-200" />
+            </div>
+          </div>
+        </div>
+        <div className="mb-6">
+          <div className="h-5 w-40 rounded bg-gray-200" />
+          <div className="mt-2 h-4 w-72 rounded bg-gray-200" />
+        </div>
+        <div className="flex gap-6 mb-6">
+          <div className="h-4 w-20 rounded bg-gray-200" />
+          <div className="h-4 w-20 rounded bg-gray-200" />
+          <div className="h-4 w-28 rounded bg-gray-200" />
+        </div>
+        <div className="rounded-[12px] border border-[rgba(39,38,53,0.08)] overflow-hidden">
+          <div className="grid grid-cols-4 gap-4 px-6 py-4 bg-[rgba(39,38,53,0.03)]">
+            <div className="h-3 w-16 rounded bg-gray-200" />
+            <div className="h-3 w-12 rounded bg-gray-200" />
+            <div className="h-3 w-16 rounded bg-gray-200" />
+            <div className="h-3 w-10 rounded bg-gray-200" />
+          </div>
+          <div className="divide-y divide-[rgba(39,38,53,0.08)]">
+            {Array.from({ length: 5 }).map((_, i) => (
+              <div key={i} className="grid grid-cols-4 gap-4 px-6 py-4">
+                <div className="flex items-center gap-3">
+                  <div className="h-8 w-8 rounded-full bg-gray-200" />
+                  <div className="h-4 w-24 rounded bg-gray-200" />
+                </div>
+                <div className="h-4 w-16 rounded bg-gray-200" />
+                <div className="h-4 w-20 rounded bg-gray-200" />
+                <div className="h-4 w-12 rounded bg-gray-200" />
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    );
   }
 
   return (

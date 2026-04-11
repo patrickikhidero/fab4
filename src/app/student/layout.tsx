@@ -275,7 +275,26 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             />
 
             <div className="mt-6 lg:mt-8 min-w-0">
-              {isLoadingSidebar ? <div className="text-[#272635]">Loading...</div> : children}
+              {isLoadingSidebar ? (
+                <div className="min-h-[60vh] animate-pulse space-y-6">
+                  <div className="flex items-center justify-between">
+                    <div className="h-6 w-48 rounded bg-gray-200" />
+                    <div className="h-8 w-28 rounded-[10px] bg-gray-200" />
+                  </div>
+                  <div className="h-px w-full bg-gray-200" />
+                  <div className="space-y-4">
+                    {Array.from({ length: 4 }).map((_, i) => (
+                      <div key={i} className="rounded-[12px] border border-[rgba(39,38,53,0.06)] p-5">
+                        <div className="h-4 w-32 rounded bg-gray-200" />
+                        <div className="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-4">
+                          <div className="h-10 w-full rounded-[10px] bg-gray-200" />
+                          <div className="h-10 w-full rounded-[10px] bg-gray-200" />
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ) : children}
             </div>
 
             <FooterLinks />
