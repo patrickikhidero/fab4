@@ -143,13 +143,43 @@ export default function DonorDonatePage({
         <section className="min-w-0 flex-1 bg-[#efefe9] px-3 pt-[76px] sm:px-4 lg:px-6 lg:pt-7 xl:px-8">
           <div className="mx-auto max-w-[1250px] pb-8">
             {isLoading ? (
-              <div className="rounded-[24px] bg-white border border-[rgba(39,38,53,0.06)] px-6 py-10 lg:px-10">
-                <p className="text-[14px] text-[rgba(39,38,53,0.65)]">
-                  Loading donation checkout...
-                </p>
+              <div className="w-full overflow-hidden rounded-[24px] border border-[rgba(39,38,53,0.06)] bg-white shadow-[0_10px_40px_rgba(0,0,0,0.03)]">
+                <div className="flex items-center justify-end px-4 py-4 sm:px-6 lg:px-8">
+                  <div className="h-4 w-16 animate-pulse rounded bg-gray-200" />
+                </div>
+                <div className="px-4 pb-6 sm:px-6 lg:px-8 lg:pb-8">
+                  <div className="flex items-center gap-3">
+                    <div className="h-9 w-9 animate-pulse rounded-full bg-gray-200" />
+                    <div className="h-5 w-32 animate-pulse rounded bg-gray-200" />
+                  </div>
+                  <div className="mt-6 flex items-center gap-4">
+                    <div className="h-16 w-16 shrink-0 animate-pulse rounded-full bg-gray-200" />
+                    <div>
+                      <div className="h-5 w-40 animate-pulse rounded bg-gray-200" />
+                      <div className="mt-2 h-4 w-28 animate-pulse rounded bg-gray-200" />
+                    </div>
+                  </div>
+                  <div className="mt-8 max-w-[480px]">
+                    <div className="h-5 w-32 animate-pulse rounded bg-gray-200" />
+                    <div className="mt-4 flex flex-wrap gap-3">
+                      {Array.from({ length: 7 }).map((_, i) => (
+                        <div key={i} className="h-11 w-16 animate-pulse rounded-full bg-gray-200" />
+                      ))}
+                    </div>
+                    <div className="mt-6 h-12 w-full animate-pulse rounded-[12px] bg-gray-200" />
+                    <div className="mt-6 h-5 w-36 animate-pulse rounded bg-gray-200" />
+                    <div className="mt-3 space-y-3">
+                      {Array.from({ length: 3 }).map((_, i) => (
+                        <div key={i} className="h-14 w-full animate-pulse rounded-[12px] bg-gray-200" />
+                      ))}
+                    </div>
+                    <div className="mt-6 h-5 w-24 animate-pulse rounded bg-gray-200" />
+                    <div className="mt-8 h-12 w-full animate-pulse rounded-full bg-gray-200" />
+                  </div>
+                </div>
               </div>
             ) : error ? (
-              <div className="rounded-[24px] bg-white border border-[rgba(39,38,53,0.06)] px-6 py-10 lg:px-10">
+              <div className="min-h-[calc(100vh-120px)] rounded-[24px] bg-white border border-[rgba(39,38,53,0.06)] px-6 py-10 lg:px-10">
                 <p className="text-[14px] text-red-600">{error}</p>
               </div>
             ) : campaign ? (

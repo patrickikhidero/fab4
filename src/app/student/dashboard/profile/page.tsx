@@ -367,7 +367,32 @@ export default function ProfilePage() {
 
         <div className="mt-6 min-w-0">
           {loading ? (
-            <div className="text-[#272635] text-[14px]">Loading...</div>
+            <div className="animate-pulse space-y-6 min-h-[60vh]">
+              {Array.from({ length: 3 }).map((_, i) => (
+                <div key={i} className="rounded-[12px] border border-[rgba(39,38,53,0.06)] p-5">
+                  <div className="h-4 w-36 rounded bg-gray-200" />
+                  <div className="mt-1 h-3 w-56 rounded bg-gray-200" />
+                  <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                      <div className="h-3 w-20 rounded bg-gray-200" />
+                      <div className="mt-2 h-10 w-full rounded-[10px] bg-gray-200" />
+                    </div>
+                    <div>
+                      <div className="h-3 w-20 rounded bg-gray-200" />
+                      <div className="mt-2 h-10 w-full rounded-[10px] bg-gray-200" />
+                    </div>
+                    <div>
+                      <div className="h-3 w-20 rounded bg-gray-200" />
+                      <div className="mt-2 h-10 w-full rounded-[10px] bg-gray-200" />
+                    </div>
+                    <div>
+                      <div className="h-3 w-20 rounded bg-gray-200" />
+                      <div className="mt-2 h-10 w-full rounded-[10px] bg-gray-200" />
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
           ) : (
             <>
               {tab === "profile" && (

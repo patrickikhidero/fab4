@@ -132,7 +132,49 @@ export default function CampaignDetailsPage() {
   }, [campaignId]);
 
   if (loading) {
-    return <div className="py-24 text-center text-[#272635]">Loading...</div>;
+    return (
+      <div className="max-w-6xl mx-auto px-6 py-10 animate-pulse">
+        <div className="flex items-center justify-between mb-6">
+          <div className="flex items-center gap-3">
+            <div className="h-9 w-9 rounded-full bg-gray-200" />
+            <div>
+              <div className="h-5 w-64 rounded bg-gray-200" />
+              <div className="mt-2 h-3 w-40 rounded bg-gray-200" />
+            </div>
+          </div>
+          <div className="h-4 w-28 rounded bg-gray-200" />
+        </div>
+        <div className="grid grid-cols-1 lg:grid-cols-[1fr_360px] gap-8">
+          <div>
+            <div className="rounded-[16px] overflow-hidden border border-[rgba(39,38,53,0.08)] bg-white">
+              <div className="h-[260px] bg-gray-200" />
+              <div className="p-6 space-y-3">
+                <div className="flex items-center gap-3">
+                  <div className="h-12 w-12 rounded-full bg-gray-200" />
+                  <div>
+                    <div className="h-4 w-32 rounded bg-gray-200" />
+                    <div className="mt-1 h-3 w-24 rounded bg-gray-200" />
+                  </div>
+                </div>
+                <div className="h-4 w-full rounded bg-gray-200" />
+                <div className="h-4 w-3/4 rounded bg-gray-200" />
+              </div>
+            </div>
+            <div className="mt-6 space-y-3">
+              <div className="h-5 w-28 rounded bg-gray-200" />
+              <div className="h-4 w-full rounded bg-gray-200" />
+              <div className="h-4 w-full rounded bg-gray-200" />
+              <div className="h-4 w-2/3 rounded bg-gray-200" />
+            </div>
+          </div>
+          <div className="space-y-4">
+            <div className="h-40 w-full rounded-[16px] bg-gray-200" />
+            <div className="h-40 w-full rounded-[16px] bg-gray-200" />
+            <div className="h-24 w-full rounded-[16px] bg-gray-200" />
+          </div>
+        </div>
+      </div>
+    );
   }
 
   const title = `Academic Support for ${academicSession} session`;
