@@ -1,7 +1,10 @@
 'use client'
 
 import { ApplicationStatusSection } from '@/components/modules/student/ApplicationStatusSection'
-import { SidebarNavigation } from '@/components/modules/student/SidebarNavigation'
+import {
+  SidebarNavigation,
+  type StudentSidebarSection,
+} from '@/components/modules/student/SidebarNavigation'
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 
@@ -13,7 +16,8 @@ interface UserData {
 
 export default function ApplicationStatusPage() {
   const router = useRouter()
-  const [activeSection, setActiveSection] = useState<'application' | 'status' | 'campaign'>('status')
+  const [activeSection, setActiveSection] =
+    useState<StudentSidebarSection>('status')
   
   const userData: UserData = {
     name: 'Influence',
@@ -21,13 +25,17 @@ export default function ApplicationStatusPage() {
     avatar: '/images/avatars/default-avatar.png'
   }
 
-  const handleNavigationChange = (section: 'application' | 'status' | 'campaign') => {
+  const handleNavigationChange = (section: StudentSidebarSection) => {
     if (section === 'application') {
       router.push('/student/dashboard/application/profile')
     } else if (section === 'status') {
       router.push('/student/application-status')
     } else if (section === 'campaign') {
       router.push('/student/dashboard/campaign')
+    } else if (section === 'wallet') {
+      router.push('/student/dashboard/wallet')
+    } else if (section === 'conversations') {
+      router.push('/student/dashboard/conversations')
     }
     setActiveSection(section)
   }

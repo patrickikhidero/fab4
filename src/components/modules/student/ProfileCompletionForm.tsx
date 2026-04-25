@@ -1,15 +1,74 @@
+'use client'
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { SidebarNavigation } from './SidebarNavigation'
-import { MainFormArea } from './MainFormArea'
+import { useToast } from '@/components/ui/toast/ToastProvider'
+import {
+  SidebarNavigation,
+  type StudentSidebarSection,
+} from './SidebarNavigation'
+import { MainFormArea, type FormData } from './MainFormArea'
 import { ApplicationStatusSection } from './ApplicationStatusSection'
 import { ApprovedApplicationStatus } from './ApprovedApplicationStatus'
+import { getStoredUser, setAuthTokens, type StoredUser } from '@/lib/auth/storage'
+import {
+  submitStudentProfile,
+  uploadStudentDocument,
+  type StudentProfileData,
+} from '@/lib/student/application'
+
+type StoredMe = StoredUser
+
+function buildStudentProfilePayload(form: FormData): StudentProfileData {
+  const application_type: StudentProfileData['application_type'] =
+    form.applicationType === 'returning-student'
+      ? 'returning-student'
+      : 'newly-admitted'
+
+  const base: StudentProfileData = {
+    first_name: form.firstName.trim(),
+    last_name: form.lastName.trim(),
+    email: form.email.trim(),
+    phone: form.phone.trim(),
+    date_of_birth: form.dateOfBirth.trim(),
+    country: form.country.trim(),
+    state: form.state.trim(),
+    address: form.address.trim(),
+    identification: form.identification.trim(),
+    application_type,
+  }
+
+  if (application_type === 'newly-admitted') {
+    return {
+      ...base,
+      school: form.school.trim(),
+      course: form.course.trim(),
+      course_duration: form.courseDuration.trim(),
+      institution_country: form.institutionCountry.trim(),
+      institution_state: form.institutionState.trim(),
+    }
+  }
+
+  return {
+    ...base,
+    previous_school: form.previousSchool.trim(),
+    previous_course: form.previousCourse.trim(),
+    previous_gpa: form.previousGPA.trim(),
+    previous_year: form.previousYear.trim(),
+    reason_for_leaving: form.reasonForLeaving.trim(),
+  }
+}
 
 export function ProfileCompletionForm() {
   const router = useRouter()
+  const { showToast } = useToast()
+  const [error, setError] = useState<string | null>(null)
+  const [isLoading, setIsLoading] = useState(false)
+  const [, setProfileId] = useState<string | null>(null)
+  const [, setUploadedDocuments] = useState<string[]>([])
   const [currentStep, setCurrentStep] = useState(1)
-  const [activeSection, setActiveSection] = useState<'application' | 'status' | 'campaign'>('application')
+  const [activeSection, setActiveSection] =
+    useState<StudentSidebarSection>('application')
   const [applicationStatus, setApplicationStatus] = useState<'under-review' | 'approved'>('under-review')
   const [formData, setFormData] = useState({
     // Step 1: Personal Information
@@ -48,7 +107,7 @@ export function ProfileCompletionForm() {
     }));
   };
 
-  const handleGuarantorsChange = (guarantors: GuarantorForm[]) => {
+  const handleGuarantorsChange = (guarantors: FormData['guarantors']) => {
     setFormData((prev) => ({
       ...prev,
       guarantors,
@@ -58,9 +117,7 @@ export function ProfileCompletionForm() {
   const persistProfileToLocalStorage = (
     incomingProfile: Record<string, unknown>
   ) => {
-    const latestUser = ((getStoredUser() as StoredMe | null) ??
-      storedUser ??
-      {}) as StoredMe;
+    const latestUser = (getStoredUser() ?? {}) as StoredMe
 
     setAuthTokens({
       user: {
@@ -109,25 +166,28 @@ export function ProfileCompletionForm() {
       is_verified: false,
       application_status:
         response.application_status ??
-        storedProfile?.application_status ??
-        "IN_PROGRESS",
+        getStoredUser()?.student_profile?.application_status ??
+        'IN_PROGRESS',
       first_name: payload.first_name,
       last_name: payload.last_name,
       email: payload.email,
-      phone_number: payload.phone_number,
+      phone_number: payload.phone,
       date_of_birth: payload.date_of_birth,
       country: payload.country,
       state: payload.state,
-      residential_address: payload.residential_address,
-      verification_means: payload.verification_means,
-      student_entry: payload.student_entry,
-      institution: payload.institution,
-      course: payload.course,
-      course_duration: payload.course_duration,
-      level: payload.level,
-      course_country: payload.course_country,
-      course_state: payload.course_state,
-    });
+      residential_address: payload.address,
+      verification_means: payload.identification,
+      student_entry:
+        formData.applicationType === 'newly-admitted'
+          ? 'NEWLY_ADMITTED'
+          : 'RETURNING_STUDENT',
+      institution: payload.school ?? payload.previous_school ?? null,
+      course: payload.course ?? payload.previous_course ?? null,
+      course_duration: payload.course_duration ?? null,
+      level: null,
+      course_country: payload.institution_country ?? null,
+      course_state: payload.institution_state ?? null,
+    })
 
     return nextProfileId;
   };
@@ -235,20 +295,29 @@ export function ProfileCompletionForm() {
 
   const handleSave = async () => {
     setError(null);
+  };
 
   const handleSubmit = () => {
     // Handle successful submission
     console.log('Application submitted successfully:', formData)
     // You can add additional logic here like redirecting to a success page
     // or showing additional confirmation messages
-  }
+  };
 
-  const handleNavigationChange = (section: 'application' | 'status' | 'campaign') => {
+  const handleNavigationChange = (section: StudentSidebarSection) => {
     if (section === 'campaign') {
       router.push('/student/dashboard/campaign')
-    } else {
-      setActiveSection(section)
+      return
     }
+    if (section === 'wallet') {
+      router.push('/student/dashboard/wallet')
+      return
+    }
+    if (section === 'conversations') {
+      router.push('/student/dashboard/conversations')
+      return
+    }
+    setActiveSection(section)
   }
 
   const handleStatusChange = (status: 'under-review' | 'approved') => {
@@ -276,15 +345,22 @@ export function ProfileCompletionForm() {
           )}
         </div>
       ) : (
-        <MainFormArea
-          currentStep={currentStep}
-          formData={formData}
-          onFormChange={handleFormChange}
-          onGuarantorsChange={handleGuarantorsChange}
-          onContinue={handleContinue}
-          onSave={handleSave}
-          onSubmit={handleSubmit}
-        />
+        <>
+          {error ? (
+            <div className="max-w-xl rounded-[12px] border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+              {error}
+            </div>
+          ) : null}
+          <MainFormArea
+            currentStep={currentStep}
+            formData={formData}
+            onFormChange={handleFormChange}
+            onGuarantorsChange={handleGuarantorsChange}
+            onContinue={handleContinue}
+            onSave={handleSave}
+            onSubmit={handleSubmit}
+          />
+        </>
       )}
     </div>
   );

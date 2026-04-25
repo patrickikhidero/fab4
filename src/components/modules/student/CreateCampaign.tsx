@@ -2,7 +2,10 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { SidebarNavigation } from './SidebarNavigation'
+import {
+  SidebarNavigation,
+  type StudentSidebarSection,
+} from './SidebarNavigation'
 
 // Image assets from Figma design
 const imgBackArrow = '/211e63c41bedb13d7b5b07aace82fe8309636c60.svg'
@@ -88,7 +91,8 @@ export function CreateCampaign({ userData = {
 } }: CreateCampaignProps) {
   const router = useRouter()
   const [currentStage, setCurrentStage] = useState(1)
-  const [activeSection, setActiveSection] = useState<'application' | 'status' | 'campaign'>('campaign')
+  const [activeSection, setActiveSection] =
+    useState<StudentSidebarSection>('campaign')
   const [uploadedFiles, setUploadedFiles] = useState<Array<{
     id: string
     name: string
@@ -100,14 +104,19 @@ export function CreateCampaign({ userData = {
   const [notificationType, setNotificationType] = useState<'success' | 'error'>('success')
   const [isSubmitting, setIsSubmitting] = useState(false)
 
-  const handleNavigationChange = (section: 'application' | 'status' | 'campaign') => {
+  const handleNavigationChange = (section: StudentSidebarSection) => {
     if (section === 'application') {
       router.push('/student/dashboard/application/profile')
     } else if (section === 'status') {
-      router.push('/student/dashboard/application/profile')
+      router.push('/student/application-status')
     } else if (section === 'campaign') {
       router.push('/student/dashboard/campaign')
+    } else if (section === 'wallet') {
+      router.push('/student/dashboard/wallet')
+    } else if (section === 'conversations') {
+      router.push('/student/dashboard/conversations')
     }
+    setActiveSection(section)
   }
 
   const handleBack = () => {

@@ -6,7 +6,7 @@ import { ProvideEvidenceForm } from './ProvideEvidenceForm'
 import { GuarantorsSection } from './GuarantorsSection'
 import { SuccessNotification } from './SuccessNotification'
 
-interface FormData {
+export interface FormData {
   // Step 1: Personal Information
   firstName: string
   lastName: string
@@ -186,18 +186,6 @@ export function MainFormArea({
 
           <div className="h-px w-full bg-[rgba(39,38,53,0.08)]" />
 
-          {statusMessage && (
-            <div
-              className={`w-full rounded-[12px] border px-4 py-3 text-sm ${
-                statusType === "error"
-                  ? "border-red-200 bg-red-50 text-red-700"
-                  : "border-green-200 bg-green-50 text-green-700"
-              }`}
-            >
-              {statusMessage}
-            </div>
-          </div>
-          
           {/* Progress Steps */}
           <div className="content-stretch flex flex-col gap-2.5 items-center justify-start relative shrink-0 w-full" data-node-id="448:1681">
             <div className="content-stretch flex items-start justify-start relative shrink-0 w-full" data-name="Progress steps / Progress text with line" data-node-id="448:1682">

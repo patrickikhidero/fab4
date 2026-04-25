@@ -5,6 +5,9 @@ interface FormInputProps {
   onChange: (value: string) => void
   type?: 'text' | 'email' | 'tel' | 'number'
   required?: boolean
+  step?: string
+  min?: string
+  max?: string
 }
 
 export function FormInput({ 
@@ -13,7 +16,10 @@ export function FormInput({
   value, 
   onChange, 
   type = 'text',
-  required = false 
+  required = false,
+  step,
+  min,
+  max,
 }: FormInputProps) {
   return (
     <div className="basis-0 content-stretch flex flex-col gap-2 grow items-start justify-start min-h-px min-w-px relative shrink-0">
@@ -27,6 +33,9 @@ export function FormInput({
           value={value}
           onChange={(e) => onChange(e.target.value)}
           placeholder={placeholder}
+          step={step}
+          min={min}
+          max={max}
           className="basis-0 font-['Neue_Montreal:Regular',_sans-serif] grow leading-[0] min-h-px min-w-px not-italic relative shrink-0 text-[#93939a] text-[14px] bg-transparent border-none outline-none w-full"
         />
       </div>

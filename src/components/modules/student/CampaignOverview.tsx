@@ -2,7 +2,10 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { SidebarNavigation } from './SidebarNavigation'
+import {
+  SidebarNavigation,
+  type StudentSidebarSection,
+} from './SidebarNavigation'
 
 // Image assets from Figma design - using correct public folder paths
 const imgArrow = "/29a615b320e09cd458090219f8e83fd794a5404f.svg"
@@ -127,7 +130,8 @@ export function CampaignOverview({ userData = {
   avatar: '/images/avatars/default-avatar.png'
 } }: CampaignOverviewProps) {
   const router = useRouter()
-  const [activeSection, setActiveSection] = useState<'application' | 'status' | 'campaign'>('campaign')
+  const [activeSection, setActiveSection] =
+    useState<StudentSidebarSection>('campaign')
   const [activeTab, setActiveTab] = useState<'all' | 'guardians' | 'good-samaritans'>('all')
   const [currentPage, setCurrentPage] = useState(1)
   const [itemsPerPage] = useState(4)
@@ -156,13 +160,17 @@ export function CampaignOverview({ userData = {
     'good-samaritans': allDonors.filter(d => d.type === 'good-samaritan').length
   }
 
-  const handleNavigationChange = (section: 'application' | 'status' | 'campaign') => {
+  const handleNavigationChange = (section: StudentSidebarSection) => {
     if (section === 'application') {
       router.push('/student/dashboard/application/profile')
     } else if (section === 'status') {
       router.push('/student/application-status')
     } else if (section === 'campaign') {
       router.push('/student/dashboard/campaign')
+    } else if (section === 'wallet') {
+      router.push('/student/dashboard/wallet')
+    } else if (section === 'conversations') {
+      router.push('/student/dashboard/conversations')
     }
     setActiveSection(section)
   }

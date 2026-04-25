@@ -5,14 +5,17 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 
-import { SidebarNavigation } from "@/components/modules/student/SidebarNavigation";
+import {
+  SidebarNavigation,
+  type StudentSidebarSection,
+} from "@/components/modules/student/SidebarNavigation";
 import { FooterLinks } from "@/components/shared/FooterLinks";
 
 import { getStoredUser, setAuthTokens } from "@/lib/auth/storage";
 import { getMe, type MeResponse } from "@/lib/api/users";
 import { getCampaignOverview, listMyCampaigns } from "@/lib/student/campaign";
 
-type DashboardSection = "application" | "campaign" | "wallet" | "conversations";
+type DashboardSection = StudentSidebarSection;
 
 type UserData = {
   name: string;
@@ -65,6 +68,7 @@ function mapCampaignGoal(c: CampaignListItem | null) {
 }
 
 function resolveActiveSection(pathname: string): DashboardSection {
+  if (pathname.startsWith("/student/application-status")) return "status";
   if (pathname.startsWith("/student/dashboard/conversations")) return "conversations";
   if (pathname.startsWith("/student/dashboard/wallet")) return "wallet";
   if (pathname.startsWith("/student/dashboard/campaign")) return "campaign";
@@ -246,6 +250,9 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         break;
       case "conversations":
         router.push("/student/dashboard/conversations");
+        break;
+      case "status":
+        router.push("/student/application-status");
         break;
       default:
         router.push("/student/dashboard/application/profile");

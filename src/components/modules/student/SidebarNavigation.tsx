@@ -24,16 +24,32 @@ interface CampaignSummary {
   progress: number;
 }
 
-type DashboardSection = "application" | "campaign" | "wallet" | "conversations";
+export type StudentSidebarSection =
+  | "application"
+  | "status"
+  | "campaign"
+  | "wallet"
+  | "conversations";
 
 interface SidebarNavigationProps {
   currentStep: number
   userData: UserData
-  onNavigationChange: (section: 'application' | 'status' | 'campaign') => void
-  activeSection: 'application' | 'status' | 'campaign'
+  onNavigationChange: (section: StudentSidebarSection) => void
+  activeSection: StudentSidebarSection
+  isVerified?: boolean
+  campaignSummary?: CampaignSummary | null
 }
 
-export function SidebarNavigation({ currentStep, userData, onNavigationChange, activeSection }: SidebarNavigationProps) {
+export function SidebarNavigation({
+  currentStep,
+  userData,
+  onNavigationChange,
+  activeSection,
+  isVerified = false,
+  campaignSummary = null,
+}: SidebarNavigationProps) {
+  const liveCampaign = isVerified && campaignSummary ? campaignSummary : null
+
   // Image assets from local SVG files
   const imgLogo = "/svg/navigation/logo.svg"           // Logo icon
   const img = "/svg/navigation/nav-icon1.svg"          // Wallet icon base
@@ -107,23 +123,6 @@ export function SidebarNavigation({ currentStep, userData, onNavigationChange, a
                       <p className="leading-[24px] whitespace-pre">Application Status</p>
                     </div>
                   </div>
-
-                  <div className="h-[41px] w-[41px] grid place-items-center rounded-full border">
-                    {campaignSummary.progress}%
-                  </div>
-                </div>
-
-                <div className="mt-4 h-[1px] bg-[rgba(39,38,53,0.08)]" />
-
-                <div className="mt-4 space-y-2">
-                  <Row
-                    label="This week"
-                    value={`+$${campaignSummary.weekAmount.toLocaleString()}`}
-                  />
-                  <Row
-                    label="This month"
-                    value={`+$${campaignSummary.monthAmount.toLocaleString()}`}
-                  />
                 </div>
               </div>
               
@@ -147,6 +146,46 @@ export function SidebarNavigation({ currentStep, userData, onNavigationChange, a
                   </div>
                 </div>
               </div>
+
+              <div
+                className={`content-stretch flex h-10 items-start justify-start relative rounded-bl-[4px] rounded-br-[12px] rounded-tl-[4px] rounded-tr-[12px] shrink-0 w-full cursor-pointer ${
+                  activeSection === "wallet" ? "bg-[#f9faf7]" : "bg-transparent"
+                }`}
+                onClick={() => onNavigationChange("wallet")}
+              >
+                {activeSection === "wallet" && (
+                  <div
+                    aria-hidden="true"
+                    className="absolute border-[#198754] border-[0px_0px_0px_2px] border-solid bottom-0 left-[-1px] pointer-events-none right-0 rounded-bl-[4px] rounded-br-[12px] rounded-tl-[4px] rounded-tr-[12px] top-0"
+                  />
+                )}
+                <div className="basis-0 box-border content-stretch flex gap-2 grow h-full items-center justify-start min-h-px min-w-px overflow-clip px-3 py-2 relative rounded-md shrink-0">
+                  <Wallet className="size-5 shrink-0 text-[#2f2b43]" aria-hidden />
+                  <div className="leading-[0] not-italic relative shrink-0 text-[#2f2b43] text-[16px] text-nowrap">
+                    <p className="leading-[24px] whitespace-pre">Wallet</p>
+                  </div>
+                </div>
+              </div>
+
+              <div
+                className={`content-stretch flex h-10 items-start justify-start relative rounded-bl-[4px] rounded-br-[12px] rounded-tl-[4px] rounded-tr-[12px] shrink-0 w-full cursor-pointer ${
+                  activeSection === "conversations" ? "bg-[#f9faf7]" : "bg-transparent"
+                }`}
+                onClick={() => onNavigationChange("conversations")}
+              >
+                {activeSection === "conversations" && (
+                  <div
+                    aria-hidden="true"
+                    className="absolute border-[#198754] border-[0px_0px_0px_2px] border-solid bottom-0 left-[-1px] pointer-events-none right-0 rounded-bl-[4px] rounded-br-[12px] rounded-tl-[4px] rounded-tr-[12px] top-0"
+                  />
+                )}
+                <div className="basis-0 box-border content-stretch flex gap-2 grow h-full items-center justify-start min-h-px min-w-px overflow-clip px-3 py-2 relative rounded-md shrink-0">
+                  <Users className="size-5 shrink-0 text-[#2f2b43]" aria-hidden />
+                  <div className="leading-[0] not-italic relative shrink-0 text-[#2f2b43] text-[16px] text-nowrap">
+                    <p className="leading-[24px] whitespace-pre">Conversations</p>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
             {/* Frame 46 Content - Campaign Card and User Profile */}
@@ -161,7 +200,11 @@ export function SidebarNavigation({ currentStep, userData, onNavigationChange, a
                     <p className="leading-[normal]">current campaign</p>
                   </div>
                   <div className="w-[169px] h-[38px] text-[#198754] text-[28px] font-['Neue_Montreal:Regular',_sans-serif]" data-node-id="456:9764">
-                    <p className="leading-[normal]">$2,654.68</p>
+                    <p className="leading-[normal]">
+                      {liveCampaign
+                        ? `$${liveCampaign.currentAmount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
+                        : "$2,654.68"}
+                    </p>
                   </div>
                 </div>
                 {/* Progress Circle */}
@@ -170,7 +213,9 @@ export function SidebarNavigation({ currentStep, userData, onNavigationChange, a
                     <img alt="Progress Ring" className="w-full h-full" src="/511895c63440a205bff0d84c48812d96c04dde9f.svg" />
                   </div>
                   <div className="w-[24px] h-[9px] absolute top-[15.9px] left-[7.34px] text-[#272635] text-[12px] font-['Neue_Montreal:Regular',_sans-serif] text-center" data-node-id="456:9769">
-                    <p className="leading-[8.2px]">40%</p>
+                    <p className="leading-[8.2px]">
+                      {liveCampaign ? `${liveCampaign.progress}%` : "40%"}
+                    </p>
                   </div>
                 </div>
               </div>
@@ -182,24 +227,37 @@ export function SidebarNavigation({ currentStep, userData, onNavigationChange, a
               
               {/* Frame 51 - Performance Metrics */}
               <div className="w-[220px] h-[56px] mt-[16px] flex flex-col items-start justify-start" data-node-id="456:9771">
-                {/* This Week */}
-                <div className="w-[220px] h-[24px] flex items-center justify-between" data-node-id="456:9772">
-                  <div className="text-[#272635] text-[12px] font-['Neue_Montreal:Regular',_sans-serif]" data-node-id="456:9773">
-                    <p className="leading-[20px]">This week</p>
+                {liveCampaign ? (
+                  <div className="w-[220px] flex flex-col gap-2">
+                    <Row
+                      label="This week"
+                      value={`+$${liveCampaign.weekAmount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}
+                    />
+                    <Row
+                      label="This month"
+                      value={`+$${liveCampaign.monthAmount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}
+                    />
                   </div>
-                  <div className="text-[#198754] text-[14px] font-['Neue_Montreal:Regular',_sans-serif]" data-node-id="456:9774">
-                    <p className="leading-[24px]">+$106.50</p>
-                  </div>
-                </div>
-                {/* This Month */}
-                <div className="w-[220px] h-[24px] mt-[8px] flex items-center justify-between" data-node-id="456:9775">
-                  <div className="text-[#272635] text-[12px] font-['Neue_Montreal:Regular',_sans-serif]" data-node-id="456:9776">
-                    <p className="leading-[20px]">This month</p>
-                  </div>
-                  <div className="text-[#198754] text-[14px] font-['Neue_Montreal:Regular',_sans-serif]" data-node-id="456:9777">
-                    <p className="leading-[24px]">+$1,206.50</p>
-                  </div>
-                </div>
+                ) : (
+                  <>
+                    <div className="w-[220px] h-[24px] flex items-center justify-between" data-node-id="456:9772">
+                      <div className="text-[#272635] text-[12px] font-['Neue_Montreal:Regular',_sans-serif]" data-node-id="456:9773">
+                        <p className="leading-[20px]">This week</p>
+                      </div>
+                      <div className="text-[#198754] text-[14px] font-['Neue_Montreal:Regular',_sans-serif]" data-node-id="456:9774">
+                        <p className="leading-[24px]">+$106.50</p>
+                      </div>
+                    </div>
+                    <div className="w-[220px] h-[24px] mt-[8px] flex items-center justify-between" data-node-id="456:9775">
+                      <div className="text-[#272635] text-[12px] font-['Neue_Montreal:Regular',_sans-serif]" data-node-id="456:9776">
+                        <p className="leading-[20px]">This month</p>
+                      </div>
+                      <div className="text-[#198754] text-[14px] font-['Neue_Montreal:Regular',_sans-serif]" data-node-id="456:9777">
+                        <p className="leading-[24px]">+$1,206.50</p>
+                      </div>
+                    </div>
+                  </>
+                )}
               </div>
               
               {/* View Button */}
@@ -239,8 +297,8 @@ export function SidebarNavigation({ currentStep, userData, onNavigationChange, a
             </div>
           </div>
         </div>
-      </aside>
-    </>
+      </div>
+    </div>
   );
 }
 
