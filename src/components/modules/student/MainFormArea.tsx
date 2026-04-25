@@ -1,44 +1,45 @@
-"use client";
-
-import React from "react";
-import { PersonalInfoSection } from "./PersonalInfoSection";
-import { LocationSection } from "./LocationSection";
-import { IdentificationSection } from "./IdentificationSection";
-import { GuarantorsSection } from "./GuarantorsSection";
-import { SuccessNotification } from "./SuccessNotification";
-import { FormInput } from "./FormInput";
+import React from 'react'
+import { PersonalInfoSection } from './PersonalInfoSection'
+import { LocationSection } from './LocationSection'
+import { IdentificationSection } from './IdentificationSection'
+import { ProvideEvidenceForm } from './ProvideEvidenceForm'
+import { GuarantorsSection } from './GuarantorsSection'
+import { SuccessNotification } from './SuccessNotification'
 
 interface FormData {
-  firstName: string;
-  lastName: string;
-  email: string;
-  phone: string;
-  dateOfBirth: string;
-  country: string;
-  state: string;
-  address: string;
-  identification: string;
-
-  applicationType: string;
-  school: string;
-  course: string;
-  courseDuration: string;
-  level: string;
-  institutionCountry: string;
-  institutionState: string;
-  admissionLetter: File | null;
-  personalStatement: File | null;
-
-  previousSchool: string;
-  previousCourse: string;
-  previousGPA: string;
-  previousYear: string;
-  reasonForLeaving: string;
-  academicTranscript: File | null;
-  withdrawalLetter: File | null;
-  reenrollmentLetter: File | null;
-  characterReference: File | null;
-
+  // Step 1: Personal Information
+  firstName: string
+  lastName: string
+  email: string
+  phone: string
+  dateOfBirth: string
+  country: string
+  state: string
+  address: string
+  identification: string
+  
+  // Step 2: Provide Evidence
+  applicationType: string
+  // Newly admitted fields
+  school: string
+  course: string
+  courseDuration: string
+  institutionCountry: string
+  institutionState: string
+  admissionLetter: File | null
+  personalStatement: File | null
+  // Returning student fields
+  previousSchool: string
+  previousCourse: string
+  previousGPA: string
+  previousYear: string
+  reasonForLeaving: string
+  academicTranscript: File | null
+  withdrawalLetter: File | null
+  reenrollmentLetter: File | null
+  characterReference: File | null
+  
+  // Step 3: Provide Guarantors
   guarantors: Array<{
     id: string;
     firstName: string;
@@ -52,24 +53,22 @@ interface FormData {
 }
 
 interface MainFormAreaProps {
-  currentStep: number;
-  formData: FormData;
-  onFormChange: (field: string, value: string | File | null) => void;
-  onGuarantorsChange: (
-    guarantors: Array<{
-      id: string;
-      firstName: string;
-      lastName: string;
-      email: string;
-      phone: string;
-      country: string;
-      state: string;
-      attestationLetter: File | null;
-    }>
-  ) => void;
-  onContinue: () => void;
-  onSave: () => void;
-  onSubmit?: () => void | Promise<void>;
+  currentStep: number
+  formData: FormData
+  onFormChange: (field: string, value: string | File | null) => void
+  onGuarantorsChange: (guarantors: Array<{
+    id: string
+    firstName: string
+    lastName: string
+    email: string
+    phone: string
+    country: string
+    state: string
+    attestationLetter: File | null
+  }>) => void
+  onContinue: () => void
+  onSave: () => void
+  onSubmit?: () => void
 }
 
 export function MainFormArea({
@@ -77,292 +76,88 @@ export function MainFormArea({
   formData,
   onFormChange,
   onGuarantorsChange,
-  onContinue,
+  onContinue, 
   onSave,
-  onSubmit,
+  onSubmit
 }: MainFormAreaProps) {
-  const [applicationType, setApplicationType] = React.useState<
-    "newly-admitted" | "returning-student"
-  >(
-    formData.applicationType === "returning-student"
-      ? "returning-student"
-      : "newly-admitted"
-  );
+  // State for application type selection
+  const [applicationType, setApplicationType] = React.useState<'newly-admitted' | 'returning-student'>('newly-admitted')
+  
+  // State for submission
+  const [isSubmitting, setIsSubmitting] = React.useState(false)
+  const [showSuccessNotification, setShowSuccessNotification] = React.useState(false)
+  // Image assets from local SVG files
+  // UI Elements
+  const imgVector = "/svg/ui/globe.svg"           // Globe icon for language selector
+  const imgGroup = "/svg/ui/group.svg"            // Group icon
+  const imgVector1 = "/svg/ui/vector1.svg"        // Vector element 1
+  const imgVector2 = "/svg/ui/vector2.svg"        // Vector element 2
+  const img = "/svg/ui/language.svg"              // Language icon base
+  const img1 = "/svg/ui/language1.svg"            // Language icon variant 1
+  const img2 = "/svg/ui/language2.svg"            // Language icon variant 2
+  const img3 = "/svg/ui/language3.svg"            // Language icon variant 3
+  const img4 = "/svg/ui/language4.svg"            // Language icon variant 4
+  const img5 = "/svg/ui/language5.svg"            // Language icon variant 5
+  const img6 = "/svg/ui/language6.svg"            // Language icon variant 6
+  
+  // Icons
+  const img7 = "/svg/icons/dropdown-arrow.svg"    // Dropdown arrow for select fields
+  const img8 = "/svg/icons/double-caret.svg"      // Double caret for step indicators
+  const img9 = "/svg/icons/caret-active.svg"      // Active state caret (green)
+  const img10 = "/svg/icons/caret-inactive.svg"   // Inactive state caret (gray)
+  const img11 = "/svg/icons/checkmark.svg"        // Checkmark for form selections
+  const img12 = "/svg/icons/plus.svg"             // Plus icon for add buttons
+  const img13 = "/svg/icons/plus-detail1.svg"     // Plus icon detail layer 1
+  const img14 = "/svg/icons/plus-detail2.svg"     // Plus icon detail layer 2
+  
+  // Decorative Elements
+  const imgLine1 = "/svg/decoration/divider-line1.svg"  // Primary divider line
+  const imgLine2 = "/svg/decoration/divider-line2.svg"  // Secondary divider line
 
-  const [isSubmitting, setIsSubmitting] = React.useState(false);
-  const [showSuccessNotification, setShowSuccessNotification] =
-    React.useState(false);
-  const [statusMessage, setStatusMessage] = React.useState<string | null>(null);
-  const [statusType, setStatusType] = React.useState<"error" | "success" | null>(
-    null
-  );
-
+  // Validation function for guarantors
   const areGuarantorsValid = () => {
-    return formData.guarantors.every(
-      (guarantor) =>
-        guarantor.firstName.trim() !== "" &&
-        guarantor.lastName.trim() !== "" &&
-        guarantor.email.trim() !== "" &&
-        guarantor.phone.trim() !== "" &&
-        guarantor.country.trim() !== "" &&
-        guarantor.state.trim() !== ""
-    );
-  };
+    return formData.guarantors.every(guarantor => 
+      guarantor.firstName.trim() !== '' &&
+      guarantor.lastName.trim() !== '' &&
+      guarantor.email.trim() !== '' &&
+      guarantor.phone.trim() !== '' &&
+      guarantor.country.trim() !== '' &&
+      guarantor.state.trim() !== ''
+    )
+  }
 
-  const selectApplicationType = (
-    value: "newly-admitted" | "returning-student"
-  ) => {
-    setApplicationType(value);
-    onFormChange("applicationType", value);
-    setStatusMessage(null);
-    setStatusType(null);
-  };
-
+  // Handle submit function
   const handleSubmit = async () => {
     if (!areGuarantorsValid()) {
-      setStatusType("error");
-      setStatusMessage(
-        "Please fill in all required guarantor fields before submitting."
-      );
-      return;
+      alert('Please fill in all required guarantor fields before submitting.')
+      return
     }
 
-    setStatusMessage(null);
-    setStatusType(null);
-    setIsSubmitting(true);
-
+    setIsSubmitting(true)
+    
     try {
+      // Simulate API call
+      await new Promise(resolve => setTimeout(resolve, 1500))
+      
+      // Show success notification
+      setShowSuccessNotification(true)
+      
+      // Hide notification after 5 seconds
+      setTimeout(() => {
+        setShowSuccessNotification(false)
+      }, 5000)
+      
+      // Call parent onSubmit if provided
       if (onSubmit) {
-        await onSubmit();
+        onSubmit()
       }
-
-      setShowSuccessNotification(true);
-      setStatusType("success");
-      setStatusMessage("Your application has been submitted successfully.");
-
-      window.setTimeout(() => {
-        setShowSuccessNotification(false);
-      }, 5000);
     } catch (error) {
-      console.error("Submission failed:", error);
-      setStatusType("error");
-      setStatusMessage("Submission failed. Please try again.");
+      console.error('Submission failed:', error)
+      alert('Submission failed. Please try again.')
     } finally {
-      setIsSubmitting(false);
+      setIsSubmitting(false)
     }
-  };
-
-  const handleSaveClick = () => {
-    setStatusMessage(null);
-    setStatusType(null);
-    onSave();
-  };
-
-  const handleContinueClick = () => {
-    setStatusMessage(null);
-    setStatusType(null);
-    onContinue();
-  };
-
-  const StepTab = ({
-    step,
-    label,
-  }: {
-    step: number;
-    label: string;
-  }) => {
-    const active = currentStep === step;
-
-    return (
-      <div
-        className={`relative min-w-[220px] flex-1 rounded-tl-[12px] rounded-tr-[12px] p-4 sm:p-5 ${
-          active ? "bg-[#f9faf7]" : ""
-        }`}
-      >
-        <div
-          aria-hidden="true"
-          className={`pointer-events-none absolute inset-0 rounded-tl-[12px] rounded-tr-[12px] border-b ${
-            active ? "border-[#198754]" : "border-[rgba(39,38,53,0.1)]"
-          }`}
-        />
-
-        <div className="relative flex w-full items-center justify-center gap-2">
-          <div
-            className={`text-[14px] font-medium sm:text-[16px] ${
-              active ? "text-[#198754]" : "text-[rgba(39,38,53,0.5)]"
-            }`}
-          >
-            &gt;&gt;
-          </div>
-
-          <div
-            className={`text-center text-[14px] sm:text-[16px] ${
-              active ? "text-[#272635]" : "text-[rgba(39,38,53,0.5)]"
-            }`}
-          >
-            <p className="whitespace-nowrap leading-[22px] sm:leading-[24px]">
-              {label}
-            </p>
-          </div>
-        </div>
-      </div>
-    );
-  };
-
-  const SelectField = ({
-    label,
-    field,
-    value,
-    options,
-    placeholder,
-  }: {
-    label: string;
-    field: string;
-    value: string;
-    options: Array<{ value: string; label: string }>;
-    placeholder: string;
-  }) => {
-    return (
-      <div className="basis-0 flex min-h-px min-w-px grow shrink-0 flex-col items-start justify-start gap-2">
-        <div
-          className="relative min-w-full shrink-0 text-[16px] text-[#272635]"
-          style={{ width: "min-content" }}
-        >
-          <p className="leading-[1.4]">{label}</p>
-        </div>
-
-        <div className="relative flex h-12 w-full min-w-60 items-center justify-start gap-2 rounded-lg bg-[#ffffff] pl-4 pr-3 py-3">
-          <div
-            aria-hidden="true"
-            className="pointer-events-none absolute inset-[-0.5px] rounded-[8.5px] border border-[rgba(39,38,53,0.1)] shadow-[0px_1px_4px_0px_rgba(12,12,13,0.05)]"
-          />
-          <select
-            value={value}
-            onChange={(e) => onFormChange(field, e.target.value)}
-            className="relative w-full grow border-none bg-transparent text-[14px] text-[#272635] outline-none"
-          >
-            <option value="">{placeholder}</option>
-            {options.map((option) => (
-              <option key={option.value} value={option.value}>
-                {option.label}
-              </option>
-            ))}
-          </select>
-        </div>
-      </div>
-    );
-  };
-
-  const TextAreaField = ({
-    label,
-    field,
-    value,
-    placeholder,
-  }: {
-    label: string;
-    field: string;
-    value: string;
-    placeholder: string;
-  }) => {
-    return (
-      <div className="flex w-full flex-col gap-2">
-        <div className="text-[16px] text-[#272635]">
-          <p className="leading-[1.4]">{label}</p>
-        </div>
-
-        <div className="relative w-full">
-          <div
-            aria-hidden="true"
-            className="pointer-events-none absolute inset-0 rounded-[8.5px] border border-[rgba(39,38,53,0.1)] shadow-[0px_1px_4px_0px_rgba(12,12,13,0.05)]"
-          />
-          <textarea
-            value={value}
-            onChange={(e) => onFormChange(field, e.target.value)}
-            placeholder={placeholder}
-            rows={4}
-            className="relative w-full resize-none rounded-lg bg-white px-4 py-3 text-[14px] text-[#272635] outline-none placeholder:text-[#93939a]"
-          />
-        </div>
-      </div>
-    );
-  };
-
-  const FileUploadField = ({
-    label,
-    description,
-    field,
-    accept,
-    buttonLabel,
-  }: {
-    label: string;
-    description?: string;
-    field: string;
-    accept?: string;
-    buttonLabel?: string;
-  }) => {
-    const file = formData[field as keyof FormData] as File | null;
-
-    return (
-      <div className="flex w-full flex-col gap-2">
-        <div className="text-[15px] text-[#272635] sm:text-[16px]">
-          <p className="leading-[1.4]">{label}</p>
-        </div>
-
-        {description && (
-          <div className="text-[13px] text-[rgba(39,38,53,0.5)] sm:text-[14px]">
-            <p className="leading-[20px]">{description}</p>
-          </div>
-        )}
-
-        <label className="inline-flex w-fit cursor-pointer items-center gap-2 rounded-[8px] text-left">
-          <span className="grid h-[25px] w-[25px] place-items-center rounded-full border border-[rgba(39,38,53,0.15)] text-[#272635]">
-            +
-          </span>
-          <span className="text-[13px] text-[#272635] underline sm:text-[14px]">
-            {file ? "Replace file" : buttonLabel || "Attach file"}
-          </span>
-          <input
-            type="file"
-            accept={accept}
-            className="hidden"
-            onChange={(e) => onFormChange(field, e.target.files?.[0] ?? null)}
-          />
-        </label>
-
-        {file && (
-          <div className="rounded-[8px] border border-[rgba(39,38,53,0.08)] bg-white px-3 py-2 text-[13px] text-[#272635]">
-            {file.name}
-          </div>
-        )}
-      </div>
-    );
-  };
-
-  const levelOptions = [
-    { value: "100L", label: "100L" },
-    { value: "200L", label: "200L" },
-    { value: "300L", label: "300L" },
-    { value: "400L", label: "400L" },
-    { value: "500L", label: "500L" },
-    { value: "600L", label: "600L" },
-  ];
-
-  const countryOptions = [
-    { value: "Nigeria", label: "Nigeria" },
-    { value: "Ghana", label: "Ghana" },
-    { value: "Kenya", label: "Kenya" },
-    { value: "South Africa", label: "South Africa" },
-  ];
-
-  const stateOptions = [
-    { value: "Lagos", label: "Lagos" },
-    { value: "Abuja", label: "Abuja" },
-    { value: "Ogun", label: "Ogun" },
-    { value: "Rivers", label: "Rivers" },
-    { value: "Accra", label: "Accra" },
-    { value: "Nairobi", label: "Nairobi" },
-    { value: "Johannesburg", label: "Johannesburg" },
-  ];
+  }
 
   return (
     <div className="flex min-w-0 flex-1 basis-0 flex-col items-start gap-[10px] p-4 sm:p-6 lg:p-[40px]">
@@ -401,19 +196,112 @@ export function MainFormArea({
             >
               {statusMessage}
             </div>
-          )}
-
-          <div className="w-full">
-            <div className="overflow-x-auto [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-              <div className="flex min-w-max items-start justify-start">
-                <StepTab step={1} label="Tell us about yourself" />
-                <StepTab step={2} label="Provide evidence" />
-                <StepTab step={3} label="Provide Guarantors" />
+          </div>
+          
+          {/* Progress Steps */}
+          <div className="content-stretch flex flex-col gap-2.5 items-center justify-start relative shrink-0 w-full" data-node-id="448:1681">
+            <div className="content-stretch flex items-start justify-start relative shrink-0 w-full" data-name="Progress steps / Progress text with line" data-node-id="448:1682">
+              {/* Step 1 */}
+              <div className={`basis-0 box-border content-stretch flex flex-col grow items-center justify-center min-h-px min-w-px p-[20px] relative rounded-tl-[12px] rounded-tr-[12px] self-stretch shrink-0 ${
+                currentStep === 1 ? 'bg-[#f9faf7]' : ''
+              }`} data-name="_Step base" data-node-id="448:1683">
+                {currentStep === 1 && (
+                  <div aria-hidden="true" className="absolute border-[#198754] border-[0px_0px_1px] border-solid inset-0 pointer-events-none rounded-tl-[12px] rounded-tr-[12px]" />
+                )}
+                {currentStep !== 1 && (
+                  <div aria-hidden="true" className="absolute border-[0px_0px_1px] border-[rgba(39,38,53,0.1)] border-solid inset-0 pointer-events-none rounded-tl-[12px] rounded-tr-[12px]" />
+                )}
+                <div className="content-stretch flex gap-2 items-center justify-center relative shrink-0 w-full" data-name="Content" data-node-id="448:1684">
+                  <div className="overflow-clip relative shrink-0 size-5" data-name="Double right caret" data-node-id="448:1685">
+                    <div className="absolute inset-0" data-name="Vector" id="node-I448_1685-385_662">
+                      <img alt="Step Icon" className="block max-w-none size-full" src={img8} />
+                    </div>
+                    <div className="absolute inset-[18.75%_46.88%_18.75%_21.88%]" data-name="Vector" id="node-I448_1685-385_663">
+                      <div className="absolute inset-[-4%_-8%]" style={{ "--stroke-0": currentStep === 1 ? "rgba(25, 135, 84, 1)" : "rgba(39, 38, 53, 1)" } as React.CSSProperties}>
+                        <img alt="Step Icon Detail" className="block max-w-none size-full" src={currentStep === 1 ? img9 : img10} />
+                      </div>
+                    </div>
+                    <div className="absolute inset-[18.75%_15.63%_18.75%_53.13%]" data-name="Vector" id="node-I448_1685-385_664">
+                      <div className="absolute inset-[-4%_-8%]" style={{ "--stroke-0": currentStep === 1 ? "rgba(25, 135, 84, 1)" : "rgba(39, 38, 53, 1)" } as React.CSSProperties}>
+                        <img alt="Step Icon Detail 2" className="block max-w-none size-full" src={currentStep === 1 ? img9 : img10} />
+                      </div>
+                    </div>
+                  </div>
+                  <div className={`leading-[0] not-italic relative shrink-0 text-[16px] text-center text-nowrap ${
+                    currentStep === 1 ? 'text-[#272635]' : 'text-[rgba(39,38,53,0.5)]'
+                  }`} data-node-id="448:1686">
+                    <p className="leading-[24px] whitespace-pre">Tell us about yourself</p>
+                  </div>
+                </div>
+              </div>
+              
+              {/* Step 2 */}
+              <div className={`basis-0 box-border content-stretch flex flex-col grow items-center justify-start min-h-px min-w-px p-[20px] relative rounded-tl-[12px] rounded-tr-[12px] shrink-0 ${
+                currentStep === 2 ? 'bg-[#f9faf7]' : ''
+              }`} data-name="_Step base" data-node-id="448:1688">
+                {currentStep === 2 && (
+                  <div aria-hidden="true" className="absolute border-[#198754] border-[0px_0px_1px] border-solid inset-0 pointer-events-none rounded-tl-[12px] rounded-tr-[12px]" />
+                )}
+                {currentStep !== 2 && (
+                  <div aria-hidden="true" className="absolute border-[0px_0px_1px] border-[rgba(39,38,53,0.1)] border-solid inset-0 pointer-events-none rounded-tl-[12px] rounded-tr-[12px]" />
+                )}
+                <div className="content-stretch flex gap-2 items-center justify-center relative shrink-0 w-full" data-name="Content" data-node-id="448:1689">
+                  <div className="overflow-clip relative shrink-0 size-5" data-name="Double right caret" data-node-id="448:1690">
+                    <div className="absolute inset-0" data-name="Vector" id="node-I448_1690-385_662">
+                      <img alt="Step Icon" className="block max-w-none size-full" src={img8} />
+                    </div>
+                    <div className="absolute inset-[18.75%_46.88%_18.75%_21.88%]" data-name="Vector" id="node-I448_1685-385_663">
+                      <div className="absolute inset-[-4%_-8%]" style={{ "--stroke-0": currentStep === 2 ? "rgba(25, 135, 84, 1)" : "rgba(39, 38, 53, 1)" } as React.CSSProperties}>
+                        <img alt="Step Icon Detail" className="block max-w-none size-full" src={currentStep === 2 ? img9 : img10} />
+                      </div>
+                    </div>
+                    <div className="absolute inset-[18.75%_15.63%_18.75%_53.13%]" data-name="Vector" id="node-I448_1690-385_664">
+                      <div className="absolute inset-[-4%_-8%]" style={{ "--stroke-0": currentStep === 2 ? "rgba(25, 135, 84, 1)" : "rgba(39, 38, 53, 1)" } as React.CSSProperties}>
+                        <img alt="Step Icon Detail 2" className="block max-w-none size-full" src={currentStep === 2 ? img9 : img10} />
+                      </div>
+                    </div>
+                  </div>
+                  <div className={`leading-[0] not-italic relative shrink-0 text-[16px] text-center text-nowrap ${
+                    currentStep === 2 ? 'text-[#272635]' : 'text-[rgba(39,38,53,0.5)]'
+                  }`} data-node-id="448:1691">
+                    <p className="leading-[24px] whitespace-pre">Provide evidence</p>
+                  </div>
+                </div>
+              </div>
+              
+              {/* Step 3 */}
+              <div className={`basis-0 box-border content-stretch flex flex-col grow items-center justify-start min-h-px min-w-px p-[20px] relative rounded-tl-[12px] rounded-tr-[12px] self-stretch shrink-0 ${
+                currentStep === 3 ? 'bg-[#f9faf7]' : ''
+              }`} data-name="_Step base" data-node-id="448:1693">
+                <div aria-hidden="true" className="absolute border-[0px_0px_1px] border-[rgba(39,38,53,0.1)] border-solid inset-0 pointer-events-none rounded-tl-[12px] rounded-tr-[12px]" />
+                <div className="content-stretch flex gap-2 items-center justify-center relative shrink-0 w-full" data-name="Content" data-node-id="448:1694">
+                  <div className="overflow-clip relative shrink-0 size-5" data-name="Double right caret" data-node-id="448:1695">
+                    <div className="absolute inset-0" data-name="Vector" id="node-I448_1695-385_662">
+                      <img alt="Step Icon" className="block max-w-none size-full" src={img8} />
+                    </div>
+                    <div className="absolute inset-[18.75%_46.88%_18.75%_21.88%]" data-name="Vector" id="node-I448_1695-385_663">
+                      <div className="absolute inset-[-4%_-8%]" style={{ "--stroke-0": currentStep === 3 ? "rgba(25, 135, 84, 1)" : "rgba(39, 38, 53, 1)" } as React.CSSProperties}>
+                        <img alt="Step Icon Detail" className="block max-w-none size-full" src={currentStep === 3 ? img9 : img10} />
+                      </div>
+                    </div>
+                    <div className="absolute inset-[18.75%_15.63%_18.75%_53.13%]" data-name="Vector" id="node-I448_1695-385_664">
+                      <div className="absolute inset-[-4%_-8%]" style={{ "--stroke-0": currentStep === 3 ? "rgba(25, 135, 84, 1)" : "rgba(39, 38, 53, 1)" } as React.CSSProperties}>
+                        <img alt="Step Icon Detail 2" className="block max-w-none size-full" src={currentStep === 3 ? img9 : img10} />
+                      </div>
+                    </div>
+                  </div>
+                  <div className={`leading-[0] not-italic relative shrink-0 text-[16px] text-center text-nowrap ${
+                    currentStep === 3 ? 'text-[#272635]' : 'text-[rgba(39,38,53,0.5)]'
+                  }`} data-node-id="448:1696">
+                    <p className="leading-[24px] whitespace-pre">Provide Guarantors</p>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
-
-          <div className="flex w-full flex-col gap-8 sm:gap-10 lg:gap-12">
+          
+          {/* Form Content - Step-based Form Sections */}
+          <div className="content-stretch flex flex-col gap-12 items-start justify-start relative shrink-0 w-full" data-node-id="448:1779">
             {currentStep === 1 && (
               <>
                 <PersonalInfoSection
@@ -446,362 +334,393 @@ export function MainFormArea({
             )}
 
             {currentStep === 2 && (
-              <div className="flex w-full flex-col gap-8 sm:gap-10">
-                <div className="w-full rounded-[12px] bg-[#f9faf7] p-4 sm:p-5">
-                  <div className="text-[#272635] text-[15px] sm:text-[16px]">
-                    <p className="leading-[1.4]">
-                      How are you applying to the FabFour Foundation?
-                    </p>
+              <div className="content-stretch flex flex-col gap-10 items-start justify-start relative shrink-0 w-full" data-node-id="477:6331">
+                {/* Application Type Selection */}
+                <div className="bg-[#f9faf7] box-border content-stretch flex flex-col gap-2 items-start justify-start p-[20px] relative rounded-[12px] shrink-0 w-full" data-node-id="477:6333">
+                  <div className="font-['Neue_Montreal:Regular',_sans-serif] leading-[0] not-italic relative shrink-0 text-[#272635] text-[16px] w-full" data-node-id="477:6334">
+                    <p className="leading-[1.4]">How are you applying to the FabFour Foundation?</p>
                   </div>
-
-                  <div className="mt-3 grid grid-cols-1 gap-3 md:grid-cols-2">
-                    <button
-                      type="button"
-                      onClick={() => selectApplicationType("newly-admitted")}
-                      className={`flex w-full items-start justify-between gap-3 rounded-[12px] bg-white p-3 text-left shadow-[0px_1px_4px_0px_rgba(12,12,13,0.05)] ${
-                        applicationType === "newly-admitted"
-                          ? "border border-[#272635]"
-                          : "border border-[rgba(39,38,53,0.1)]"
-                      }`}
+                  <div className="content-stretch flex gap-2 items-start justify-start relative shrink-0 w-full" data-node-id="477:6335">
+                    <div 
+                      className={`bg-[#ffffff] box-border content-stretch flex gap-1 items-start justify-start p-[12px] relative rounded-[12px] shrink-0 w-[201.333px] cursor-pointer ${applicationType === 'newly-admitted' ? 'border-[#272635]' : 'border-[rgba(39,38,53,0.1)]'}`} 
+                      data-name="Checkbox group item" 
+                      data-node-id="477:6341"
+                      onClick={() => setApplicationType('newly-admitted')}
                     >
-                      <span
-                        className={`text-[15px] sm:text-[16px] ${
-                          applicationType === "newly-admitted"
-                            ? "text-[#272635]"
-                            : "text-[rgba(39,38,53,0.5)]"
-                        }`}
-                      >
-                        Newly Admitted
-                      </span>
-
-                      <span
-                        className={`grid h-4 w-4 place-items-center rounded-[4px] text-[10px] ${
-                          applicationType === "newly-admitted"
-                            ? "bg-[#2c2c2c] text-white"
-                            : "border border-[rgba(39,38,53,0.1)]"
-                        }`}
-                      >
-                        {applicationType === "newly-admitted" ? "✓" : ""}
-                      </span>
-                    </button>
-
-                    <button
-                      type="button"
-                      onClick={() => selectApplicationType("returning-student")}
-                      className={`flex w-full items-start justify-between gap-3 rounded-[12px] bg-white p-3 text-left shadow-[0px_1px_4px_0px_rgba(12,12,13,0.05)] ${
-                        applicationType === "returning-student"
-                          ? "border border-[#272635]"
-                          : "border border-[rgba(39,38,53,0.1)]"
-                      }`}
+                      <div aria-hidden="true" className={`absolute border border-solid inset-0 pointer-events-none rounded-[12px] shadow-[0px_1px_4px_0px_rgba(12,12,13,0.05)] ${applicationType === 'newly-admitted' ? 'border-[#272635]' : 'border-[rgba(39,38,53,0.1)]'}`} />
+                      <div className="basis-0 content-stretch flex gap-3 grow items-center justify-start min-h-px min-w-px relative shrink-0" data-name="Content" data-node-id="477:6342">
+                        <div className={`basis-0 font-['Neue_Montreal:Regular',_sans-serif] grow leading-[0] min-h-px min-w-px not-italic relative shrink-0 text-[16px] ${applicationType === 'newly-admitted' ? 'text-[#272635]' : 'text-[rgba(39,38,53,0.5)]'}`} data-node-id="477:6343">
+                          <p className="leading-[1.4]">Newly Admitted</p>
+                        </div>
+                      </div>
+                      <div className={`relative rounded-[4px] shrink-0 size-4 ${applicationType === 'newly-admitted' ? 'bg-[#2c2c2c]' : ''}`} data-name="_Checkbox base" data-node-id="477:6344">
+                        {applicationType === 'newly-admitted' && (
+                          <div className="bg-[#2c2c2c] content-stretch flex gap-2.5 items-center justify-center overflow-clip relative rounded-[4px] shrink-0 size-4" data-name="Check" data-node-id="477:6340">
+                            <div className="overflow-clip relative shrink-0 size-4" data-name="Check Icon" id="node-I477_6340-68_15642">
+                              <div className="absolute bottom-[29.17%] left-[16.67%] right-[16.67%] top-1/4" style={{ "--stroke-0": "rgba(245, 245, 245, 1)" } as React.CSSProperties}>
+                                <img alt="Check Icon" className="block max-w-none size-full" src={img11} />
+                              </div>
+                            </div>
+                          </div>
+                        )}
+                        {applicationType !== 'newly-admitted' && (
+                          <div aria-hidden="true" className="absolute border border-[rgba(39,38,53,0.1)] border-solid inset-0 pointer-events-none rounded-[4px]" />
+                        )}
+                      </div>
+                    </div>
+                    <div 
+                      className={`bg-[#ffffff] box-border content-stretch flex gap-1 items-start justify-start p-[12px] relative rounded-[12px] shrink-0 w-[201.333px] cursor-pointer ${applicationType === 'returning-student' ? 'border-[#272635]' : 'border-[rgba(39,38,53,0.1)]'}`} 
+                      data-name="Checkbox group item" 
+                      data-node-id="477:6336"
+                      onClick={() => setApplicationType('returning-student')}
                     >
-                      <span
-                        className={`text-[15px] sm:text-[16px] ${
-                          applicationType === "returning-student"
-                            ? "text-[#272635]"
-                            : "text-[rgba(39,38,53,0.5)]"
-                        }`}
-                      >
-                        Returning Student
-                      </span>
-
-                      <span
-                        className={`grid h-4 w-4 place-items-center rounded-[4px] text-[10px] ${
-                          applicationType === "returning-student"
-                            ? "bg-[#2c2c2c] text-white"
-                            : "border border-[rgba(39,38,53,0.1)]"
-                        }`}
-                      >
-                        {applicationType === "returning-student" ? "✓" : ""}
-                      </span>
-                    </button>
+                      <div aria-hidden="true" className={`absolute border border-solid inset-0 pointer-events-none rounded-[12px] shadow-[0px_1px_4px_0px_rgba(12,12,13,0.05)] ${applicationType === 'returning-student' ? 'border-[#272635]' : 'border-[rgba(39,38,53,0.1)]'}`} />
+                      <div className="basis-0 content-stretch flex gap-3 grow items-center justify-start min-h-px min-w-px relative shrink-0" data-name="Content" data-node-id="477:6337">
+                        <div className={`basis-0 font-['Neue_Montreal:Regular',_sans-serif] grow leading-[0] min-h-px min-w-px not-italic relative shrink-0 text-[16px] ${applicationType === 'returning-student' ? 'text-[#272635]' : 'text-[rgba(39,38,53,0.5)]'}`} data-node-id="477:6343">
+                          <p className="leading-[1.4]">Returning Student</p>
+                        </div>
+                      </div>
+                      <div className={`relative rounded-[4px] shrink-0 size-4 ${applicationType === 'returning-student' ? 'bg-[#2c2c2c]' : ''}`} data-name="_Checkbox base" data-node-id="477:6344">
+                        {applicationType === 'returning-student' && (
+                          <div className="bg-[#2c2c2c] content-stretch flex gap-2.5 items-center justify-center overflow-clip relative rounded-[4px] shrink-0 size-4" data-name="Check" data-node-id="477:6340">
+                            <div className="overflow-clip relative shrink-0 size-4" data-name="Check Icon" id="node-I477_6340-68_15642">
+                              <div className="absolute bottom-[29.17%] left-[16.67%] right-[16.67%] top-1/4" style={{ "--stroke-0": "rgba(245, 245, 245, 1)" } as React.CSSProperties}>
+                                <img alt="Check Icon" className="block max-w-none size-full" src={img11} />
+                              </div>
+                            </div>
+                          </div>
+                        )}
+                        {applicationType !== 'returning-student' && (
+                          <div aria-hidden="true" className="absolute border border-[rgba(39,38,53,0.1)] border-solid inset-0 pointer-events-none rounded-[4px]" />
+                        )}
+                      </div>
+                    </div>
                   </div>
                 </div>
 
-                {applicationType === "newly-admitted" && (
+                {/* Conditional Form Display based on Application Type */}
+                {applicationType === 'newly-admitted' && (
                   <>
-                    <div className="w-full rounded-[12px] bg-[#f9faf7] p-4 sm:p-5">
-                      <div className="mb-5">
-                        <div className="text-[#272635] text-[18px] sm:text-[20px]">
-                          <p className="leading-[28px]">Higher Institution</p>
+                    {/* Newly Admitted Form */}
+                    <div className="bg-[#f9faf7] box-border content-stretch flex flex-col gap-5 items-start justify-start p-[20px] relative rounded-[12px] shrink-0 w-full" data-node-id="477:6345">
+                      <div className="content-stretch flex flex-col font-['Neue_Montreal:Regular',_sans-serif] gap-2 items-start justify-start leading-[0] not-italic relative shrink-0 w-full" data-node-id="477:6346">
+                        <div className="relative shrink-0 text-[#272635] text-[20px] w-full" data-node-id="477:6347">
+                          <p className="leading-[28px]">High Institution</p>
                         </div>
-                        <div className="mt-2 text-[13px] text-[rgba(39,38,53,0.5)] sm:text-[14px]">
-                          <p className="leading-[20px]">
-                            Provide complete information about your admission.
-                          </p>
+                        <div className="relative shrink-0 text-[14px] text-[rgba(39,38,53,0.5)] w-full" data-node-id="477:6348">
+                          <p className="leading-[20px]">Provide complete information about your admission</p>
                         </div>
                       </div>
-
-                      <div className="grid grid-cols-1 gap-5">
-                        <FormInput
-                          label="Which school are you attending?"
-                          placeholder="Enter institution name"
-                          value={formData.school}
-                          onChange={(value) => onFormChange("school", value)}
-                          required
-                        />
-
-                        <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
-                          <FormInput
-                            label="What course were you offered?"
-                            placeholder="Ex. Computer Science"
-                            value={formData.course}
-                            onChange={(value) => onFormChange("course", value)}
-                            required
-                          />
-
-                          <SelectField
-                            label="What's your current course level?"
-                            field="level"
-                            value={formData.level}
-                            placeholder="Select level"
-                            options={levelOptions}
-                          />
+                      <div className="content-stretch flex gap-5 items-start justify-start relative shrink-0 w-full" data-node-id="477:6349">
+                        <div className="basis-0 content-stretch flex flex-col gap-2 grow items-start justify-start min-h-px min-w-px relative shrink-0" data-name="Input Field" data-node-id="477:6350">
+                          <div className="font-['Neue_Montreal:Regular',_sans-serif] leading-[0] min-w-full not-italic relative shrink-0 text-[16px] text-[#272635]" data-node-id="477:6351" style={{ width: "min-content" }}>
+                            <p className="leading-[1.4]">Which school are you attending?</p>
+                          </div>
+                          <div className="bg-[#ffffff] box-border content-stretch flex gap-2 h-12 items-center justify-start min-w-60 pl-4 pr-3 py-3 relative rounded-[8px] shrink-0 w-full" data-name="Select" data-node-id="477:6353">
+                            <div aria-hidden="true" className="absolute border border-[rgba(39,38,53,0.1)] border-solid inset-[-0.5px] pointer-events-none rounded-[8.5px] shadow-[0px_1px_4px_0px_rgba(12,12,13,0.05)]" />
+                            <div className="basis-0 font-['Neue_Montreal:Regular',_sans-serif] grow leading-[0] min-h-px min-w-px not-italic relative shrink-0 text-[#93939a] text-[14px]" data-node-id="477:6354">
+                              <p className="leading-none">Select High Institution</p>
+                            </div>
+                          </div>
                         </div>
-
-                        <FormInput
-                          label="Course Duration"
-                          placeholder="Ex. 2024 - 2028"
-                          value={formData.courseDuration}
-                          onChange={(value) =>
-                            onFormChange("courseDuration", value)
-                          }
-                          required
-                        />
-
-                        <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
-                          <SelectField
-                            label="Country"
-                            field="institutionCountry"
-                            value={formData.institutionCountry}
-                            placeholder="Select Country"
-                            options={countryOptions}
-                          />
-
-                          <SelectField
-                            label="State"
-                            field="institutionState"
-                            value={formData.institutionState}
-                            placeholder="Select State"
-                            options={stateOptions}
-                          />
+                      </div>
+                      <div className="content-stretch flex gap-5 items-start justify-start relative shrink-0 w-full" data-node-id="658:7027">
+                        <div className="basis-0 content-stretch flex flex-col gap-2 grow items-start justify-start min-h-px min-w-px relative shrink-0" data-name="Input Field" data-node-id="658:7046">
+                          <div className="font-['Neue_Montreal:Regular',_sans-serif] leading-[0] min-w-full not-italic relative shrink-0 text-[16px] text-[#272635]" data-node-id="658:7047" style={{ width: "min-content" }}>
+                            <p className="leading-[1.4]">What course were you offered?</p>
+                          </div>
+                          <div className="bg-[#ffffff] box-border content-stretch flex gap-2 h-12 items-center justify-start min-w-60 pl-4 pr-3 py-3 relative rounded-[8px] shrink-0 w-full" data-name="Select" data-node-id="658:7049">
+                            <div aria-hidden="true" className="absolute border border-[rgba(39,38,53,0.1)] border-solid inset-[-0.5px] pointer-events-none rounded-[8.5px] shadow-[0px_1px_4px_0px_rgba(12,12,13,0.05)]" />
+                            <div className="basis-0 font-['Neue_Montreal:Regular',_sans-serif] grow leading-[0] min-h-px min-w-px not-italic relative shrink-0 text-[#93939a] text-[14px]" data-node-id="658:7050">
+                              <p className="leading-none">Ex. Bio Chemical Engineering</p>
+                            </div>
+                          </div>
+                        </div>
+                        <div className="content-stretch flex flex-col gap-2 h-[78px] items-start justify-start relative shrink-0 w-[300px]" data-name="Select Field" data-node-id="658:7064">
+                          <div className="font-['Neue_Montreal:Regular',_sans-serif] leading-[0] min-w-full not-italic relative shrink-0 text-[16px] text-[#272635]" data-node-id="658:7065" style={{ width: "min-content" }}>
+                            <p className="leading-[1.4]">What's your current course level?</p>
+                          </div>
+                          <div className="bg-[#ffffff] box-border content-stretch flex gap-2 h-12 items-center justify-start min-w-60 pl-4 pr-3 py-3 relative rounded-[8px] shrink-0 w-full" data-name="Select" data-node-id="658:7067">
+                            <div aria-hidden="true" className="absolute border border-[rgba(39,38,53,0.1)] border-solid inset-[-0.5px] pointer-events-none rounded-[8.5px] shadow-[0px_1px_4px_0px_rgba(12,12,13,0.05)]" />
+                            <div className="basis-0 font-['Neue_Montreal:Regular',_sans-serif] grow leading-[0] min-h-px min-w-px not-italic relative shrink-0 text-[#93939a] text-[14px]" data-node-id="658:7068">
+                              <p className="leading-none">Select level</p>
+                            </div>
+                            <div className="overflow-clip relative shrink-0 size-4" data-name="Filled Caret Down" data-node-id="658:7069">
+                              <div className="absolute inset-0" data-name="Vector" id="node-I658_7069-284_1327">
+                                <img alt="Dropdown Arrow" className="block max-w-none size-full" src={img6} />
+                              </div>
+                              <div className="absolute inset-[34.38%_15.63%_28.12%_15.62%]" data-name="Vector" id="node-I658_7069-284_1328">
+                                <img alt="Dropdown Arrow Detail" className="block max-w-none size-full" src={img7} />
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      <div className="content-stretch flex gap-5 items-start justify-start relative shrink-0 w-full" data-node-id="477:6386">
+                        <div className="basis-0 content-stretch flex flex-col gap-2 grow items-start justify-start min-h-px min-w-px relative shrink-0" data-name="Select Field" data-node-id="477:6387">
+                          <div className="font-['Neue_Montreal:Regular',_sans-serif] leading-[0] min-w-full not-italic relative shrink-0 text-[16px] text-[#272635]" data-node-id="477:6388" style={{ width: "min-content" }}>
+                            <p className="leading-[1.4]">Country</p>
+                          </div>
+                          <div className="bg-[#ffffff] box-border content-stretch flex gap-2 h-12 items-center justify-start min-w-60 pl-4 pr-3 py-3 relative rounded-[8px] shrink-0 w-full" data-name="Select" data-node-id="477:6390">
+                            <div aria-hidden="true" className="absolute border border-[rgba(39,38,53,0.1)] border-solid inset-[-0.5px] pointer-events-none rounded-[8.5px] shadow-[0px_1px_4px_0px_rgba(12,12,13,0.05)]" />
+                            <div className="basis-0 font-['Neue_Montreal:Regular',_sans-serif] grow leading-[0] min-h-px min-w-px not-italic relative shrink-0 text-[#93939a] text-[14px]" data-node-id="477:6391">
+                              <p className="leading-none">Select Country</p>
+                            </div>
+                            <div className="overflow-clip relative shrink-0 size-4" data-name="Filled Caret Down" data-node-id="477:6392">
+                              <div className="absolute inset-0" data-name="Vector" id="node-I477_6392-284_1327">
+                                <img alt="Dropdown Arrow" className="block max-w-none size-full" src={img6} />
+                              </div>
+                              <div className="absolute inset-[34.38%_15.63%_28.12%_15.62%]" data-name="Vector" id="node-I477_6392-284_1328">
+                                <img alt="Dropdown Arrow Detail" className="block max-w-none size-full" src={img7} />
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                        <div className="basis-0 content-stretch flex flex-col gap-2 grow items-start justify-start min-h-px min-w-px relative shrink-0" data-name="Select Field" data-node-id="477:6405">
+                          <div className="font-['Neue_Montreal:Regular',_sans-serif] leading-[0] min-w-full not-italic relative shrink-0 text-[16px] text-[#272635]" data-node-id="477:6406" style={{ width: "min-content" }}>
+                            <p className="leading-[1.4]">State</p>
+                          </div>
+                          <div className="bg-[#ffffff] box-border content-stretch flex gap-2 h-12 items-center justify-start min-w-60 pl-4 pr-3 py-3 relative rounded-[8px] shrink-0 w-full" data-name="Select" data-node-id="477:6408">
+                            <div aria-hidden="true" className="absolute border border-[rgba(39,38,53,0.1)] border-solid inset-[-0.5px] pointer-events-none rounded-[8.5px] shadow-[0px_1px_4px_0px_rgba(12,12,13,0.05)]" />
+                            <div className="basis-0 font-['Neue_Montreal:Regular',_sans-serif] grow leading-[0] min-h-px min-w-px not-italic relative shrink-0 text-[#93939a] text-[14px]" data-node-id="477:6409">
+                              <p className="leading-none">Select State</p>
+                            </div>
+                            <div className="overflow-clip relative shrink-0 size-4" data-name="Filled Caret Down" data-node-id="477:6410">
+                              <div className="absolute inset-0" data-name="Vector" id="node-I477_6410-284_1327">
+                                <img alt="Dropdown Arrow" className="block max-w-none size-full" src={img6} />
+                              </div>
+                              <div className="absolute inset-[34.38%_15.63%_28.12%_15.62%]" data-name="Vector" id="node-I477_6410-284_1328">
+                                <img alt="Dropdown Arrow Detail" className="block max-w-none size-full" src={img7} />
+                              </div>
+                            </div>
+                          </div>
                         </div>
                       </div>
                     </div>
 
-                    <div className="w-full rounded-[12px] bg-[#f9faf7] p-4 sm:p-5">
-                      <div className="mb-5">
-                        <div className="text-[#272635] text-[18px] sm:text-[20px]">
-                          <p className="leading-[28px]">
-                            Attach Supporting Documents
-                          </p>
+                    {/* Supporting Documents Section */}
+                    <div className="bg-[#f9faf7] box-border content-stretch flex flex-col gap-5 items-start justify-start p-[20px] relative rounded-[12px] shrink-0 w-full" data-node-id="477:6423">
+                      <div className="content-stretch flex flex-col font-['Neue_Montreal:Regular',_sans-serif] gap-2 items-start justify-start leading-[0] not-italic relative shrink-0 w-full" data-node-id="477:6424">
+                        <div className="relative shrink-0 text-[#272635] text-[20px] w-full" data-node-id="477:6425">
+                          <p className="leading-[28px]">Attach Supporting Documents</p>
                         </div>
-                        <div className="mt-2 text-[13px] text-[rgba(39,38,53,0.5)] sm:text-[14px]">
-                          <p className="leading-[20px]">
-                            Upload the required supporting documents.
-                          </p>
+                        <div className="relative shrink-0 text-[14px] text-[rgba(39,38,53,0.5)] w-full" data-node-id="477:6426">
+                          <p className="leading-[20px]">Provide complete information about your admission</p>
                         </div>
                       </div>
-
-                      <div className="flex flex-col gap-5">
-                        <FileUploadField
-                          label="Upload an original copy of your admission offer letter"
-                          description="Accepted formats: PDF, DOC, DOCX, JPG, PNG."
-                          field="admissionLetter"
-                          accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
-                          buttonLabel="Attach Admission Letter"
-                        />
-
-                        <div className="h-px w-full bg-[rgba(39,38,53,0.08)]" />
-
-                        <FileUploadField
-                          label="Provide a personal statement describing why you're fit for the FabFour Academic Scholarship"
-                          description="We recommend a minimum of 1000 words."
-                          field="personalStatement"
-                          accept=".pdf,.doc,.docx"
-                          buttonLabel="Attach Personal Statement"
-                        />
+                      <div className="content-stretch flex flex-col gap-2 items-start justify-start relative shrink-0 w-full" data-node-id="477:6490">
+                        <div className="font-['Neue_Montreal:Regular',_sans-serif] leading-[0] not-italic relative shrink-0 text-[16px] text-[#272635] text-nowrap" data-node-id="477:6491">
+                          <p className="leading-[1.4] whitespace-pre">Upload a original copy of your admission offer letter</p>
+                        </div>
+                        <div className="font-['Neue_Montreal:Regular',_sans-serif] leading-[0] min-w-full not-italic relative shrink-0 text-[14px] text-[rgba(39,38,53,0.5)]" data-node-id="477:6492" style={{ width: "min-content" }}>
+                          <p className="leading-[20px]">
+                            <span>{`We recommend a minimum of 1000 word document showcasing why we should consider. See example `}</span>
+                            <span className="[text-decoration-skip-ink:none] [text-underline-position:from-font] decoration-solid text-[#198754] underline">here</span>
+                          </p>
+                        </div>
+                        <div className="content-stretch flex gap-2 items-center justify-center overflow-clip relative rounded-[8px] shrink-0" data-name="Button" data-node-id="477:6493">
+                          <div className="overflow-clip relative shrink-0 size-[25px]" data-name="Add" id="node-I477_6493-34_12136">
+                            <div className="absolute inset-0" data-name="Vector" id="node-I477_6493-34_12136-285_378">
+                              <img alt="Plus Icon" className="block max-w-none size-full" src={img12} />
+                            </div>
+                            <div className="absolute bottom-1/2 left-[15.63%] right-[15.63%] top-1/2" data-name="Vector" id="node-I477_6493-34_12136-285_379">
+                              <div className="absolute inset-[-0.5px_-4.55%]">
+                                <img alt="Plus Icon Detail" className="block max-w-none size-full" src={img13} />
+                              </div>
+                            </div>
+                            <div className="absolute bottom-[15.63%] left-1/2 right-1/2 top-[15.63%]" data-name="Vector" id="node-I477_6493-34_12136-285_380">
+                              <div className="absolute inset-[-4.55%_-0.5px]">
+                                <img alt="Plus Icon Detail 2" className="block max-w-none size-full" src={img14} />
+                              </div>
+                            </div>
+                          </div>
+                          <div className="font-['Neue_Montreal:Regular',_sans-serif] leading-[0] not-italic relative shrink-0 text-[#272635] text-[14px] text-nowrap" id="node-I477_6493-34_12137">
+                            <p className="[text-decoration-skip-ink:none] [text-underline-position:from-font] decoration-solid leading-none underline whitespace-pre">Attach Personal Statement</p>
+                          </div>
+                        </div>
+                      </div>
+                      <div className="h-0 relative shrink-0 w-full" data-node-id="477:6431">
+                        <div className="absolute bottom-0 left-0 right-0 top-[-1px]">
+                          <img alt="Divider Line" className="block max-w-none size-full" src={imgLine2} />
+                        </div>
+                      </div>
+                      <div className="content-stretch flex flex-col gap-2 items-start justify-start relative shrink-0 w-full" data-node-id="477:6427">
+                        <div className="font-['Neue_Montreal:Regular',_sans-serif] leading-[0] min-w-full not-italic relative shrink-0 text-[16px] text-[#272635]" data-node-id="477:6428" style={{ width: "min-content" }}>
+                          <p className="leading-[24px]">Provide a personal statement describing why you're fit for the FabFour Academic Scholarship</p>
+                        </div>
+                        <div className="font-['Neue_Montreal:Regular',_sans-serif] leading-[0] min-w-full not-italic relative shrink-0 text-[14px] text-[rgba(39,38,53,0.5)]" data-node-id="477:6429" style={{ width: "min-content" }}>
+                          <p className="leading-[20px]">
+                            <span>{`We recommend a minimum of 1000 word document showcasing why we should consider. See example `}</span>
+                            <span className="[text-decoration-skip-ink:none] [text-underline-position:from-font] decoration-solid text-[#198754] underline">here</span>
+                          </p>
+                        </div>
+                        <div className="content-stretch flex gap-2 items-center justify-center overflow-clip relative rounded-[8px] shrink-0" data-name="Button" data-node-id="477:6435">
+                          <div className="overflow-clip relative shrink-0 size-[25px]" data-name="Add" id="node-I477_6435-34_12136">
+                            <div className="absolute inset-0" data-name="Vector" id="node-I477_6435-34_12136-285_378">
+                              <img alt="Plus Icon" className="block max-w-none size-full" src={img12} />
+                            </div>
+                            <div className="absolute bottom-1/2 left-[15.63%] right-[15.63%] top-1/2" data-name="Vector" id="node-I477_6435-34_12136-285_379">
+                              <div className="absolute inset-[-0.5px_-4.55%]">
+                                <img alt="Plus Icon Detail" className="block max-w-none size-full" src={img13} />
+                              </div>
+                            </div>
+                            <div className="absolute bottom-[15.63%] left-1/2 right-1/2 top-[15.63%]" data-name="Vector" id="node-I477_6435-34_12136-285_380">
+                              <div className="absolute inset-[-4.55%_-0.5px]">
+                                <img alt="Plus Icon Detail 2" className="block max-w-none size-full" src={img14} />
+                              </div>
+                            </div>
+                          </div>
+                          <div className="font-['Neue_Montreal:Regular',_sans-serif] leading-[0] not-italic relative shrink-0 text-[#272635] text-[14px] text-nowrap" id="node-I477_6435-34_12137">
+                            <p className="[text-decoration-skip-ink:none] [text-underline-position:from-font] decoration-solid leading-none underline whitespace-pre">Attach Personal Statement</p>
+                          </div>
+                        </div>
                       </div>
                     </div>
                   </>
                 )}
 
-                {applicationType === "returning-student" && (
+                {applicationType === 'returning-student' && (
                   <>
-                    <div className="w-full rounded-[12px] bg-[#f9faf7] p-4 sm:p-5">
-                      <div className="mb-5">
-                        <div className="text-[#272635] text-[18px] sm:text-[20px]">
-                          <p className="leading-[28px]">
-                            Returning Student Information
-                          </p>
+                    {/* Returning Student Form */}
+                    <div className="bg-[#f9faf7] box-border content-stretch flex flex-col gap-5 items-start justify-start p-[20px] relative rounded-[12px] shrink-0 w-full">
+                      <div className="content-stretch flex flex-col font-['Neue_Montreal:Regular',_sans-serif] gap-2 items-start justify-start leading-[0] not-italic relative shrink-0 w-full">
+                        <div className="relative shrink-0 text-[#272635] text-[20px] w-full">
+                          <p className="leading-[28px]">Returning Student Information</p>
                         </div>
-                        <div className="mt-2 text-[13px] text-[rgba(39,38,53,0.5)] sm:text-[14px]">
-                          <p className="leading-[20px]">
-                            Provide information about your current academic
-                            status.
-                          </p>
+                        <div className="relative shrink-0 text-[14px] text-[rgba(39,38,53,0.5)] w-full">
+                          <p className="leading-[20px]">Provide information about your current academic status</p>
                         </div>
                       </div>
-
-                      <div className="grid grid-cols-1 gap-5">
-                        <FormInput
-                          label="Current Institution"
-                          placeholder="Enter current institution"
-                          value={formData.school}
-                          onChange={(value) => onFormChange("school", value)}
-                          required
-                        />
-
-                        <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
-                          <FormInput
-                            label="Current Course"
-                            placeholder="Ex. Computer Science"
-                            value={formData.course}
-                            onChange={(value) => onFormChange("course", value)}
-                            required
-                          />
-
-                          <SelectField
-                            label="Current Level"
-                            field="level"
-                            value={formData.level}
-                            placeholder="Select level"
-                            options={levelOptions}
-                          />
-                        </div>
-
-                        <FormInput
-                          label="Course Duration"
-                          placeholder="Ex. 2021 - 2025"
-                          value={formData.courseDuration}
-                          onChange={(value) =>
-                            onFormChange("courseDuration", value)
-                          }
-                          required
-                        />
-
-                        <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
-                          <SelectField
-                            label="Country"
-                            field="institutionCountry"
-                            value={formData.institutionCountry}
-                            placeholder="Select Country"
-                            options={countryOptions}
-                          />
-
-                          <SelectField
-                            label="State"
-                            field="institutionState"
-                            value={formData.institutionState}
-                            placeholder="Select State"
-                            options={stateOptions}
-                          />
-                        </div>
-
-                        <FormInput
-                          label="Previous School"
-                          placeholder="Enter previous school"
-                          value={formData.previousSchool}
-                          onChange={(value) =>
-                            onFormChange("previousSchool", value)
-                          }
-                        />
-
-                        <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
-                          <FormInput
-                            label="Previous Course"
-                            placeholder="Enter previous course"
-                            value={formData.previousCourse}
-                            onChange={(value) =>
-                              onFormChange("previousCourse", value)
-                            }
-                          />
-
-                          <FormInput
-                            label="Previous GPA"
-                            placeholder="Ex. 4.20"
-                            value={formData.previousGPA}
-                            onChange={(value) =>
-                              onFormChange("previousGPA", value)
-                            }
-                            type="number"
-                          />
-                        </div>
-
-                        <FormInput
-                          label="Previous Academic Year"
-                          placeholder="Ex. 2023/2024"
-                          value={formData.previousYear}
-                          onChange={(value) =>
-                            onFormChange("previousYear", value)
-                          }
-                        />
-
-                        <TextAreaField
-                          label="Reason for Leaving / Interruption"
-                          field="reasonForLeaving"
-                          value={formData.reasonForLeaving}
-                          placeholder="Explain the reason clearly"
-                        />
-                      </div>
-                    </div>
-
-                    <div className="w-full rounded-[12px] bg-[#f9faf7] p-4 sm:p-5">
-                      <div className="mb-5">
-                        <div className="text-[#272635] text-[18px] sm:text-[20px]">
-                          <p className="leading-[28px]">
-                            Previous Academic Results
-                          </p>
-                        </div>
-                        <div className="mt-2 text-[13px] text-[rgba(39,38,53,0.5)] sm:text-[14px]">
-                          <p className="leading-[20px]">
-                            Upload your academic and supporting documents.
-                          </p>
+                      
+                      {/* Current Institution */}
+                      <div className="content-stretch flex gap-5 items-start justify-start relative shrink-0 w-full">
+                        <div className="basis-0 content-stretch flex flex-col gap-2 grow items-start justify-start min-h-px min-w-px relative shrink-0">
+                          <div className="font-['Neue_Montreal:Regular',_sans-serif] leading-[0] min-w-full not-italic relative shrink-0 text-[16px] text-[#272635]">
+                            <p className="leading-[1.4]">Current Institution</p>
+                          </div>
+                          <div className="bg-[#ffffff] box-border content-stretch flex gap-2 h-12 items-center justify-start min-w-60 pl-4 pr-3 py-3 relative rounded-[8px] shrink-0 w-full">
+                            <div aria-hidden="true" className="absolute border border-[rgba(39,38,53,0.1)] border-solid inset-[-0.5px] pointer-events-none rounded-[8.5px] shadow-[0px_1px_4px_0px_rgba(12,12,13,0.05)]" />
+                            <div className="basis-0 font-['Neue_Montreal:Regular',_sans-serif] grow leading-[0] min-h-px min-w-px not-italic relative shrink-0 text-[#93939a] text-[14px]">
+                              <p className="leading-none">Select Current Institution</p>
+                            </div>
+                          </div>
                         </div>
                       </div>
-
-                      <div className="flex flex-col gap-5">
-                        <FileUploadField
-                          label="Upload previous academic year result"
-                          field="academicTranscript"
-                          accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
-                          buttonLabel="Attach Previous Result"
-                        />
-
-                        <div className="h-px w-full bg-[rgba(39,38,53,0.08)]" />
-
-                        <FileUploadField
-                          label="Upload withdrawal letter"
-                          field="withdrawalLetter"
-                          accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
-                          buttonLabel="Attach Withdrawal Letter"
-                        />
-
-                        <div className="h-px w-full bg-[rgba(39,38,53,0.08)]" />
-
-                        <FileUploadField
-                          label="Upload re-enrollment letter"
-                          field="reenrollmentLetter"
-                          accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
-                          buttonLabel="Attach Re-enrollment Letter"
-                        />
-
-                        <div className="h-px w-full bg-[rgba(39,38,53,0.08)]" />
-
-                        <FileUploadField
-                          label="Upload character reference"
-                          field="characterReference"
-                          accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
-                          buttonLabel="Attach Character Reference"
-                        />
-
-                        <div className="h-px w-full bg-[rgba(39,38,53,0.08)]" />
-
-                        <FileUploadField
-                          label="Attach personal statement"
-                          field="personalStatement"
-                          accept=".pdf,.doc,.docx"
-                          buttonLabel="Attach Personal Statement"
-                        />
+                      
+                      {/* Current Course and Level */}
+                      <div className="content-stretch flex gap-5 items-start justify-start relative shrink-0 w-full">
+                        <div className="basis-0 content-stretch flex flex-col gap-2 grow items-start justify-start min-h-px min-w-px relative shrink-0">
+                          <div className="font-['Neue_Montreal:Regular',_sans-serif] leading-[0] min-w-full not-italic relative shrink-0 text-[16px] text-[#272635]">
+                            <p className="leading-[1.4]">Current Course</p>
+                          </div>
+                          <div className="bg-[#ffffff] box-border content-stretch flex gap-2 h-12 items-center justify-start min-w-60 pl-4 pr-3 py-3 relative rounded-[8px] shrink-0 w-full">
+                            <div aria-hidden="true" className="absolute border border-[rgba(39,38,53,0.1)] border-solid inset-[-0.5px] pointer-events-none rounded-[8.5px] shadow-[0px_1px_4px_0px_rgba(12,12,13,0.05)]" />
+                            <div className="basis-0 font-['Neue_Montreal:Regular',_sans-serif] grow leading-[0] min-h-px min-w-px not-italic relative shrink-0 text-[#93939a] text-[14px]">
+                              <p className="leading-none">Ex. Bio Chemical Engineering</p>
+                            </div>
+                          </div>
+                        </div>
+                        <div className="content-stretch flex flex-col gap-2 h-[78px] items-start justify-start relative shrink-0 w-[300px]">
+                          <div className="font-['Neue_Montreal:Regular',_sans-serif] leading-[0] min-w-full not-italic relative shrink-0 text-[16px] text-[#272635]">
+                            <p className="leading-[1.4]">Current Level</p>
+                          </div>
+                          <div className="bg-[#ffffff] box-border content-stretch flex gap-2 h-12 items-center justify-start min-w-60 pl-4 pr-3 py-3 relative rounded-[8px] shrink-0 w-full">
+                            <div aria-hidden="true" className="absolute border border-[rgba(39,38,53,0.1)] border-solid inset-[-0.5px] pointer-events-none rounded-[8.5px] shadow-[0px_1px_4px_0px_rgba(12,12,13,0.05)]" />
+                            <div className="basis-0 font-['Neue_Montreal:Regular',_sans-serif] grow leading-[0] min-h-px min-w-px not-italic relative shrink-0 text-[#93939a] text-[14px]">
+                              <p className="leading-none">Select level</p>
+                            </div>
+                            <div className="overflow-clip relative shrink-0 size-4">
+                              <div className="absolute inset-0">
+                                <img alt="Dropdown Arrow" className="block max-w-none size-full" src={img6} />
+                              </div>
+                              <div className="absolute inset-[34.38%_15.63%_28.12%_15.62%]">
+                                <img alt="Dropdown Arrow Detail" className="block max-w-none size-full" src={img7} />
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      
+                      {/* Previous Academic Results */}
+                      <div className="bg-[#f9faf7] box-border content-stretch flex flex-col gap-5 items-start justify-start p-[20px] relative rounded-[12px] shrink-0 w-full">
+                        <div className="content-stretch flex flex-col font-['Neue_Montreal:Regular',_sans-serif] gap-2 items-start justify-start leading-[0] not-italic relative shrink-0 w-full">
+                          <div className="relative shrink-0 text-[#272635] text-[20px] w-full">
+                            <p className="leading-[28px]">Previous Academic Results</p>
+                          </div>
+                          <div className="relative shrink-0 text-[14px] text-[rgba(39,38,53,0.5)] w-full">
+                            <p className="leading-[20px]">Upload your previous academic year results</p>
+                          </div>
+                        </div>
+                        
+                        <div className="content-stretch flex flex-col gap-2 items-start justify-start relative shrink-0 w-full">
+                          <div className="font-['Neue_Montreal:Regular',_sans-serif] leading-[0] not-italic relative shrink-0 text-[16px] text-[#272635] text-nowrap">
+                            <p className="leading-[1.4] whitespace-pre">Upload previous academic year result</p>
+                          </div>
+                          <div className="font-['Neue_Montreal:Regular',_sans-serif] leading-[0] min-w-full not-italic relative shrink-0 text-[14px] text-[rgba(39,38,53,0.5)]">
+                            <p className="leading-[20px]">
+                              <span>{`We recommend a minimum of 1000 word document showcasing why we should consider. See example `}</span>
+                              <span className="[text-decoration-skip-ink:none] [text-underline-position:from-font] decoration-solid text-[#198754] underline">here</span>
+                            </p>
+                          </div>
+                          <div className="content-stretch flex gap-2 items-center justify-center overflow-clip relative rounded-[8px] shrink-0">
+                            <div className="overflow-clip relative shrink-0 size-[25px]">
+                              <div className="absolute inset-0">
+                                <img alt="Plus Icon" className="block max-w-none size-full" src={img12} />
+                              </div>
+                              <div className="absolute bottom-1/2 left-[15.63%] right-[15.63%] top-1/2">
+                                <div className="absolute inset-[-0.5px_-4.55%]">
+                                  <img alt="Plus Icon Detail" className="block max-w-none size-full" src={img13} />
+                                </div>
+                              </div>
+                              <div className="absolute bottom-[15.63%] left-1/2 right-1/2 top-[15.63%]">
+                                <div className="absolute inset-[-4.55%_-0.5px]">
+                                  <img alt="Plus Icon Detail 2" className="block max-w-none size-full" src={img14} />
+                                </div>
+                              </div>
+                            </div>
+                            <div className="font-['Neue_Montreal:Regular',_sans-serif] leading-[0] not-italic relative shrink-0 text-[#272635] text-[14px] text-nowrap">
+                              <p className="[text-decoration-skip-ink:none] [text-underline-position:from-font] decoration-solid leading-none underline whitespace-pre">Attach Previous Result</p>
+                            </div>
+                          </div>
+                        </div>
+                        
+                        <div className="h-0 relative shrink-0 w-full">
+                          <div className="absolute bottom-0 left-0 right-0 top-[-1px]">
+                            <img alt="Divider Line" className="block max-w-none size-full" src={imgLine2} />
+                          </div>
+                        </div>
+                        
+                        <div className="content-stretch flex flex-col gap-2 items-start justify-start relative shrink-0 w-full">
+                          <div className="font-['Neue_Montreal:Regular',_sans-serif] leading-[0] min-w-full not-italic relative shrink-0 text-[16px] text-[#272635]">
+                            <p className="leading-[24px]">Provide a personal statement describing why you're fit for the FabFour Academic Scholarship</p>
+                          </div>
+                          <div className="font-['Neue_Montreal:Regular',_sans-serif] leading-[0] min-w-full not-italic relative shrink-0 text-[14px] text-[rgba(39,38,53,0.5)]">
+                            <p className="leading-[20px]">
+                              <span>{`We recommend a minimum of 1000 word document showcasing why we should consider. See example `}</span>
+                              <span className="[text-decoration-skip-ink:none] [text-underline-position:from-font] decoration-solid text-[#198754] underline">here</span>
+                            </p>
+                          </div>
+                          <div className="content-stretch flex gap-2 items-center justify-center overflow-clip relative rounded-[8px] shrink-0">
+                            <div className="overflow-clip relative shrink-0 size-[25px]">
+                              <div className="absolute inset-0">
+                                <img alt="Plus Icon" className="block max-w-none size-full" src={img12} />
+                              </div>
+                              <div className="absolute bottom-1/2 left-[15.63%] right-[15.63%] top-1/2">
+                                <div className="absolute inset-[-0.5px_-4.55%]">
+                                  <img alt="Plus Icon Detail" className="block max-w-none size-full" src={img13} />
+                                </div>
+                              </div>
+                              <div className="absolute bottom-[15.63%] left-1/2 right-1/2 top-[15.63%]">
+                                <div className="absolute inset-[-4.55%_-0.5px]">
+                                  <img alt="Plus Icon Detail 2" className="block max-w-none size-full" src={img14} />
+                                </div>
+                              </div>
+                            </div>
+                            <div className="font-['Neue_Montreal:Regular',_sans-serif] leading-[0] not-italic relative shrink-0 text-[#272635] text-[14px] text-nowrap">
+                              <p className="[text-decoration-skip-ink:none] [text-underline-position:from-font] decoration-solid leading-none underline whitespace-pre">Attach Personal Statement</p>
+                            </div>
+                          </div>
+                        </div>
                       </div>
                     </div>
                   </>
@@ -816,49 +735,66 @@ export function MainFormArea({
               />
             )}
           </div>
-
-          <div className="flex w-full flex-col-reverse gap-3 sm:flex-row sm:items-center sm:justify-end sm:gap-4">
-            <button
-              type="button"
-              onClick={handleSaveClick}
-              className="w-full rounded-lg px-2 py-2 text-[14px] text-[#272635] sm:w-auto sm:text-[16px]"
-            >
-              <span className="underline leading-none">
-                Save To Continue Later
-              </span>
-            </button>
-
+          
+          {/* Action Buttons */}
+          <div className="content-stretch flex gap-4 items-center justify-end relative shrink-0 w-full" data-name="Actions" data-node-id="466:1687">
+            <div className="content-stretch flex gap-2 items-center justify-center overflow-clip relative rounded-lg shrink-0" data-name="Button" data-node-id="466:1688">
+              <div className="font-['Neue_Montreal:Regular',_sans-serif] leading-[0] not-italic relative shrink-0 text-[#272635] text-[16px] text-nowrap" id="node-I466_1688-34_12137">
+                <p className="[text-decoration-skip-ink:none] [text-underline-position:from-font] decoration-solid leading-none underline whitespace-pre cursor-pointer" onClick={onSave}>
+                  Save To Continue Later
+                </p>
+              </div>
+            </div>
+            
             {currentStep === 3 ? (
-              <button
-                type="button"
-                disabled={!areGuarantorsValid() || isSubmitting}
-                onClick={
-                  areGuarantorsValid() && !isSubmitting
-                    ? handleSubmit
-                    : undefined
-                }
-                className={`h-12 w-full rounded-lg border border-[#2c2c2c] px-5 py-3 text-[15px] text-white sm:h-14 sm:w-auto sm:text-[16px] ${
-                  areGuarantorsValid() && !isSubmitting
-                    ? "bg-[#273125]"
-                    : "cursor-not-allowed bg-[#6b7280]"
-                }`}
-              >
-                {isSubmitting ? "Submitting..." : "Submit Request"}
-              </button>
+              /* Submit Request Button for Guarantors Step */
+              <div className={`h-14 relative rounded-lg shrink-0 ${areGuarantorsValid() && !isSubmitting ? 'bg-[#273125]' : 'bg-[#6b7280] cursor-not-allowed'}`} data-name="Button" data-node-id="473:4398">
+                <div className="box-border content-stretch flex gap-2 h-14 items-center justify-center overflow-clip px-5 py-3 relative">
+                  <div className="font-['Neue_Montreal:Regular',_sans-serif] leading-[0] not-italic relative shrink-0 text-[#ffffff] text-[16px] text-nowrap" id="node-I473:4398-9762_429">
+                    <p className="leading-none whitespace-pre cursor-pointer" onClick={areGuarantorsValid() && !isSubmitting ? handleSubmit : undefined}>
+                      {isSubmitting ? 'Submitting...' : 'Submit Request'}
+                    </p>
+                  </div>
+                </div>
+                <div aria-hidden="true" className="absolute border border-[#2c2c2c] border-solid inset-0 pointer-events-none rounded-lg" />
+              </div>
             ) : (
-              <button
-                type="button"
-                onClick={handleContinueClick}
-                className="h-12 w-full rounded-lg border border-[#2c2c2c] bg-[#273125] px-5 py-3 text-[15px] text-white sm:h-14 sm:w-auto sm:text-[16px]"
-              >
-                Continue
-              </button>
+              /* Continue Button for other steps */
+              <div className="bg-[#273125] h-14 relative rounded-lg shrink-0" data-name="Button" data-node-id="466:1689">
+                <div className="box-border content-stretch flex gap-2 h-14 items-center justify-center overflow-clip px-5 py-3 relative">
+                  <div className="font-['Neue_Montreal:Regular',_sans-serif] leading-[0] not-italic relative shrink-0 text-[#ffffff] text-[16px] text-nowrap" id="node-I466_1689-9762_429">
+                    <p className="leading-none whitespace-pre cursor-pointer" onClick={onContinue}>
+                      Continue
+                    </p>
+                  </div>
+                </div>
+                <div aria-hidden="true" className="absolute border border-[#2c2c2c] border-solid inset-0 pointer-events-none rounded-lg" />
+              </div>
             )}
+          </div>
+        </div>
+        
+        {/* Bottom Footer */}
+        <div className="box-border content-stretch flex flex-col gap-2.5 h-px items-end justify-end px-5 py-0 relative shrink-0 w-full" data-node-id="448:1764">
+          <div className="content-stretch flex font-['Neue_Montreal:Regular',_sans-serif] gap-5 items-center justify-start leading-[0] not-italic relative shrink-0 text-[14px] text-[rgba(39,38,53,0.5)] text-nowrap" data-node-id="448:1765">
+            <div className="relative shrink-0" data-node-id="448:1766">
+              <p className="leading-[normal] text-nowrap whitespace-pre">Terms</p>
+            </div>
+            <div className="relative shrink-0" data-node-id="448:1767">
+              <p className="leading-[normal] text-nowrap whitespace-pre">Legal</p>
+            </div>
+            <div className="relative shrink-0" data-node-id="448:1768">
+              <p className="leading-[normal] text-nowrap whitespace-pre">Privacy policy</p>
+            </div>
+            <div className="relative shrink-0" data-node-id="448:1769">
+              <p className="leading-[normal] text-nowrap whitespace-pre">Cookie policy</p>
+            </div>
           </div>
         </div>
 
       </div>
-
+      
+      {/* Success Notification */}
       <SuccessNotification
         isVisible={showSuccessNotification}
         message="Your application has been submitted successfully"

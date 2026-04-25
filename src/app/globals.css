@@ -50,21 +50,22 @@ body {
   border: 1px solid var(--color-border);
 }
 
-.input-field {
-  background: var(--color-background);
-  height: 56px;
-  padding: 12px 16px;
-  border-radius: 12px;
-  border: 1px solid var(--color-border);
-  color: var(--color-primary-text);
+/* Animation classes for notifications */
+@keyframes slideInFromBottom {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
-.input-field::placeholder {
-  color: var(--color-placeholder);
+.animate-in {
+  animation: slideInFromBottom 0.3s ease-out;
 }
 
-.glass {
-  background: rgba(255, 255, 255, 0.65);
-  backdrop-filter: blur(18px);
-  border: 1px solid rgba(39, 38, 53, 0.08);
+.slide-in-from-bottom-2 {
+  animation: slideInFromBottom 0.3s ease-out;
 }

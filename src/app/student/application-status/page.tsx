@@ -34,6 +34,12 @@ export default function ApplicationStatusPage() {
 
   return (
     <div className="flex min-h-screen bg-[#eceee4]">
+      <SidebarNavigation 
+        currentStep={1}
+        userData={userData}
+        onNavigationChange={handleNavigationChange}
+        activeSection={activeSection}
+      />
       <div className="flex-1 p-8">
         <div className="min-h-screen bg-[#eceee4]">
           <div className="max-w-6xl mx-auto">
