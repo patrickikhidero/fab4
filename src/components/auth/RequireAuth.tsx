@@ -36,6 +36,10 @@ function isDonorProtectedRoute(pathname: string) {
   );
 }
 
+function isAdminProtectedRoute(pathname: string) {
+  return pathname.startsWith("/admin");
+}
+
 function isAuthRoute(pathname: string) {
   return (
     pathname === "/login" ||
@@ -55,7 +59,9 @@ export function RequireAuth({ children }: { children: React.ReactNode }) {
 
     const authRoute = isAuthRoute(pathname);
     const isProtectedRoute =
-      isStudentProtectedRoute(pathname) || isDonorProtectedRoute(pathname);
+      isStudentProtectedRoute(pathname) ||
+      isDonorProtectedRoute(pathname) ||
+      isAdminProtectedRoute(pathname);
 
     if (!token) {
       if (isProtectedRoute) {
@@ -66,16 +72,21 @@ export function RequireAuth({ children }: { children: React.ReactNode }) {
 
     if (!user) {
       clearAuthTokens();
-
       if (isProtectedRoute) {
         router.replace("/login");
       }
-
       return;
     }
 
     if (authRoute) {
-      router.replace(getDefaultRouteByUserType(userType));
+      const destination = getDefaultRouteByUserType(userType);
+      // If we can't resolve a real destination (unknown user type),
+      // clear stale tokens and let the user log in fresh.
+      if (destination === "/" || destination === pathname) {
+        clearAuthTokens();
+        return;
+      }
+      router.replace(destination);
       return;
     }
 
@@ -85,6 +96,11 @@ export function RequireAuth({ children }: { children: React.ReactNode }) {
     }
 
     if (isDonorProtectedRoute(pathname) && userType !== "DONOR") {
+      router.replace(getDefaultRouteByUserType(userType));
+      return;
+    }
+
+    if (isAdminProtectedRoute(pathname) && userType !== "ADMIN") {
       router.replace(getDefaultRouteByUserType(userType));
       return;
     }

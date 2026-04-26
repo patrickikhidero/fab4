@@ -61,7 +61,7 @@ export type StoredUser = {
   last_login?: string;
   photo?: string | null;
 
-  user_type: "STUDENT" | "DONOR";
+  user_type: "STUDENT" | "DONOR" | "ADMIN";
 
   mfa_enabled?: boolean;
 
@@ -114,6 +114,8 @@ export function getDefaultRouteByUserType(userType?: string | null) {
       return "/student/dashboard";
     case "DONOR":
       return "/donor";
+    case "ADMIN":
+      return "/admin/students";
     default:
       return "/";
   }

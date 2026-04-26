@@ -17,15 +17,12 @@ export function FormSelect({
   options,
   required = false,
 }: FormSelectProps) {
-  const isPlaceholder = value === ""
 
+  
   return (
-    <div className="flex flex-col gap-2 w-full">
-      <div className="text-[#272635] text-[16px]">
-        <p className="leading-[1.4]">
-          {label}
-          {required && " *"}
-        </p>
+    <div className="basis-0 content-stretch flex flex-col gap-2 grow items-start justify-start min-h-px min-w-px relative shrink-0">
+      <div className="leading-[0] min-w-full not-italic relative shrink-0 text-[#272635] text-[16px]" style={{ width: "min-content" }}>
+        <p className="leading-[1.4]">{label}{required && ' *'}</p>
       </div>
 
       <div className="bg-white flex items-center h-12 w-full min-w-60 pl-4 pr-3 relative rounded-lg">
@@ -37,11 +34,7 @@ export function FormSelect({
         <select
           value={value}
           onChange={(e) => onChange(e.target.value)}
-          className={[
-            "w-full bg-transparent outline-none border-none appearance-none",
-            "text-[14px] leading-5 pr-8", // pr-8 reserves space for caret
-            isPlaceholder ? "text-[#93939a]" : "text-[#272635]",
-          ].join(" ")}
+          className="basis-0 grow leading-[0] min-h-px min-w-px not-italic relative shrink-0 text-[#93939a] text-[14px] bg-transparent border-none outline-none w-full appearance-none"
         >
           <option value="">{placeholder}</option>
           {options.map((o) => (
