@@ -59,25 +59,59 @@ export default function DonorLoginPage() {
       </div>
 
       <div className="pointer-events-none absolute left-0 top-24 hidden lg:block z-[5]">
-        <Image
-          src="/assets/auth/left_hand.svg"
-          alt=""
-          width={100}
-          height={100}
-          className="h-auto w-[100px] object-contain xl:w-[120px]"
-          priority
-        />
+        <div className="relative">
+          <Image
+            src="/assets/auth/left_hand.svg"
+            alt=""
+            width={100}
+            height={100}
+            className="h-auto w-[100px] object-contain xl:w-[120px]"
+            priority
+          />
+          <svg
+            className="absolute -bottom-6 xl:-bottom-7 left-[63px] xl:left-[77px] w-7 xl:w-8 h-auto"
+            viewBox="0 0 32 29"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+            aria-hidden="true"
+          >
+            <path
+              d="M16 28C16 28 2 18.5 2 9.5C2 5.36 5.36 2 9.5 2C11.74 2 13.75 2.99 15.14 4.57L16 5.56L16.86 4.57C18.25 2.99 20.26 2 22.5 2C26.64 2 30 5.36 30 9.5C30 18.5 16 28 16 28Z"
+              fill="#d1ef7c"
+              stroke="#d1ef7c"
+              strokeWidth="1.5"
+              strokeLinejoin="round"
+            />
+          </svg>
+        </div>
       </div>
 
       <div className="pointer-events-none absolute bottom-24 right-0 hidden lg:block z-[5]">
-        <Image
-          src="/assets/auth/right_hand.svg"
-          alt=""
-          width={100}
-          height={100}
-          className="h-auto w-[100px] object-contain xl:w-[120px]"
-          priority
-        />
+        <div className="relative">
+          <svg
+            className="absolute top-[60px] xl:top-[78px] left-0 xl:left-0 w-7 xl:w-8 h-auto"
+            viewBox="0 0 32 29"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+            aria-hidden="true"
+          >
+            <path
+              d="M16 28C16 28 2 18.5 2 9.5C2 5.36 5.36 2 9.5 2C11.74 2 13.75 2.99 15.14 4.57L16 5.56L16.86 4.57C18.25 2.99 20.26 2 22.5 2C26.64 2 30 5.36 30 9.5C30 18.5 16 28 16 28Z"
+              fill="#d1ef7c"
+              stroke="#d1ef7c"
+              strokeWidth="1.5"
+              strokeLinejoin="round"
+            />
+          </svg>
+          <Image
+            src="/assets/auth/right_hand.svg"
+            alt=""
+            width={100}
+            height={100}
+            className="h-auto w-[100px] object-contain xl:w-[120px]"
+            priority
+          />
+        </div>
       </div>
 
       <div className="relative z-[10] min-h-screen pb-[120px] md:pb-[96px]">
@@ -171,54 +205,54 @@ export default function DonorLoginPage() {
               </div>
             </div>
 
-            <div className="hidden md:flex items-start justify-center">
-              <div className="relative w-[260px] lg:w-[300px] mt-4 lg:mt-8">
-                <div className="glass overflow-hidden rounded-[18px]">
-                  <div className="relative h-[260px] lg:h-[300px] w-full">
+            <div className="hidden md:flex items-start justify-center py-6 lg:py-8">
+              <div className="relative w-[280px] lg:w-[320px]">
+                <div className="glass overflow-hidden rounded-[22px]">
+                  <div className="relative h-[380px] lg:h-[440px] w-full">
                     <Image
                       src="/assets/auth/student.png"
                       alt=""
                       fill
                       priority
-                      className="object-cover"
+                      className="object-cover object-top"
                     />
                   </div>
                 </div>
 
-                <div className="glass absolute -left-8 lg:-left-12 top-6 lg:top-8 w-[180px] lg:w-[200px] rounded-xl px-3 py-2 text-[11px]">
+                <div className="glass absolute -left-10 lg:-left-14 top-8 lg:top-10 w-[190px] lg:w-[210px] rounded-2xl px-3 py-2.5 text-[11px]">
                   <div className="flex items-center justify-between gap-2">
                     <div className="font-medium text-[var(--color-primary-text)] truncate">
                       Bamba Toure
                     </div>
-                    <span className="text-[var(--color-muted)] shrink-0">›</span>
+                    <span className="text-[var(--color-muted)] opacity-60 shrink-0 text-[10px]">↗</span>
                   </div>
 
-                  <div className="text-[var(--color-muted)]">Raise</div>
+                  <div className="text-[var(--color-muted)] text-[10px]">Raising</div>
 
-                  <div className="mt-2 flex items-center justify-between gap-2">
+                  <div className="mt-1.5 flex items-center justify-between gap-2">
                     <div className="font-medium text-[var(--color-primary-text)] shrink-0">
-                      $350.00
+                      $50.50
                     </div>
 
-                    <div className="flex flex-wrap justify-end gap-2 min-w-0">
-                      <span className="rounded-full bg-black/5 px-2 py-1 text-[10px]">
+                    <div className="flex flex-wrap justify-end gap-1 min-w-0">
+                      <span className="rounded-full bg-black/5 px-2 py-0.5 text-[9px]">
                         Tuition
                       </span>
-                      <span className="rounded-full bg-black/5 px-2 py-1 text-[10px]">
-                        Clothing materials
+                      <span className="rounded-full bg-black/5 px-2 py-0.5 text-[9px]">
+                        Learning materials
                       </span>
                     </div>
                   </div>
                 </div>
 
-                <div className="glass absolute -right-4 lg:-right-8 bottom-8 lg:bottom-10 w-[160px] lg:w-[175px] rounded-xl px-3 py-2 text-[11px]">
+                <div className="glass absolute -right-6 lg:-right-10 bottom-10 lg:bottom-14 w-[155px] lg:w-[170px] rounded-2xl px-3 py-2.5 text-[11px]">
                   <div className="flex items-center gap-2">
-                    <span className="flex h-5 w-5 items-center justify-center rounded-full bg-[var(--color-accent)] text-[10px] shrink-0">
+                    <span className="flex h-5 w-5 items-center justify-center rounded-full bg-[#4ade80] text-white text-[10px] font-bold shrink-0">
                       ✓
                     </span>
                     <div className="font-medium truncate">Anonymous</div>
                   </div>
-                  <div className="mt-1 font-medium">$350.50</div>
+                  <div className="mt-1 font-medium">$50.50</div>
                 </div>
               </div>
             </div>
@@ -238,36 +272,3 @@ export default function DonorLoginPage() {
   );
 }
 
-function GoogleIcon() {
-  return (
-    <svg width="18" height="18" viewBox="0 0 48 48" aria-hidden="true">
-      <path
-        fill="#FFC107"
-        d="M43.611 20.083H42V20H24v8h11.303C33.824 32.477 29.277 36 24 36c-6.627 0-12-5.373-12-12s5.373-12 12-12c3.059 0 5.842 1.154 7.955 3.045l5.657-5.657C34.98 6.053 29.764 4 24 4 12.954 4 4 12.954 4 24s8.954 20 20 20 20-8.954 20-20c0-1.341-.138-2.651-.389-3.917z"
-      />
-      <path
-        fill="#FF3D00"
-        d="M6.306 14.691l6.574 4.819C14.655 15.108 18.959 12 24 12c3.059 0 5.842 1.154 7.955 3.045l5.657-5.657C34.98 6.053 29.764 4 24 4c-7.682 0-14.354 4.327-17.694 10.691z"
-      />
-      <path
-        fill="#4CAF50"
-        d="M24 44c5.657 0 10.767-2.165 14.647-5.694l-6.765-5.726C29.86 34.794 27.06 36 24 36c-5.217 0-9.588-3.317-11.292-7.946l-6.525 5.025C9.496 39.556 16.227 44 24 44z"
-      />
-      <path
-        fill="#1976D2"
-        d="M43.611 20.083H42V20H24v8h11.303a12.06 12.06 0 0 1-4.421 5.58l6.765 5.726C36.882 40.007 44 35 44 24c0-1.341-.138-2.651-.389-3.917z"
-      />
-    </svg>
-  );
-}
-
-function AppleIcon() {
-  return (
-    <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true">
-      <path
-        fill="currentColor"
-        d="M16.7 2.3c-.9.1-2 .7-2.6 1.5-.6.7-1.1 1.9-.9 3.1 1 0 2-.6 2.7-1.4.6-.8 1.1-1.9.8-3.2zM20.4 17.1c-.4.9-.6 1.3-1.1 2.1-.7 1.1-1.7 2.5-2.9 2.5-1.1 0-1.4-.7-2.9-.7s-1.9.7-3 .7c-1.2 0-2.1-1.3-2.8-2.4-1.6-2.3-2.9-6.5-1.2-9.3.8-1.4 2.3-2.3 3.9-2.3 1.2 0 2.4.8 3 .8.6 0 2-.9 3.4-.8.6 0 2.3.2 3.4 1.7-2.9 1.6-2.4 5.9.2 7z"
-      />
-    </svg>
-  );
-}
