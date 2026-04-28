@@ -58,25 +58,59 @@ export default function LoginPage() {
       </div>
 
       <div className="pointer-events-none absolute left-0 top-24 hidden lg:block z-[5]">
-        <Image
-          src="/assets/auth/left_hand.svg"
-          alt=""
-          width={100}
-          height={100}
-          className="h-auto w-[100px] object-contain xl:w-[120px]"
-          priority
-        />
+        <div className="relative">
+          <Image
+            src="/assets/auth/left_hand.svg"
+            alt=""
+            width={100}
+            height={100}
+            className="h-auto w-[100px] object-contain xl:w-[120px]"
+            priority
+          />
+          <svg
+            className="absolute -bottom-6 xl:-bottom-7 left-[63px] xl:left-[77px] w-7 xl:w-8 h-auto"
+            viewBox="0 0 32 29"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+            aria-hidden="true"
+          >
+            <path
+              d="M16 28C16 28 2 18.5 2 9.5C2 5.36 5.36 2 9.5 2C11.74 2 13.75 2.99 15.14 4.57L16 5.56L16.86 4.57C18.25 2.99 20.26 2 22.5 2C26.64 2 30 5.36 30 9.5C30 18.5 16 28 16 28Z"
+              fill="#d1ef7c"
+              stroke="#d1ef7c"
+              strokeWidth="1.5"
+              strokeLinejoin="round"
+            />
+          </svg>
+        </div>
       </div>
 
       <div className="pointer-events-none absolute bottom-24 right-0 hidden lg:block z-[5]">
-        <Image
-          src="/assets/auth/right_hand.svg"
-          alt=""
-          width={100}
-          height={100}
-          className="h-auto w-[100px] object-contain xl:w-[120px]"
-          priority
-        />
+        <div className="relative">
+          <svg
+            className="absolute top-[60px] xl:top-[78px] left-0 xl:left-0 w-7 xl:w-8 h-auto"
+            viewBox="0 0 32 29"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+            aria-hidden="true"
+          >
+            <path
+              d="M16 28C16 28 2 18.5 2 9.5C2 5.36 5.36 2 9.5 2C11.74 2 13.75 2.99 15.14 4.57L16 5.56L16.86 4.57C18.25 2.99 20.26 2 22.5 2C26.64 2 30 5.36 30 9.5C30 18.5 16 28 16 28Z"
+              fill="#d1ef7c"
+              stroke="#d1ef7c"
+              strokeWidth="1.5"
+              strokeLinejoin="round"
+            />
+          </svg>
+          <Image
+            src="/assets/auth/right_hand.svg"
+            alt=""
+            width={100}
+            height={100}
+            className="h-auto w-[100px] object-contain xl:w-[120px]"
+            priority
+          />
+        </div>
       </div>
 
       <div className="relative z-[10] min-h-screen pb-[120px] md:pb-[96px]">
@@ -200,54 +234,54 @@ export default function LoginPage() {
               </div>
             </div>
 
-            <div className="hidden md:flex items-start justify-center">
-              <div className="relative w-[260px] lg:w-[300px] mt-4 lg:mt-8">
-                <div className="glass overflow-hidden rounded-[18px]">
-                  <div className="relative h-[260px] lg:h-[300px] w-full">
+            <div className="hidden md:flex items-start justify-center py-6 lg:py-8">
+              <div className="relative w-[280px] lg:w-[320px]">
+                <div className="glass overflow-hidden rounded-[22px]">
+                  <div className="relative h-[380px] lg:h-[440px] w-full">
                     <Image
                       src="/assets/auth/student.png"
                       alt=""
                       fill
                       priority
-                      className="object-cover"
+                      className="object-cover object-top"
                     />
                   </div>
                 </div>
 
-                <div className="glass absolute -left-8 lg:-left-12 top-6 lg:top-8 w-[180px] lg:w-[200px] rounded-xl px-3 py-2 text-[11px]">
+                <div className="glass absolute -left-10 lg:-left-14 top-8 lg:top-10 w-[190px] lg:w-[210px] rounded-2xl px-3 py-2.5 text-[11px]">
                   <div className="flex items-center justify-between gap-2">
                     <div className="font-medium text-[var(--color-primary-text)] truncate">
                       Bamba Toure
                     </div>
-                    <span className="text-[var(--color-muted)] shrink-0">›</span>
+                    <span className="text-[var(--color-muted)] opacity-60 shrink-0 text-[10px]">↗</span>
                   </div>
 
-                  <div className="text-[var(--color-muted)]">Rais</div>
+                  <div className="text-[var(--color-muted)] text-[10px]">Raising</div>
 
-                  <div className="mt-2 flex items-center justify-between gap-2">
+                  <div className="mt-1.5 flex items-center justify-between gap-2">
                     <div className="font-medium text-[var(--color-primary-text)] shrink-0">
-                      $350.00
+                      $50.50
                     </div>
 
-                    <div className="flex flex-wrap justify-end gap-2 min-w-0">
-                      <span className="rounded-full bg-black/5 px-2 py-1 text-[10px]">
+                    <div className="flex flex-wrap justify-end gap-1 min-w-0">
+                      <span className="rounded-full bg-black/5 px-2 py-0.5 text-[9px]">
                         Tuition
                       </span>
-                      <span className="rounded-full bg-black/5 px-2 py-1 text-[10px]">
-                        Clothing materials
+                      <span className="rounded-full bg-black/5 px-2 py-0.5 text-[9px]">
+                        Learning materials
                       </span>
                     </div>
                   </div>
                 </div>
 
-                <div className="glass absolute -right-4 lg:-right-8 bottom-8 lg:bottom-10 w-[160px] lg:w-[175px] rounded-xl px-3 py-2 text-[11px]">
+                <div className="glass absolute -right-6 lg:-right-10 bottom-10 lg:bottom-14 w-[155px] lg:w-[170px] rounded-2xl px-3 py-2.5 text-[11px]">
                   <div className="flex items-center gap-2">
-                    <span className="flex h-5 w-5 items-center justify-center rounded-full bg-[var(--color-accent)] text-[10px] shrink-0">
+                    <span className="flex h-5 w-5 items-center justify-center rounded-full bg-[#4ade80] text-white text-[10px] font-bold shrink-0">
                       ✓
                     </span>
                     <div className="font-medium truncate">Anonymous</div>
                   </div>
-                  <div className="mt-1 font-medium">$350.50</div>
+                  <div className="mt-1 font-medium">$50.50</div>
                 </div>
               </div>
             </div>
